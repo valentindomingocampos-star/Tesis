@@ -2,6 +2,24 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Etapa 6 · estética premium y diseño editorial
+
+Sexta etapa del rediseño. Auditoría de la estética (tipografía, paleta/contraste, cards/sombras, labels, estados) con dos correcciones puntuales; el resto del sistema ya estaba refinado y se documenta como verificado. Solo presentación.
+
+### 6.3 · Jerarquía de cards y sombras
+- `.ficha-card` (ficha institucional, contenido secundario) bajaba con `--shadow-md`, la misma sombra fuerte que los bloques **primarios** (`.viz-card` y `.stats-division`). Pasa a `--shadow-xs`. Ahora la sombra prominente queda reservada para la visualización y el bloque estadístico central; ficha, tablas (`.tbl-card`), exports (`.exp-card`) y notas comparten un tratamiento plano/sutil. El sidebar (`.panel`) mantiene `--shadow-sm` como acompañante.
+
+### 6.2 · Contraste (auditoría + 1 fix)
+- **Fix:** el badge de **Abstención** (`.vote-badge.abst`) usaba el ocre `--vote-abst` (#a87523) sobre fondo soft → ~3.95:1 (bajo AA). Su texto pasa a `--accent-gold-text` (#7c6020) → ~5.5:1. **No** cambia el color de voto en hemiciclo/mapa, solo el texto del badge.
+- Verificado y aceptable: dorado tipográfico (#7c6020) ~5:1; `--muted` ~5:1; badges yes/no ~4.7–4.9:1; badge ausente ya usaba `--ink-2` (texto oscuro, alto contraste). `--muted-soft` (~2.7:1) queda solo en texto decorativo (separadores "·", placeholders, marcador "—"), donde es aceptable.
+
+### 6.1 · Tipografía (evaluado, sin cambios)
+- El stack serif (`Iowan Old Style → Palatino Linotype → Palatino → Book Antiqua → Georgia`) es todo humanista-Palatino: Mac cae en Iowan, Windows en Palatino Linotype (muy similares), y Georgia es el fallback universal. La variación entre plataformas es modesta y el stack es robusto. Embeber una webfont agregaría 100KB+ y rompería el "sin dependencias / una sola página liviana". **Decisión: mantener el stack de sistema.**
+
+### 6.4 / 6.5 · Labels y estados (verificado, ya resuelto)
+- El sistema ya es de dos niveles: eyebrows de sección en mayúscula con tracking vs. labels de dato sin mayúscula (p. ej. `.sc-label`, comentado explícitamente en el código). El tracking (.18–.22em) es un device editorial consistente, no inflación azarosa.
+- Estados ya unificados: `:focus-visible` con anillo azul UI común; hover de bancas intencionalmente sin cambio de `stroke-width` (evita salto geométrico, comentado); `prefers-reduced-motion` desactiva transiciones.
+
 ## 2026-06-02 — Etapa 5 · estadísticas, tablas y heatmaps
 
 Quinta etapa del rediseño. Jerarquiza secciones sin datos, explica la intensidad de los heatmaps y mejora la lectura de las tablas. Solo presentación: sin cambios de datos ni de cálculo.

@@ -2733,7 +2733,7 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-xs);
   margin-bottom: var(--space-6);
   overflow: hidden;
 }
@@ -2885,7 +2885,10 @@ table.dtable .col-num{ text-align: right; font-variant-numeric: tabular-nums; }
 .vote-badge.yes{ background: var(--vote-yes-soft); color: var(--vote-yes); }
 .vote-badge.no{ background: var(--vote-no-soft); color: var(--vote-no); }
 .vote-badge.abs{ background: var(--vote-abs-soft); color: var(--ink-2); }
-.vote-badge.abst{ background: var(--vote-abst-soft); color: var(--vote-abst); }
+/* Texto del badge de abstención en ocre tipográfico oscuro (--accent-gold-text)
+   para pasar AA sobre el fondo soft (el ocre --vote-abst daba ~3.95:1). No
+   cambia el color de voto en hemiciclo/mapa, solo el texto del badge. */
+.vote-badge.abst{ background: var(--vote-abst-soft); color: var(--accent-gold-text); }
 .vote-badge.pres{ background: #e2e8f0; color: var(--ink); }
 
 /* Family dot — indicador estructural (forma/tamaño en CSS; el background
