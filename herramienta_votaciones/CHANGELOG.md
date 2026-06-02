@@ -2,6 +2,20 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Regla: la presidencia no se cuenta como voto
+
+La categoría PRESIDENCIA (quien preside la sesión) no es un voto: deja de mostrarse como segmento ni de computarse como ausente en las composiciones de voto, de forma pareja en toda la herramienta. La banca sigue contando en el total (denominador); aparece como remanente vacío de la barra (igual que ya hacía el sidebar). Sin cambios de datos ni de `compute*`: solo cómo se presenta la presidencia.
+
+### Corregido (presidencia ya no se folda en ausentes ni se dibuja como segmento)
+- PNG de resumen nacional/provincial (`buildProvSummarySvg`): barra nacional y barras por familia sacan el segmento de presidencia y escalan al total (remanente vacío); el mini-conteo usa solo `AUSENTE`. `_svgBar` acepta un total de escala explícito.
+- CSV de resumen (`exportProvSummaryCsv`): columna Ausentes = `AUSENTE` (antes `AUSENTE + PRESIDENCIA`).
+- Tabla por familia (mini-bar de composición): `AUSENTE` (antes `AUSENTE + PRESIDENCIA`).
+- Tabla por provincia (mini-bar de composición): segmento ausente = `AUSENTE` (antes `AUSENTE + PRESIDENCIA`).
+- El sidebar (`renderNationalPanel`/`renderProvincePanel`) ya cumplía la regla; sin cambios.
+
+### Se conservó (metadata explícita, no composición de voto)
+- Las filas "Presidencia: N · categoría institucional" en Estadísticas y en la ficha institucional, y la presidencia dentro del total de bancas (denominador). Son metadata transparente, no presentan presidencia como voto ni como ausente.
+
 ## 2026-06-02 — Rediseño del PNG de resumen nacional/provincial
 
 `buildProvSummarySvg` pasa de una lista textual ancha (900px, plana, sin barras, con mucho espacio vacío) a una **ficha vertical editorial compacta** (840px de ancho, alto según familias). Solo se modificó esa función (más el helper `_svgBar`); ningún otro export, dato ni cálculo se tocó.

@@ -6855,7 +6855,7 @@ function exportProvSummaryCsv(){
   ];
   const scope = d.scope === 'province' ? d.name : 'Total cuerpo (nacional)';
   const rows = d.families.map(f => ({ ...ctx, scope, family: f.name, total: f.total,
-    yes: f.AFIRMATIVO, no: f.NEGATIVO, abst: f.ABSTENCION, abs: f.AUSENTE + f.PRESIDENCIA, pct: csvPercent(f.total, d.total) }));
+    yes: f.AFIRMATIVO, no: f.NEGATIVO, abst: f.ABSTENCION, abs: f.AUSENTE, pct: csvPercent(f.total, d.total) }));
   const slug = d.scope === 'province' ? ['resumen', d.name] : ['resumen', 'nacional'];
   exportCsv(rows, columns, slugifyFilename([s.id, ...slug]) + '.csv');
 }
@@ -6918,8 +6918,10 @@ function buildLegislatorFichaSvg(s, leg){
 }
 // Barra horizontal apilada por voto. Colores de voto (verde/rojo/ocre/piedra),
 // nunca color de familia. Contorno sutil para definición editorial.
-function _svgBar(NS, x, y, w, h, segs, els){
-  const total = segs.reduce((a, s) => a + (s.value > 0 ? s.value : 0), 0) || 1;
+function _svgBar(NS, x, y, w, h, segs, els, scaleTotal){
+  // scaleTotal: si se pasa, la barra escala a ese total (deja remanente vacío
+  // para las bancas no representadas, p. ej. la presidencia, que no es un voto).
+  const total = scaleTotal || segs.reduce((a, s) => a + (s.value > 0 ? s.value : 0), 0) || 1;
   let cx = x;
   segs.forEach(seg => {
     if(!seg.value || seg.value <= 0) return;
@@ -6960,13 +6962,14 @@ function buildProvSummarySvg(s, d){
   els.push(_svgText(NS, totalW - PAD_X, y + 4, d.total + ' bancas', { size: '12.5', weight: '500', fill: '#6a6a64', anchor: 'end' }));
   y += 18;
   // barra apilada nacional/provincial
+  // Presidencia no es un voto: no se dibuja como segmento; queda como remanente
+  // vacío al escalar la barra al total de bancas.
   _svgBar(NS, PAD_X, y, availW, 16, [
-    { value: d.votes.AFIRMATIVO,  color: _VOTE_HEX.AFIRMATIVO },
-    { value: d.votes.NEGATIVO,    color: _VOTE_HEX.NEGATIVO },
-    { value: d.votes.ABSTENCION,  color: _VOTE_HEX.ABSTENCION },
-    { value: d.votes.AUSENTE,     color: _VOTE_HEX.AUSENTE },
-    { value: d.votes.PRESIDENCIA, color: _VOTE_HEX.PRESIDENCIA }
-  ], els);
+    { value: d.votes.AFIRMATIVO, color: _VOTE_HEX.AFIRMATIVO },
+    { value: d.votes.NEGATIVO,   color: _VOTE_HEX.NEGATIVO },
+    { value: d.votes.ABSTENCION, color: _VOTE_HEX.ABSTENCION },
+    { value: d.votes.AUSENTE,    color: _VOTE_HEX.AUSENTE }
+  ], els, d.total);
   y += 16 + 22;
   // números grandes con label
   const numParts = [
@@ -7017,18 +7020,17 @@ function buildProvSummarySvg(s, d){
     els.push(_svgText(NS, PAD_X + availW - 16, top + 22, String(f.total), { font: TBL_PNG_FONTS.serifTitle, size: '14', weight: '700', anchor: 'end' }));
     // barra de voto de la familia
     _svgBar(NS, PAD_X + 16, top + 30, availW - 32, 7, [
-      { value: f.AFIRMATIVO,  color: _VOTE_HEX.AFIRMATIVO },
-      { value: f.NEGATIVO,    color: _VOTE_HEX.NEGATIVO },
-      { value: f.ABSTENCION,  color: _VOTE_HEX.ABSTENCION },
-      { value: f.AUSENTE,     color: _VOTE_HEX.AUSENTE },
-      { value: f.PRESIDENCIA, color: _VOTE_HEX.PRESIDENCIA }
-    ], els);
-    // mini-conteo (solo no-cero)
+      { value: f.AFIRMATIVO, color: _VOTE_HEX.AFIRMATIVO },
+      { value: f.NEGATIVO,   color: _VOTE_HEX.NEGATIVO },
+      { value: f.ABSTENCION, color: _VOTE_HEX.ABSTENCION },
+      { value: f.AUSENTE,    color: _VOTE_HEX.AUSENTE }
+    ], els, f.total);
+    // mini-conteo (solo no-cero; presidencia no se cuenta como voto)
     const mini = [];
     if(f.AFIRMATIVO > 0) mini.push(f.AFIRMATIVO + ' a favor');
     if(f.NEGATIVO > 0) mini.push(f.NEGATIVO + ' en contra');
     if(f.ABSTENCION > 0) mini.push(f.ABSTENCION + ' abst.');
-    if((f.AUSENTE + f.PRESIDENCIA) > 0) mini.push((f.AUSENTE + f.PRESIDENCIA) + ' ausentes');
+    if(f.AUSENTE > 0) mini.push(f.AUSENTE + ' ausentes');
     els.push(_svgText(NS, PAD_X + 16, top + 48, mini.join('   ·   '), { size: '9.5', weight: '500', fill: '#6a6a64' }));
     y += CARD_H + 8;
   });
@@ -7650,7 +7652,7 @@ function renderTables(){
 
   // ---------- 3. Tabla por provincia (con mini-bar de composición) ----------
   const provBody = provRows.map(p => {
-    const presOnly = (p.AUSENTE || 0) + (p.PRESIDENCIA || 0);
+    const presOnly = (p.AUSENTE || 0); // presidencia no es voto: no se cuenta como ausente
     const domVoteLabel = p.isMixed ? 'Composición mixta' : (VOTE_LABELS[p.dominantVote] || '—');
     const domVoteClass = p.isMixed ? 'abst' : (VOTE_CLASS[p.dominantVote] || 'abs');
     return `
@@ -7709,7 +7711,7 @@ function renderTables(){
         <span class="cell-sub" title="${esc(blocks)}">${esc(blocks)}</span>
       </td>
       <td class="col-num">${f.total}</td>
-      <td>${minibar(f.AFIRMATIVO, f.NEGATIVO, f.ABSTENCION, f.AUSENTE + f.PRESIDENCIA, f.total)}</td>
+      <td>${minibar(f.AFIRMATIVO, f.NEGATIVO, f.ABSTENCION, f.AUSENTE, f.total)}</td>
       <td class="col-num">${f.AFIRMATIVO}</td>
       <td class="col-num">${f.NEGATIVO}</td>
       <td class="col-num">${f.ABSTENCION}</td>
