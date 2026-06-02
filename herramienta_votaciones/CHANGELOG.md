@@ -2,6 +2,24 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Etapa 8 · polish final y batería de pruebas
+
+Octava y última etapa del plan de rediseño. Verificación integral + limpieza. Solo presentación.
+
+### Limpieza
+- Eliminado el único bloque de CSS muerto que dejó el rediseño: `.legend-note` (la nota chica de la leyenda en modo familia, reemplazada por `.color-notice` en la Etapa 4). Los demás huérfanos potenciales (`.scenario-tab`, `.st-*`, `.legend-note-family`) ya se habían limpiado en sus etapas (0 ocurrencias).
+
+### Verificado (ya estaba resuelto)
+- `prefers-reduced-motion` usa selector `*` → cubre todos los elementos, incluidos los nuevos (ancla, avisos, heatmaps).
+- Tooltip (`z-index 100`) por encima del ancla de contexto (`z-index 50`): no se tapan. El tooltip ya hace flip en bordes derecho/inferior.
+- `:focus-visible` unificado (incluye `.nav-seg`); hover de bancas sin cambio de `stroke-width`.
+
+### Batería de pruebas (headless, 20/20 ✓)
+- **Datos:** conteos (afirmativo/negativo/ausente) y total de bancas correctos en los 4 escenarios.
+- **Interacción:** navegación por dos ejes (cambia caso y cámara), modo color (aviso de familia aparece/oculta), vista mapa↔hemiciclo, filtros (contador refleja), selección por toggle (selecciona→deselecciona).
+- **Teclado/accesibilidad:** `navigableSeats` no vacío, `focusSeat` fija un único tab-stop (roving tabindex), todas las bancas con `aria-label`.
+- **Render:** verificado a 1440 / 1366 / 1280 / 1024 px sin roturas; impresión verificada en la Etapa 7.
+
 ## 2026-06-02 — Etapa 7 · impresión y exportación
 
 Séptima etapa del rediseño. Endurece la impresión (Cmd+P / PDF) para que conserve todo el contexto analítico y no corte contenido. Solo presentación e impresión: sin cambios de datos.
