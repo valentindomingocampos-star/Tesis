@@ -1281,6 +1281,12 @@ svg.map-svg{
   font-style: italic;
   padding: var(--space-2) 0;
 }
+/* Acciones de descarga de las fichas del sidebar (legislador / resumen). */
+.panel-actions{
+  display: flex;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+}
 
 /* Panel de provincia */
 .prov-title{
@@ -2060,7 +2066,7 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
   body{ background: #fff; color: #14181f; }
   .toolbar, .scenario-nav, .context-anchor, .subtabs,
   .fig-controls, .viz-figmeta, .meta-summary-toggle,
-  .ctx-export, .adv-export, .filter-disclosure, .stats-index,
+  .ctx-export, .adv-export, .filter-disclosure, .stats-index, .panel-actions,
   .tbl-card-actions, .stats-section-actions, .stats-division-actions,
   .btn-exp, .btn-exp-grid, .exp-card,
   #tooltip {
@@ -4740,14 +4746,25 @@ function renderSidebar(){
   const legFooter  = selLeg ? renderFigureFooter(s, 'panel-legislator') : '';
   const provFooter = provData ? renderFigureFooter(s, 'panel-province') : '';
 
+  // Títulos dinámicos: la ficha lleva el nombre cuando hay selección; el panel
+  // de resumen dice "nacional" cuando no hay provincia (muestra el cuerpo completo).
+  const legTitleHeader = selLeg
+    ? legFigureHeader.replace('Ficha individual del legislador', 'Ficha individual — ' + esc(selLeg.name))
+    : legFigureHeader;
+  const provTitleHeader = provData
+    ? provFigureHeader.replace('Resumen provincial', 'Resumen provincial — ' + esc(provName))
+    : provFigureHeader.replace('Resumen provincial', 'Resumen nacional');
+
   sb.innerHTML = `
     <section class="panel">
-      ${legFigureHeader}
+      ${legTitleHeader}
+      ${selLeg ? `<div class="panel-actions"><button class="btn-exp" data-export="legislator-csv">↓ CSV</button><button class="btn-exp" data-export="legislator-png">↓ PNG</button></div>` : ''}
       ${selLeg ? renderLegislatorDetail(selLeg) : '<p class="detail-empty">Seleccioná una banca del hemiciclo para ver el detalle individual.</p>'}
       ${legFooter}
     </section>
     <section class="panel">
-      ${provFigureHeader.replace('Resumen provincial', provName ? 'Resumen provincial — ' + esc(provName) : 'Resumen provincial')}
+      ${provTitleHeader}
+      <div class="panel-actions"><button class="btn-exp" data-export="provsum-csv">↓ CSV</button><button class="btn-exp" data-export="provsum-png">↓ PNG</button></div>
       ${provData ? renderProvincePanel(provData) : renderNationalPanel(s)}
       ${provFooter}
     </section>
@@ -6772,6 +6789,172 @@ function buildSummaryFichaSvg(scenario){
 
   const serializer = new XMLSerializer();
   return { svgStr: serializer.serializeToString(wrapper), totalW, totalH };
+}
+
+// =====================================================================
+// EXPORTACIÓN DE LAS FICHAS DEL SIDEBAR — legislador y resumen prov./nacional.
+// CSV + PNG. Reutiliza la maquinaria de figuras (buildTablePngHeader/Footer,
+// rasterizeSvgToPng) y de CSV (exportCsv + csv* helpers). No toca datos ni
+// cálculos: lee state.selectedIndex / state.provinceFilter y los agregados ya
+// calculados (_provinceData, computeVoteSummary).
+// =====================================================================
+function _selectedLegislator(s){
+  return state.selectedIndex !== null ? s._sortedLegislators[state.selectedIndex] : null;
+}
+function _summaryProvinceName(s){
+  const leg = _selectedLegislator(s);
+  const p = state.provinceFilter || (leg ? leg.province : '');
+  return (p && s._provinceData[p]) ? p : '';
+}
+function _familiesWithVotes(members){
+  const m = {};
+  for(const l of members){
+    if(!m[l.family]) m[l.family] = { AFIRMATIVO:0, NEGATIVO:0, ABSTENCION:0, AUSENTE:0, PRESIDENCIA:0, total:0 };
+    m[l.family][l.vote] = (m[l.family][l.vote] || 0) + 1;
+    m[l.family].total++;
+  }
+  return Object.keys(m).map(f => ({ name: f, ...m[f] })).sort((a,b) => b.total - a.total);
+}
+function _summaryExportData(s){
+  const provName = _summaryProvinceName(s);
+  if(provName){
+    const p = s._provinceData[provName];
+    return { scope:'province', name: provName, total: p.total,
+      votes: { AFIRMATIVO:p.AFIRMATIVO||0, NEGATIVO:p.NEGATIVO||0, ABSTENCION:p.ABSTENCION||0, AUSENTE:p.AUSENTE||0, PRESIDENCIA:p.PRESIDENCIA||0 },
+      families: _familiesWithVotes(p.members) };
+  }
+  const sum = computeVoteSummary(s);
+  return { scope:'national', name:'Total cuerpo', total: s.totalSeats,
+    votes: { AFIRMATIVO:sum.AFIRMATIVO, NEGATIVO:sum.NEGATIVO, ABSTENCION:sum.ABSTENCION, AUSENTE:sum.AUSENTE, PRESIDENCIA:sum.PRESIDENCIA },
+    families: _familiesWithVotes(s._sortedLegislators) };
+}
+
+// ---- CSV ----
+function exportLegislatorCsv(){
+  const s = activeScenario();
+  const leg = _selectedLegislator(s);
+  if(!leg){ alert('Seleccioná una banca del hemiciclo antes de descargar la ficha individual.'); return; }
+  const ctx = csvScenarioContext(s);
+  const columns = [
+    {key:'case',label:'Caso'},{key:'chamber',label:'Cámara'},{key:'date',label:'Fecha'},{key:'law',label:'Ley'},
+    {key:'name',label:'Legislador'},{key:'vote',label:'Voto'},{key:'block',label:'Bloque'},
+    {key:'family',label:'Familia política'},{key:'province',label:'Provincia'}
+  ];
+  const row = { ...ctx, name: leg.name, vote: csvLabelVote(leg.vote), block: leg.block, family: leg.family, province: leg.province };
+  exportCsv([row], columns, slugifyFilename([s.id, 'ficha', leg.name]) + '.csv');
+}
+function exportProvSummaryCsv(){
+  const s = activeScenario();
+  const d = _summaryExportData(s);
+  const ctx = csvScenarioContext(s);
+  const columns = [
+    {key:'case',label:'Caso'},{key:'chamber',label:'Cámara'},{key:'date',label:'Fecha'},{key:'law',label:'Ley'},
+    {key:'scope',label:'Ámbito'},{key:'family',label:'Familia política'},{key:'total',label:'Bancas'},
+    {key:'yes',label:'Afirmativos'},{key:'no',label:'Negativos'},{key:'abst',label:'Abstenciones'},{key:'abs',label:'Ausentes'},
+    {key:'pct',label:'% del ámbito'}
+  ];
+  const scope = d.scope === 'province' ? d.name : 'Total cuerpo (nacional)';
+  const rows = d.families.map(f => ({ ...ctx, scope, family: f.name, total: f.total,
+    yes: f.AFIRMATIVO, no: f.NEGATIVO, abst: f.ABSTENCION, abs: f.AUSENTE + f.PRESIDENCIA, pct: csvPercent(f.total, d.total) }));
+  const slug = d.scope === 'province' ? ['resumen', d.name] : ['resumen', 'nacional'];
+  exportCsv(rows, columns, slugifyFilename([s.id, ...slug]) + '.csv');
+}
+
+// ---- PNG (SVG editorial) ----
+const _VOTE_HEX = { AFIRMATIVO:'#3f6e44', NEGATIVO:'#a32a2a', ABSTENCION:'#a87523', AUSENTE:'#a09b8c', PRESIDENCIA:'#14181f' };
+function _svgText(NS, x, y, str, o){
+  o = o || {};
+  const t = document.createElementNS(NS, 'text');
+  t.setAttribute('x', x); t.setAttribute('y', y);
+  t.setAttribute('font-family', o.font || TBL_PNG_FONTS.sans);
+  t.setAttribute('font-size', o.size || '12.5');
+  t.setAttribute('font-weight', o.weight || '600');
+  t.setAttribute('fill', o.fill || '#14181f');
+  if(o.ls) t.setAttribute('letter-spacing', o.ls);
+  if(o.anchor) t.setAttribute('text-anchor', o.anchor);
+  if(o.italic){ t.setAttribute('font-style', 'italic'); }
+  t.textContent = str;
+  return t;
+}
+function _svgSectionTitle(NS, x, y, label, els){
+  const tick = document.createElementNS(NS, 'line');
+  tick.setAttribute('x1', x); tick.setAttribute('y1', y); tick.setAttribute('x2', x+16); tick.setAttribute('y2', y);
+  tick.setAttribute('stroke', '#9c7a2c'); tick.setAttribute('stroke-width', '2');
+  els.push(tick);
+  els.push(_svgText(NS, x+24, y+4, label, { size:'10.5', weight:'700', fill:'#6a6a64', ls:'1.8' }));
+}
+function _wrapSvg(NS, totalW, totalH, groups){
+  const wrapper = document.createElementNS(NS, 'svg');
+  wrapper.setAttribute('xmlns', NS); wrapper.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
+  wrapper.setAttribute('width', totalW); wrapper.setAttribute('height', totalH);
+  const bg = document.createElementNS(NS, 'rect');
+  bg.setAttribute('x', 0); bg.setAttribute('y', 0); bg.setAttribute('width', totalW); bg.setAttribute('height', totalH); bg.setAttribute('fill', '#fffdf8');
+  wrapper.appendChild(bg);
+  groups.forEach(g => g.forEach(el => wrapper.appendChild(el)));
+  return { svgStr: new XMLSerializer().serializeToString(wrapper), totalW, totalH };
+}
+function buildLegislatorFichaSvg(s, leg){
+  const NS = 'http://www.w3.org/2000/svg'; const PAD_X = 50; const totalW = 900;
+  const headerOut = buildTablePngHeader(NS, s, 'Ficha individual del legislador',
+    `${s.caseName} · ${s.chamberShort} · ${s.date}`, totalW, PAD_X);
+  let y = headerOut.headerBottomY + 28;
+  const els = [];
+  els.push(_svgText(NS, PAD_X, y+8, leg.name, { font: TBL_PNG_FONTS.serifTitle, size:'24', weight:'700' }));
+  y += 30;
+  els.push(_svgText(NS, PAD_X, y+14, 'Voto: ' + VOTE_LABELS[leg.vote], { size:'14', weight:'700', fill: _VOTE_HEX[leg.vote] || '#14181f' }));
+  y += 36;
+  const kv = [['Provincia', leg.province], ['Bloque', leg.block], ['Familia política', leg.family]];
+  kv.forEach(([k,v]) => {
+    els.push(_svgText(NS, PAD_X, y+12, k.toUpperCase(), { size:'9.5', weight:'700', fill:'#6a6a64', ls:'1.4' }));
+    els.push(_svgText(NS, PAD_X, y+30, String(v), { size:'13', weight:'600' }));
+    const sep = document.createElementNS(NS, 'line');
+    sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y+38); sep.setAttribute('x2', totalW-PAD_X); sep.setAttribute('y2', y+38);
+    sep.setAttribute('stroke', '#d9d3c4'); sep.setAttribute('stroke-width', '0.6'); sep.setAttribute('stroke-dasharray', '2,2');
+    els.push(sep);
+    y += 44;
+  });
+  const footerOut = buildTablePngFooter(NS, s, y+6, totalW, PAD_X, null);
+  return _wrapSvg(NS, totalW, footerOut.footerBottomY + 12, [headerOut.elements, els, footerOut.elements]);
+}
+function buildProvSummarySvg(s, d){
+  const NS = 'http://www.w3.org/2000/svg'; const PAD_X = 50; const totalW = 900;
+  const title = d.scope === 'province' ? ('Resumen provincial — ' + d.name) : 'Resumen nacional del cuerpo';
+  const headerOut = buildTablePngHeader(NS, s, title,
+    `${s.caseName} · ${s.chamberShort} · ${s.date} · ${d.total} bancas`, totalW, PAD_X);
+  let y = headerOut.headerBottomY + 28;
+  const els = [];
+  _svgSectionTitle(NS, PAD_X, y, 'COMPOSICIÓN DEL VOTO', els); y += 26;
+  [['AFIRMATIVO','Afirmativos'],['NEGATIVO','Negativos'],['ABSTENCION','Abstenciones'],['AUSENTE','Ausentes']].forEach(([vk,label]) => {
+    const n = d.votes[vk] || 0;
+    if(vk === 'ABSTENCION' && n === 0) return;
+    els.push(_svgText(NS, PAD_X, y+12, label, { size:'12', weight:'600' }));
+    els.push(_svgText(NS, PAD_X+260, y+12, n + '   (' + csvPercent(n, d.total) + '%)', { size:'12', weight:'700', fill: _VOTE_HEX[vk] }));
+    y += 22;
+  });
+  y += 16;
+  _svgSectionTitle(NS, PAD_X, y, 'COMPORTAMIENTO POR FAMILIA', els); y += 26;
+  d.families.forEach(f => {
+    const dot = document.createElementNS(NS, 'circle');
+    dot.setAttribute('cx', PAD_X+5); dot.setAttribute('cy', y+7); dot.setAttribute('r', '5');
+    dot.setAttribute('fill', FAMILY_COLORS[f.name] || '#57534e'); els.push(dot);
+    els.push(_svgText(NS, PAD_X+18, y+11, f.name, { size:'12', weight:'600' }));
+    els.push(_svgText(NS, totalW-PAD_X, y+11, String(f.total), { size:'12', weight:'700', anchor:'end' }));
+    y += 24;
+  });
+  const footerOut = buildTablePngFooter(NS, s, y+6, totalW, PAD_X, null);
+  return _wrapSvg(NS, totalW, footerOut.footerBottomY + 12, [headerOut.elements, els, footerOut.elements]);
+}
+function exportLegislatorPng(){
+  const s = activeScenario(); const leg = _selectedLegislator(s);
+  if(!leg){ alert('Seleccioná una banca del hemiciclo antes de descargar la ficha individual.'); return; }
+  const { svgStr, totalW, totalH } = buildLegislatorFichaSvg(s, leg);
+  rasterizeSvgToPng(svgStr, totalW, totalH, slugifyFilename([s.id, 'ficha', leg.name]) + '.png');
+}
+function exportProvSummaryPng(){
+  const s = activeScenario(); const d = _summaryExportData(s);
+  const { svgStr, totalW, totalH } = buildProvSummarySvg(s, d);
+  const slug = d.scope === 'province' ? ['resumen', d.name] : ['resumen', 'nacional'];
+  rasterizeSvgToPng(svgStr, totalW, totalH, slugifyFilename([s.id, ...slug]) + '.png');
 }
 
 function exportCsv(rows, columns, filename){
@@ -10243,6 +10426,11 @@ function handleExportClick(kind){
     else if(kind === 'provinces-png')   exportTableAsPng(s, 'provinces');
     else if(kind === 'families-png')    exportTableAsPng(s, 'families');
     else if(kind === 'summary-png')     exportTableAsPng(s, 'summary');
+    // Fichas del sidebar — legislador seleccionado y resumen provincial/nacional
+    else if(kind === 'legislator-csv')  exportLegislatorCsv();
+    else if(kind === 'legislator-png')  exportLegislatorPng();
+    else if(kind === 'provsum-csv')     exportProvSummaryCsv();
+    else if(kind === 'provsum-png')     exportProvSummaryPng();
     // Estadísticas (Etapa Indicadores) — escenario completo + comparador
     else if(kind === 'stats-csv')       exportStatsCsv();
     else if(kind === 'stats-png')       exportStatsPng();

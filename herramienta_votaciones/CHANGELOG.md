@@ -2,6 +2,24 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Fichas del sidebar descargables (CSV + PNG) + título dinámico
+
+Las dos fichas del panel lateral (Ficha individual del legislador, Resumen provincial) ahora se descargan en CSV y PNG, y el título del resumen refleja el ámbito. Solo presentación/exportación: sin cambios de datos ni de cálculo.
+
+### Título dinámico del resumen
+- Sin provincia seleccionada → **"Resumen nacional"** (sigue mostrando el cuerpo completo, "Total cuerpo · N bancas"); con provincia → **"Resumen provincial — {Provincia}"**. La ficha individual lleva el nombre: **"Ficha individual — {Apellido, Nombre}"** cuando hay selección.
+
+### Descarga de las dos fichas
+- **Ficha individual:** botones ↓CSV / ↓PNG, **solo cuando hay un legislador seleccionado** (sin selección queda el "Seleccioná una banca…"). CSV = una fila con caso/cámara/fecha/ley + nombre, voto, bloque, familia, provincia. PNG = figura editorial (nombre en serif, voto coloreado, bloque/familia/provincia).
+- **Resumen provincial/nacional:** botones ↓CSV / ↓PNG **siempre**; exporta la provincia seleccionada o el resumen nacional si no hay selección (coincide con el título). CSV = una fila por familia (bancas, afirmativos/negativos/abstención/ausentes, % del ámbito). PNG = composición del voto + comportamiento por familia.
+
+### Implementación
+- Nuevas funciones de export (`exportLegislatorCsv/Png`, `exportProvSummaryCsv/Png`) y builders SVG (`buildLegislatorFichaSvg`, `buildProvSummarySvg`) modelados en `buildSummaryFichaSvg`, reutilizando `buildTablePngHeader/Footer`, `rasterizeSvgToPng`, `exportCsv` y los helpers `csv*`. Nuevas keys `legislator-csv/png`, `provsum-csv/png` despachadas por la delegación existente (`handleExportClick`). Datos leídos de `state` + agregados ya calculados (`_provinceData`, `computeVoteSummary`); ninguna función `compute*` modificada.
+- Botones ocultos en impresión (`.panel-actions` → print hidden list).
+
+### QA
+- 18/18 headless: títulos (nacional/provincial/ficha con nombre), botones condicionales (ficha solo con selección), `_summaryExportData` rutea provincia vs nacional, familias nacionales suman 257, SVGs válidos con el contenido esperado, CSV disparan descarga sin throw, delegación rutea las keys nuevas. Verificación visual del sidebar con selección. Datos idénticos.
+
 ## 2026-06-02 — Fix · foco del buscador de la tabla nominal
 
 El buscador interno de la tabla nominal (`#tableSearch`) perdía el foco en cada tecla: su handler `input` llama a `renderTables()`, que reescribe todo el `#tablesPanel` y recrea el input. Solo se podía escribir de a una letra. Ahora, tras el re-render, se restaura el foco y la posición del cursor al input recreado. Bug pre-existente al patrón de re-render; sin cambios de datos ni de la lógica de filtrado (`getFilteredLegislators` intacta). Verificado en DOM headless: tipear de corrido acumula el texto, mantiene el foco, filtra y limpia bien.
