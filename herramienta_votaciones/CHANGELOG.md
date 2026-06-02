@@ -2,6 +2,26 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Etapa 7 · impresión y exportación
+
+Séptima etapa del rediseño. Endurece la impresión (Cmd+P / PDF) para que conserve todo el contexto analítico y no corte contenido. Solo presentación e impresión: sin cambios de datos.
+
+### Contexto metodológico completo en impresión
+- **Meta-bar:** era un `<details>` colapsado, así que en impresión salía solo el resumen (ley·cámara·fecha·resultado). Nuevo par de listeners `beforeprint`/`afterprint` que abren la ficha institucional (sesión, expediente, orden del día, bancas/quórum, presentes y **fuentes** de voto/territorial) antes de imprimir y restauran el estado después. CSS de respaldo fuerza las filas visibles; el toggle "Ver ficha institucional" se oculta en print.
+- Las notas de **validación** (`<details>`) también se abren en impresión (refuerza el fix de la Etapa 3).
+- El **detalle activo** (legislador / provincia seleccionada en el sidebar) ya se imprimía; se conserva.
+
+### No cortar contenido
+- Contenedores con scroll (`.dtable-wrap` 560/520px y `.member-list` 340px) se expanden en impresión (`max-height: none; overflow: visible`): la tabla nominal de 257 filas, las tablas resumen y la lista de miembros de la provincia/bloque seleccionado ahora salen completas (antes se clipeaban). El PDF de prueba pasó de ~5,5 MB a ~7,9 MB por el contenido tabular completo.
+
+### Estructura y cortes de página
+- `@page { margin: 1.5cm }` para márgenes consistentes.
+- `#statsPanel` y `#tablesPanel` arrancan en página nueva (`break-before: page`): documento ordenado [masthead + ficha + figura + resumen + detalle] / [estadísticas] / [tablas].
+- Filas de tabla con `break-inside: avoid`; encabezados sticky pasan a `position: static` en impresión (evita solapamientos).
+
+### QA
+- Sintaxis JS válida; datos idénticos. `beforeprint`/`afterprint` verificado en DOM (meta-bar open: false→true→false). Layout de impresión verificado por captura (emulando print en pantalla): ficha institucional + fuentes expandidas, validación expandida, chrome oculto, figura/leyenda/resumen presentes. Paginación y expansión de tablas verificadas por CSS + crecimiento del PDF; no rasterizadas por página (sin poppler en el entorno).
+
 ## 2026-06-02 — Etapa 6 · estética premium y diseño editorial
 
 Sexta etapa del rediseño. Auditoría de la estética (tipografía, paleta/contraste, cards/sombras, labels, estados) con dos correcciones puntuales; el resto del sistema ya estaba refinado y se documenta como verificado. Solo presentación.

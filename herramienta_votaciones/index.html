@@ -1964,15 +1964,35 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
    rota. Oculta toolbars/filters/botones, deja contenido principal en color
    normal sobre blanco, evita cortes feos entre secciones.
    ===================================================================== */
+@page{ margin: 1.5cm; }
 @media print{
   body{ background: #fff; color: #14181f; }
   .toolbar, .scenario-nav, .context-anchor, .subtabs, .viz-export-bar,
-  .fig-controls, .viz-figmeta,
+  .fig-controls, .viz-figmeta, .meta-summary-toggle,
   .tbl-card-actions, .stats-section-actions, .stats-division-actions,
   .btn-exp, .btn-exp-grid, .exp-card,
   #tooltip {
     display: none !important;
   }
+  /* Estructura del documento impreso: estadísticas y tablas arrancan en página
+     nueva, para una impresión ordenada estilo anexo de tesis. */
+  #statsPanel, #tablesPanel{ break-before: page; page-break-before: always; }
+  /* Meta-bar: en impresión se muestra la ficha institucional completa (sesión,
+     expediente, orden del día, fuentes), no solo el resumen. La apertura del
+     <details> la fuerza beforeprint; acá se asegura que las filas se vean. */
+  .meta-bar > .meta-row{ display: flex !important; }
+  .meta-bar > .meta-row-grid{ display: grid !important; }
+  .meta-bar > .meta-row-sources{ display: grid !important; }
+  /* Contenedores con scroll: expandir en impresión para no cortar contenido
+     (la tabla nominal de 257 filas, las tablas resumen y la lista de miembros
+     de la provincia/bloque seleccionado salían clipeadas por max-height). */
+  .dtable-wrap, .tbl-card .dtable-wrap, .member-list{
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  /* Filas de tabla: permitir cortes de página limpios en tablas largas. */
+  .dtable tr, .dtable thead{ break-inside: avoid; }
+  .dtable thead th{ position: static !important; }
   /* Sidebar: NO ocultar en bloque. Imprimir paneles con contenido activo
      (detalle de legislador seleccionado, resumen provincial o nacional)
      y omitir solo el panel vacío "Seleccioná una banca…". */
@@ -10426,6 +10446,25 @@ document.querySelectorAll('.nav-seg').forEach(b => {
   }, { threshold: 0 });
   io.observe(sentinel);
 })();
+
+// Impresión: expandir la ficha institucional (meta-bar) y las notas de
+// validación colapsadas, para que el contexto metodológico completo (sesión,
+// expediente, orden del día, fuentes, validación) salga en el PDF/impreso.
+// Se restaura el estado de cada <details> al terminar de imprimir.
+window.addEventListener('beforeprint', () => {
+  document.querySelectorAll('details.meta-bar, details.validation').forEach(d => {
+    d.dataset.printPrevOpen = d.open ? '1' : '0';
+    d.open = true;
+  });
+});
+window.addEventListener('afterprint', () => {
+  document.querySelectorAll('details.meta-bar, details.validation').forEach(d => {
+    if(d.dataset.printPrevOpen !== undefined){
+      d.open = d.dataset.printPrevOpen === '1';
+      delete d.dataset.printPrevOpen;
+    }
+  });
+});
 
 // Inicialización
 render();
