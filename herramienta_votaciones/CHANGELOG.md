@@ -2,6 +2,10 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Fix · deselección de banca (toggle)
+
+`selectLegislator(idx)` ahora alterna: volver a activar la banca ya seleccionada la **deselecciona** y regresa a la vista completa (limpia `selectedIndex`, el filtro de provincia que la selección había fijado, y oculta el halo). Antes re-seleccionaba sin salir nunca. Aplica por igual al clic en banca, Enter/Espacio por teclado y clic en fila de la tabla nominal (los tres pasan por la misma función). Nuevo helper `deselectLegislator()`. Verificado en DOM headless (select → re-clic deselecciona → clic vuelve a seleccionar). Sin cambios de datos.
+
 ## 2026-06-02 — Etapa 3 · la visualización como protagonista
 
 Tercera etapa del rediseño. Sube el hemiciclo, comprime el chrome superior y ordena la lectura de la figura. Solo presentación, markup y reorganización de controles: **sin cambios de datos, conteos, paleta ni separación voto/partido** (verificado por diff de contenido).

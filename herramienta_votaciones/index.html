@@ -10231,6 +10231,13 @@ function updateSeatCounter(){
 }
 
 function selectLegislator(idx){
+  // Toggle: volver a activar la banca ya seleccionada la deselecciona y regresa
+  // a la vista completa (sin filtro de provincia). Aplica por igual al clic en
+  // banca, Enter/Espacio por teclado y clic en fila de la tabla nominal.
+  if(state.selectedIndex === idx){
+    deselectLegislator();
+    return;
+  }
   state.selectedIndex = idx;
   const s = activeScenario();
   const leg = s._sortedLegislators[idx];
@@ -10246,6 +10253,22 @@ function selectLegislator(idx){
       halo.setAttribute('cy', leg._seat.y);
       halo.classList.add('is-visible');
     }
+  }
+  applyFilters();
+  renderSidebar();
+}
+
+// Deselecciona la banca activa: limpia la selección y el filtro de provincia
+// que la selección había fijado, oculta el halo y vuelve a la vista completa.
+function deselectLegislator(){
+  state.selectedIndex = null;
+  state.provinceFilter = '';
+  const sel = document.getElementById('provinceSelect');
+  if(sel) sel.value = '';
+  const svg = document.querySelector('svg.hemicycle');
+  if(svg){
+    const halo = svg.querySelector('#seatHalo');
+    if(halo) halo.classList.remove('is-visible');
   }
   applyFilters();
   renderSidebar();
