@@ -2,6 +2,10 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Fix · foco del buscador de la tabla nominal
+
+El buscador interno de la tabla nominal (`#tableSearch`) perdía el foco en cada tecla: su handler `input` llama a `renderTables()`, que reescribe todo el `#tablesPanel` y recrea el input. Solo se podía escribir de a una letra. Ahora, tras el re-render, se restaura el foco y la posición del cursor al input recreado. Bug pre-existente al patrón de re-render; sin cambios de datos ni de la lógica de filtrado (`getFilteredLegislators` intacta). Verificado en DOM headless: tipear de corrido acumula el texto, mantiene el foco, filtra y limpia bien.
+
 ## 2026-06-02 — Reorganización IA · cuatro tabs por nivel de lectura
 
 Reestructura de arquitectura de información (no rediseño visual). Las 4 sub-tabs pasan de **Visualización / Estadísticas / Tablas / Exportar** a **Análisis del caso / Análisis comparado / Datos / Metodología**. "Exportar" deja de ser tab: las exportaciones se reubican contextualmente. **Sin perder ninguna funcionalidad ni ningún botón de export** (verificado: los 30 `data-export` siguen presentes). Sin cambios de datos ni de cálculo.

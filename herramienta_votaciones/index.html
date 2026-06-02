@@ -7486,6 +7486,15 @@ function renderTables(){
     ts.addEventListener('input', (e) => {
       state.tableSearch = e.target.value;
       renderTables();
+      // renderTables reescribe todo el #tablesPanel y recrea el input, lo que
+      // hacía perder el foco en cada tecla (solo se podía escribir de a una
+      // letra). Restaurar foco y posición del cursor para escribir de corrido.
+      const again = document.getElementById('tableSearch');
+      if(again){
+        again.focus();
+        const len = again.value.length;
+        again.setSelectionRange(len, len);
+      }
     });
   }
   host.querySelectorAll('#legislatorsTable th[data-sort]').forEach(th => {
