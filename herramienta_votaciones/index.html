@@ -731,6 +731,30 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   line-height: 1.5;
 }
 
+/* Aviso metodológico del modo de color (solo modo familia): el color no es el
+   voto. Cinta dorada prominente arriba de la leyenda — imposible de pasar por
+   alto, pero editorial. Se mantiene visible en impresión (contexto necesario). */
+.color-notice{
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-3) var(--space-5);
+  background: var(--accent-gold-soft);
+  border-bottom: 1px solid var(--line);
+  border-left: 3px solid var(--accent-gold);
+  font-size: var(--t-sm);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.color-notice .cn-icon{
+  color: var(--accent-gold-text);
+  font-weight: var(--w-bold);
+  font-size: var(--t-md);
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+.color-notice strong{ color: var(--ink); font-weight: var(--w-semi); }
+
 /* Controles de la figura (vista + modo de color) — fila liviana pegada a la
    leyenda. Reemplaza a la antigua primera fila de la toolbar global. */
 .fig-controls{
@@ -3997,6 +4021,11 @@ function renderVizCard(){
           <button class="seg-btn" data-color="family" aria-pressed="${state.colorMode === 'family'}">Colorear por familia política</button>
         </div>
       </div>
+      ${state.colorMode === 'family' ? `
+      <div class="color-notice" role="note" aria-label="Aviso metodológico del modo de color">
+        <span class="cn-icon" aria-hidden="true">⚠</span>
+        <span class="cn-text"><strong>Modo familia política.</strong> El color identifica la familia o bloque político, <strong>no el sentido del voto</strong>. El voto de cada legislador se lee en el tooltip, el panel lateral y la tabla nominal.</span>
+      </div>` : ''}
       <div class="legend" id="legend"></div>
       <div class="viz-figmeta">
         <p class="viz-readhint" id="vizReadHint"></p>
@@ -4156,17 +4185,16 @@ function renderLegend(){
       .map(v => `<span class="legend-chip"><span class="legend-sw" style="background:${VOTE_COLORS[v]}"></span>${esc(VOTE_LABELS[v])} (${summary[v]})</span>`)
       .join('');
   } else {
-    // Modo familia: el color es la familia, el voto se queda en tooltip/panel/tabla.
-    // Aclaración metodológica visible (no sólo en footer) para evitar lectura
-    // confusa de la separación voto/partido.
+    // Modo familia: el color es la familia; el voto se queda en tooltip/panel/tabla.
+    // La aclaración metodológica prominente vive ahora en .color-notice (arriba de
+    // la leyenda), así que la leyenda muestra solo los chips de familia.
     const counts = {};
     for(const m of s._sortedLegislators) counts[m.family] = (counts[m.family] || 0) + 1;
     const fams = Object.keys(FAMILY_COLORS).filter(f => counts[f] > 0).sort((a,b) => counts[b] - counts[a]);
-    const note = `<p class="legend-note legend-note-family">Color = familia política · el voto se consulta en tooltip, panel y tabla.</p>`;
     const chips = fams.map(f => `
       <span class="legend-chip"><span class="legend-sw" style="background:${FAMILY_COLORS[f]}"></span>${esc(f)} (${counts[f]})</span>
     `).join('');
-    lg.innerHTML = note + chips;
+    lg.innerHTML = chips;
   }
 }
 

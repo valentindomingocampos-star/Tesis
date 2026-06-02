@@ -2,6 +2,19 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Etapa 4 · modo de color y riesgo interpretativo
+
+Refuerza la separación voto/partido en modo familia política (la auditoría la marcó como trampa interpretativa). Solo presentación: sin cambios de datos ni de paleta.
+
+### Aviso prominente del modo de color
+- Nuevo `.color-notice`: cinta dorada con ícono que aparece **solo en modo familia**, arriba de la leyenda: "⚠ Modo familia política. El color identifica la familia o bloque político, **no el sentido del voto**. El voto de cada legislador se lee en el tooltip, el panel lateral y la tabla nominal." Inyectada condicionalmente en el template de `renderVizCard` (que se re-renderiza al cambiar de modo).
+- Se quitó la nota chica redundante (`legend-note-family`) de `renderLegend`: la aclaración vive ahora en el aviso prominente; la leyenda muestra solo los chips de familia.
+- El control de modo ya quedó separado de los filtros globales y pegado a la figura en la Etapa 3 (`.fig-controls`). El pie de figura y los exports PNG con contexto ya traían la nota de lectura por modo (`getFigureReadingNote`/`getExportFigureReadingNote`), que se conserva.
+- El aviso se mantiene visible en impresión (contexto metodológico necesario al exportar la figura en modo familia).
+
+### Pendiente señalado (no ejecutado sin confirmación)
+- Proximidad de tono entre dos colores de familia y dos de voto: **PRO `#b08227` (oro) ≈ Abstención `#a87523` (ocre)** y, en menor medida, **Socialista `#9f1239` (carmín) ≈ Negativo `#a32a2a` (bordó)**. Como cambiar la paleta de familias afecta exports y el orden de espectro establecido, se deja a decisión del autor; el aviso prominente mitiga la confusión como primera línea.
+
 ## 2026-06-02 — Fix · deselección de banca (toggle)
 
 `selectLegislator(idx)` ahora alterna: volver a activar la banca ya seleccionada la **deselecciona** y regresa a la vista completa (limpia `selectedIndex`, el filtro de provincia que la selección había fijado, y oculta el halo). Antes re-seleccionaba sin salir nunca. Aplica por igual al clic en banca, Enter/Espacio por teclado y clic en fila de la tabla nominal (los tres pasan por la misma función). Nuevo helper `deselectLegislator()`. Verificado en DOM headless (select → re-clic deselecciona → clic vuelve a seleccionar). Sin cambios de datos.
