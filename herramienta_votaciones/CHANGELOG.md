@@ -2,6 +2,30 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Etapa 3 · la visualización como protagonista
+
+Tercera etapa del rediseño. Sube el hemiciclo, comprime el chrome superior y ordena la lectura de la figura. Solo presentación, markup y reorganización de controles: **sin cambios de datos, conteos, paleta ni separación voto/partido** (verificado por diff de contenido).
+
+### El gráfico sube (3.1)
+- El panel de validación en estado **OK** pasa de tarjeta verde prominente a **nota colapsable secundaria** (`<details class="validation is-ok">`): por defecto muestra solo "✓ Datos validados" + "ver detalle"; el detalle metodológico completo se conserva al expandir. Los estados de **advertencia/crítico siguen como banners prominentes** (sin cambios). En impresión el detalle se fuerza visible (no se pierde contexto).
+- La antigua primera fila de la toolbar (vista/color) se quita de arriba: el chrome previo a la figura baja de 2 filas + tarjeta a 1 fila + nota colapsada.
+
+### Toolbar comprimida y controles junto a la figura (3.2, 3.3)
+- La toolbar global queda con **una sola fila de filtros** (buscador, provincia, pills de voto, limpiar). Estos filtros se mantienen arriba porque afectan también a la tabla nominal (`legMatchesFilters`).
+- Los controles **vista** (Hemiciclo/Mapa) y **modo de color** (voto/familia) —exclusivos de la figura— se mueven a `.fig-controls`, pegados a la leyenda que explican. El binding no cambia (selectores globales `[data-view]`/`[data-color]`).
+
+### Microcopy de lectura (3.4)
+- Nueva línea `.viz-readhint` junto a la figura, view-aware (seteada en `renderFigureBlocks`): hemiciclo → "Cada banca es un legislador · clic o Enter para ver su ficha · el color responde al modo seleccionado"; mapa → variante por jurisdicción. Agrupada con el contador en vivo en una `.viz-figmeta` (lectura izq · conteo der), lo que de paso alinea el contador que antes quedaba a sangre.
+
+### Resumen ejecutivo jerarquizado (3.5)
+- El summary-strip deja de tener todos los KPIs al mismo peso: **A favor / En contra** son tier primario (número mayor); **abstención, ausentes y margen** pasan a tier secundario (número menor, fondo apenas marcado). No se quita ningún dato; solo se jerarquiza.
+
+### Impresión
+- `.fig-controls` y `.viz-figmeta` agregadas a la lista de ocultos en `@media print` (controles y microcopy de pantalla, no de figura impresa).
+
+### QA
+- Datos, conteos y resultados idénticos al commit previo (diff vacío). Sintaxis JS válida. Binding de vista/color/filtros intacto (selectores globales). Render verificado con capturas headless a 1440px, 1280px y 1100px; PDF de impresión generado sin error. Pendiente de revisión interactiva: modo familia y vista mapa (wiring verificado, no re-testeados visualmente esta vez).
+
 ## 2026-06-02 — Etapa 2 · navegación por dos ejes + ancla de contexto
 
 Segunda etapa del rediseño (jerarquía, navegación y orientación). Solo presentación, markup y lógica de navegación: **sin cambios de datos, conteos, paleta ni separación voto/partido** (verificado por diff de contenido contra el commit previo). Desarrollada sobre la copia `index-redesign-v1.html` y luego volcada al `index.html` maestro; el original previo queda preservado en git (commit `d9d3c7a`).

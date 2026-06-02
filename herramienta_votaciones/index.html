@@ -731,6 +731,35 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   line-height: 1.5;
 }
 
+/* Controles de la figura (vista + modo de color) — fila liviana pegada a la
+   leyenda. Reemplaza a la antigua primera fila de la toolbar global. */
+.fig-controls{
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-3) var(--space-5);
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+/* Línea meta de la figura: microcopy de lectura (izq) + contador en vivo (der). */
+.viz-figmeta{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-5);
+  background: var(--card);
+}
+.viz-readhint{
+  margin: 0;
+  font-size: var(--t-xs);
+  color: var(--muted);
+  letter-spacing: -0.002em;
+}
+.viz-figmeta .seat-counter{ margin: 0; }
+
 /* Contador de resultados (región aria-live). Anuncia cuántas bancas quedan
    visibles según los filtros. Jerarquía baja: texto chico y muted para no
    competir con la leyenda ni con la figura. Su valor principal es semántico
@@ -962,6 +991,13 @@ svg.map-svg{
 .sc-value.yes{ color: var(--vote-yes); }
 .sc-value.no{ color: var(--vote-no); }
 .sc-value.abs{ color: var(--ink-2); }
+/* Jerarquía de KPIs en el resumen ejecutivo: el par A favor / En contra domina
+   (número mayor); abstención, ausentes y margen quedan en tier secundario. */
+.summary-cell.is-primary .sc-value{ font-size: var(--t-2xl); }
+.summary-cell.is-secondary{ background: linear-gradient(180deg, transparent, rgba(15,23,42,.012)); }
+.summary-cell.is-secondary .sc-value{ font-size: var(--t-lg); color: var(--ink-2); }
+.summary-cell.is-secondary .sc-value.yes{ color: var(--vote-yes); }
+.summary-cell.is-secondary .sc-value.no{ color: var(--vote-no); }
 .sc-sub{
   font-size: var(--t-xs);
   color: var(--muted);
@@ -1431,6 +1467,39 @@ svg.map-svg{
 .validation li{ padding: var(--space-1) 0; }
 .validation .v-ok-icon{ display: inline-block; margin-right: var(--space-2); }
 .validation strong{ font-weight: var(--w-semi); color: var(--ink); }
+/* Validación OK → colapsable y secundaria: no compite con la figura. Los
+   estados de advertencia/crítico siguen como banners prominentes (sin cambios). */
+details.validation.is-ok{ padding: 0; }
+details.validation.is-ok > summary{
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--t-xs);
+  font-weight: var(--w-semi);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #3f6e44;
+}
+details.validation.is-ok > summary::-webkit-details-marker{ display: none; }
+details.validation.is-ok > summary::after{
+  content: 'ver detalle';
+  margin-left: auto;
+  font-size: var(--t-xs);
+  font-weight: var(--w-regular);
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+details.validation.is-ok[open] > summary::after{ content: 'ocultar'; }
+.validation-detail{
+  padding: 0 var(--space-4) var(--space-3);
+  font-size: var(--t-sm);
+  line-height: 1.6;
+  color: var(--ink-2);
+}
 .validation code{
   background: rgba(15,23,42,.05);
   padding: 1px var(--space-2);
@@ -1874,6 +1943,7 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
 @media print{
   body{ background: #fff; color: #14181f; }
   .toolbar, .scenario-nav, .context-anchor, .subtabs, .viz-export-bar,
+  .fig-controls, .viz-figmeta,
   .tbl-card-actions, .stats-section-actions, .stats-division-actions,
   .btn-exp, .btn-exp-grid, .exp-card,
   #tooltip {
@@ -1901,6 +1971,10 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
      en una columna; si está oculto por :has, el viz-card ocupa todo. */
   .workspace{ grid-template-columns: 1fr; }
   .subpanel{ display: block !important; }
+  /* Validación: en impresión el detalle metodológico se muestra completo
+     aunque la nota esté colapsada en pantalla. */
+  details.validation.is-ok > .validation-detail{ display: block !important; }
+  details.validation.is-ok > summary::after{ display: none !important; }
   .stats-section{ break-inside: avoid; page-break-inside: avoid; }
   /* Print-color-adjust: exact en todos los elementos con color significativo
      (votos, familias, badges, barras, heatmaps, seats, dots). Asegura que la
@@ -3883,17 +3957,11 @@ function renderVizCard(){
 
   card.innerHTML = `
     <div id="validationPanel"></div>
-    <div class="toolbar">
-      <div class="toolbar-row divided">
-        <div class="seg-group" role="tablist" aria-label="Vista">
-          <button class="seg-btn" data-view="hemicycle" aria-pressed="${state.view === 'hemicycle'}">Hemiciclo</button>
-          <button class="seg-btn" data-view="map" aria-pressed="${state.view === 'map'}">Mapa provincial</button>
-        </div>
-        <div class="seg-group" role="tablist" aria-label="Modo de color">
-          <button class="seg-btn" data-color="vote" aria-pressed="${state.colorMode === 'vote'}">Colorear por voto</button>
-          <button class="seg-btn" data-color="family" aria-pressed="${state.colorMode === 'family'}">Colorear por familia política</button>
-        </div>
-      </div>
+    <!-- Toolbar global: solo filtros (buscador, provincia, voto). Estos afectan
+         tanto a la visualización como a la tabla nominal, así que se mantienen
+         compartidos arriba. Los controles de vista/color (exclusivos de la
+         figura) se movieron junto a la leyenda — ver .fig-controls. -->
+    <div class="toolbar toolbar-filters">
       <div class="toolbar-row">
         <input type="text" class="search-input" id="searchInput" placeholder="Buscar nombre, bloque, provincia…" value="${esc(state.search)}">
         <select class="select-input" id="provinceSelect"><option value="">Todas las provincias</option></select>
@@ -3917,8 +3985,23 @@ function renderVizCard(){
 
     <div class="subpanel is-on" data-subtab="viz">
       <div id="figureHeader"></div>
+      <!-- Controles de la figura (vista y modo de color), pegados a la leyenda
+           que explican. No se mezclan con los filtros globales de arriba. -->
+      <div class="fig-controls">
+        <div class="seg-group" role="tablist" aria-label="Vista">
+          <button class="seg-btn" data-view="hemicycle" aria-pressed="${state.view === 'hemicycle'}">Hemiciclo</button>
+          <button class="seg-btn" data-view="map" aria-pressed="${state.view === 'map'}">Mapa provincial</button>
+        </div>
+        <div class="seg-group" role="tablist" aria-label="Modo de color">
+          <button class="seg-btn" data-color="vote" aria-pressed="${state.colorMode === 'vote'}">Colorear por voto</button>
+          <button class="seg-btn" data-color="family" aria-pressed="${state.colorMode === 'family'}">Colorear por familia política</button>
+        </div>
+      </div>
       <div class="legend" id="legend"></div>
-      <p class="seat-counter" id="seatCounter" role="status" aria-live="polite" aria-atomic="true"></p>
+      <div class="viz-figmeta">
+        <p class="viz-readhint" id="vizReadHint"></p>
+        <p class="seat-counter" id="seatCounter" role="status" aria-live="polite" aria-atomic="true"></p>
+      </div>
       <div class="viz-stage" id="vizStage"></div>
       <div class="viz-summary">
         <p class="viz-eyebrow">Resumen ejecutivo</p>
@@ -4035,6 +4118,14 @@ function renderFigureBlocks(){
   const footer = document.getElementById('figureFooter');
   if(header) header.innerHTML = renderFigureHeader(s, figType, { showMetaCompact: true });
   if(footer) footer.innerHTML = renderFigureFooter(s, figType, { colorMode: state.colorMode });
+  // Microcopy de lectura junto a la figura — orienta sobre interacción y modo
+  // de color (complementa, sin repetir, la nota de lectura del pie de figura).
+  const hint = document.getElementById('vizReadHint');
+  if(hint){
+    hint.textContent = figType === 'map'
+      ? 'Cada provincia agrupa sus bancas · clic para filtrar por jurisdicción · el color responde al modo seleccionado.'
+      : 'Cada banca es un legislador · clic o Enter para ver su ficha · el color responde al modo seleccionado.';
+  }
 }
 
 function populateProvinceSelect(){
@@ -6884,13 +6975,18 @@ function renderValidationPanel(){
     // Si el escenario declara voteSource + districtSource (reconstrucción con
     // doble fuente, típicamente Senado), el banner lo refleja explícitamente.
     const hasDoubleSource = !!(s.voteSource && s.districtSource);
-    const header = hasDoubleSource
-      ? `<h4><span class="v-ok-icon">✓</span>Datos validados con doble fuente</h4>`
-      : `<h4><span class="v-ok-icon">✓</span>Datos validados</h4>`;
+    const lead = hasDoubleSource ? 'Datos validados con doble fuente' : 'Datos validados';
     const body = hasDoubleSource
       ? `Voto reconstruido desde <strong>${esc(s.voteSource)}</strong>; distrito/provincia reconstruido desde fuente canónica <strong>${esc(s.districtSource)}</strong>. Los conteos de voto cierran con la metadata del acta y la distribución territorial coincide con la composición institucional esperada (${v.territorial.totalExpected} bancas en ${Object.keys(v.territorial.rows.filter(r => r.expected > 0)).length} jurisdicciones). ${s.legislators.length} senadores; sin campos vacíos, votos inválidos, familias desconocidas, provincias sin normalizar ni duplicados.`
       : `Los conteos de voto cierran con la metadata del acta y la distribución territorial coincide con la composición institucional esperada (${v.territorial.totalExpected} bancas, ${Object.keys(v.territorial.rows.filter(r => r.expected > 0)).length} jurisdicciones). ${s.legislators.length} legisladores; sin campos vacíos, votos inválidos, familias desconocidas, provincias sin normalizar ni duplicados.`;
-    host.innerHTML = `<div class="validation is-ok">${header}${body}</div>`;
+    // Estado OK → nota colapsable y secundaria: no compite con la figura, pero
+    // conserva íntegro el detalle metodológico al expandir (y en impresión).
+    host.innerHTML = `
+      <details class="validation is-ok">
+        <summary><span class="v-ok-icon">✓</span>${lead}</summary>
+        <div class="validation-detail">${body}</div>
+      </details>
+    `;
   }
 }
 
@@ -6900,17 +6996,20 @@ function renderSummaryStrip(){
   const s = activeScenario();
   const sum = computeVoteSummary(s);
   const denom = sum.present || 1;
+  // Jerarquía de KPIs: el par A favor / En contra es el dato dominante (tier
+  // primario, número grande); abstención, ausentes y margen lo acompañan en
+  // tier secundario (más chicos). No se quita ningún dato: solo se jerarquiza.
   const cells = [
-    { label: 'A favor', value: sum.AFIRMATIVO, klass: 'yes', sub: Math.round(sum.AFIRMATIVO / denom * 100) + '% de presentes' },
-    { label: 'En contra', value: sum.NEGATIVO, klass: 'no', sub: Math.round(sum.NEGATIVO / denom * 100) + '% de presentes' }
+    { label: 'A favor', value: sum.AFIRMATIVO, klass: 'yes', tier: 'primary', sub: Math.round(sum.AFIRMATIVO / denom * 100) + '% de presentes' },
+    { label: 'En contra', value: sum.NEGATIVO, klass: 'no', tier: 'primary', sub: Math.round(sum.NEGATIVO / denom * 100) + '% de presentes' }
   ];
   if(sum.ABSTENCION > 0){
-    cells.push({ label: 'Abstención', value: sum.ABSTENCION, klass: '', sub: Math.round(sum.ABSTENCION / denom * 100) + '% de presentes' });
+    cells.push({ label: 'Abstención', value: sum.ABSTENCION, klass: '', tier: 'secondary', sub: Math.round(sum.ABSTENCION / denom * 100) + '% de presentes' });
   }
-  cells.push({ label: 'Ausentes', value: sum.AUSENTE, klass: 'abs', sub: Math.round(sum.AUSENTE / s.totalSeats * 100) + '% del cuerpo' });
-  cells.push({ label: 'Margen', value: sum.AFIRMATIVO - sum.NEGATIVO, klass: '', sub: 'votos a favor sobre en contra' });
+  cells.push({ label: 'Ausentes', value: sum.AUSENTE, klass: 'abs', tier: 'secondary', sub: Math.round(sum.AUSENTE / s.totalSeats * 100) + '% del cuerpo' });
+  cells.push({ label: 'Margen', value: sum.AFIRMATIVO - sum.NEGATIVO, klass: '', tier: 'secondary', sub: 'votos a favor sobre en contra' });
   host.innerHTML = cells.map(c => `
-    <div class="summary-cell">
+    <div class="summary-cell is-${c.tier}">
       <div class="sc-label">${esc(c.label)}</div>
       <div class="sc-value ${c.klass}">${c.value}</div>
       <div class="sc-sub">${esc(c.sub)}</div>
