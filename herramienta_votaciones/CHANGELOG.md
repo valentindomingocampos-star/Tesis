@@ -2,6 +2,27 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Etapa 5 · estadísticas, tablas y heatmaps
+
+Quinta etapa del rediseño. Jerarquiza secciones sin datos, explica la intensidad de los heatmaps y mejora la lectura de las tablas. Solo presentación: sin cambios de datos ni de cálculo.
+
+### 5.1 · Sección sin datos con peso reducido
+- **A.7 Alineamiento** (que solo informa "no se calcula con el dataset actual") deja de renderizarse como sección analítica completa (título serif + marcador + bajada, igual que A.1–A.6). Pasa a una **nota secundaria** `.stats-section-aside`: una etiqueta chica muted ("A.7 · Alineamiento… · no se calcula con el dataset actual") + la nota explicativa `.align-note` que ya existía. La información metodológica se conserva íntegra; solo baja su peso visual.
+
+### 5.2 · Mini-leyenda de intensidad en heatmaps
+- Los dos heatmaps comparados (familias×escenarios y provincias×escenarios) no explicaban qué significa la saturación del color. Se agregó una `.heat-scale` debajo de cada uno:
+  - Familias: barra de gradiente del color base de la métrica activa, con "menor → mayor" y "Intensidad ∝ [métrica]".
+  - Territorial: muestras de color (afirmativo / negativo / mixta) + "Color = voto predominante · intensidad ∝ magnitud".
+- Las muestras se agregaron al `print-color-adjust: exact` (imprimen con color).
+- Contraste verificado: el alpha del fondo de celda está capeado en 0.55, así que el texto `--ink` sobre la celda más intensa mantiene ~5:1 (AA). No se requirió texto adaptativo.
+
+### 5.3 · Tablas
+- `.col-pct` (% Afirmativo, dato analítico clave que estaba en 11px muted) sube a `--t-sm`, color `--ink-2` y peso semibold: legible sin competir con el resto.
+- Verificado que las columnas numéricas ya alinean th y td a la derecha con `tabular-nums` (`.col-num`/`.col-pct`), header sticky y notas al pie. Las tablas ya estaban sólidas; sin cambios estructurales.
+
+### QA
+- Sintaxis JS válida; datos idénticos al commit previo. Render headless de la sub-tab Estadísticas: A.7 demotada, ambos heatmaps con su mini-leyenda, KPIs y rankings intactos. Sticky-first-column de tablas: evaluado y **no** aplicado (las tablas entran en desktop/notebook; se deja como opción futura).
+
 ## 2026-06-02 — Etapa 4 · modo de color y riesgo interpretativo
 
 Refuerza la separación voto/partido en modo familia política (la auditoría la marcó como trampa interpretativa). Solo presentación: sin cambios de datos ni de paleta.

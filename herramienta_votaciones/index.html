@@ -1924,9 +1924,9 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
 .col-pct{
   font-variant-numeric: tabular-nums;
   text-align: right;
-  font-size: var(--t-xs);
-  color: var(--muted);
-  font-weight: var(--w-medium);
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  font-weight: var(--w-semi);
 }
 
 /* Mini-bar de composición del voto — visual analítico inline */
@@ -2007,7 +2007,7 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
   .h-bar-fill, .fam-bar > span, .mini-bar > span,
   .prov-bar > span, .prov-bar-yes, .prov-bar-no,
   .prov-bar-abst, .prov-bar-abs,
-  .seat, .seat-halo,
+  .seat, .seat-halo, .heat-scale-bar, .heat-key-sw,
   .detail-vote-badge, .legend-sw, .legend-chip{
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -2143,6 +2143,24 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
   line-height: 1.55;
   max-width: 720px;
   font-style: italic;
+}
+/* Sección secundaria (5.1): indicador sin datos / no calculable. Peso visual
+   reducido — etiqueta chica en vez de título de sección, para no competir con
+   las secciones analíticas reales. */
+.stats-section-aside{ padding-top: var(--space-4); padding-bottom: var(--space-4); }
+.stats-aside-label{
+  margin: 0 0 var(--space-2);
+  font-size: var(--t-xs);
+  color: var(--muted);
+  font-weight: var(--w-semi);
+  letter-spacing: .015em;
+}
+.stats-aside-marker{
+  color: var(--accent-gold-text);
+  font-weight: var(--w-bold);
+  letter-spacing: .12em;
+  margin-right: var(--space-2);
+  font-variant-numeric: tabular-nums;
 }
 
 /* KPI hero — tres valores grandes para el resultado agregado.
@@ -2585,6 +2603,42 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
   font-style: normal;
   font-weight: var(--w-semi);
   color: var(--ink);
+}
+
+/* Mini-leyenda de intensidad de los heatmaps (5.2): explica qué significa la
+   saturación del color. Sobria, debajo de cada heatmap. */
+.heat-scale{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin-top: var(--space-3);
+  font-size: var(--t-xs);
+  color: var(--muted);
+  letter-spacing: -0.002em;
+}
+.heat-scale-label{ font-weight: var(--w-medium); }
+.heat-scale-bar{
+  width: 120px;
+  height: 8px;
+  border-radius: 2px;
+  border: 1px solid var(--line);
+}
+.heat-scale-ends{
+  display: inline-flex;
+  justify-content: space-between;
+  width: 120px;
+  margin-left: calc(-1 * var(--space-3) + 2px);
+  font-size: 10px;
+  color: var(--muted-soft);
+}
+.heat-key{ display: inline-flex; align-items: center; gap: var(--space-2); }
+.heat-key-sw{
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--line);
+  display: inline-block;
 }
 
 /* Selector de métrica del heatmap familias × escenarios */
@@ -7634,11 +7688,12 @@ function renderScenarioIndicators(s){
     </section>
   `;
 
-  // ---- A.7 Alineamiento (nota corta, sin sección pesada) ----
+  // ---- A.7 Alineamiento — nota metodológica secundaria ----
+  // No es una sección analítica con datos: se presenta con peso visual reducido
+  // (etiqueta chica en vez de título de sección) para no competir con A.1–A.6.
   const alignHtml = `
-    <section class="stats-section" style="padding-bottom:var(--space-4)">
-      ${_sectionHead('A.7', 'Alineamiento oficialismo / oposición',
-        'No se calcula con el dataset actual.')}
+    <section class="stats-section stats-section-aside">
+      <p class="stats-aside-label"><span class="stats-aside-marker">A.7</span>Alineamiento oficialismo / oposición · no se calcula con el dataset actual</p>
       <div class="align-note">El indicador de alineamiento político requiere una variable analítica adicional (clasificación por relación con el Ejecutivo nacional al momento de la votación) que no está incluida en los datasets validados. Para análisis específicos, cruzar el CSV de legisladores con una clasificación externa por gobierno: CFK 2007-2011 (Aerolíneas), CFK 2011-2015 (YPF).</div>
     </section>
   `;
@@ -7855,6 +7910,11 @@ function renderComparisonPanel(){
       ${metricButtons}
     </div>
     <div class="heatmap" role="table" aria-label="Familias políticas en los cuatro escenarios — ${esc(activeMeta.label)}">${famHeatHead}${famHeatBody}</div>
+    <div class="heat-scale" aria-hidden="true">
+      <span class="heat-scale-label">Intensidad ∝ ${esc(activeMeta.label.toLowerCase())}</span>
+      <span class="heat-scale-bar" style="background:linear-gradient(90deg, ${_heatBg(activeMeta.base, 4)}, ${_heatBg(activeMeta.base, 100)})"></span>
+      <span class="heat-scale-ends"><span>menor</span><span>mayor</span></span>
+    </div>
   `;
 
   // ---- B.6 Comparador territorial (heatmap con gradiente por voto dominante) ----
@@ -7895,7 +7955,15 @@ function renderComparisonPanel(){
       </div>
     `;
   }).join('');
-  const provCompHtml = `<div class="heatmap" role="table" aria-label="Provincias en los cuatro escenarios — voto predominante y porcentaje afirmativo">${provHeatHead}${provHeatBody}</div>`;
+  const provCompHtml = `
+    <div class="heatmap" role="table" aria-label="Provincias en los cuatro escenarios — voto predominante y porcentaje afirmativo">${provHeatHead}${provHeatBody}</div>
+    <div class="heat-scale heat-scale-keys" aria-hidden="true">
+      <span class="heat-scale-label">Color = voto predominante · intensidad ∝ magnitud:</span>
+      <span class="heat-key"><span class="heat-key-sw" style="background:${_heatBg('#3f6e44', 85)}"></span>afirmativo</span>
+      <span class="heat-key"><span class="heat-key-sw" style="background:${_heatBg('#a32a2a', 85)}"></span>negativo</span>
+      <span class="heat-key"><span class="heat-key-sw" style="background:${_heatBg('#a87523', 60)}"></span>mixta</span>
+    </div>
+  `;
 
   return `
     <div class="stats-division">
