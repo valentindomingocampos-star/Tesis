@@ -3329,7 +3329,7 @@ const VOTE_LABELS = {
   'AFIRMATIVO': 'A favor',
   'NEGATIVO': 'En contra',
   'AUSENTE': 'Ausente',
-  'PRESIDENCIA': 'Presidencia',
+  'PRESIDENCIA': 'Presidencia · no votó',
   'ABSTENCION': 'Abstención'
 };
 // Etiquetas formales para CSV (uso académico). Distingue de VOTE_LABELS,
@@ -3338,7 +3338,7 @@ const VOTE_LABELS_CSV = {
   'AFIRMATIVO': 'Afirmativo',
   'NEGATIVO': 'Negativo',
   'AUSENTE': 'Ausente',
-  'PRESIDENCIA': 'Presidencia',
+  'PRESIDENCIA': 'Presidencia · no votó',
   'ABSTENCION': 'Abstención'
 };
 const VOTE_CLASS = {
@@ -4473,9 +4473,10 @@ function renderHemicycle(){
 // No codifica nada por color, así que respeta la separación voto/partido.
 function buildSeatAriaLabel(leg, scenario){
   if(leg.vote === 'PRESIDENCIA'){
-    return `${leg.name}. Presidencia de la cámara. Bloque: ${leg.block}. Provincia: ${leg.province}.`;
+    return `${leg.name}. Presidencia: presidió la sesión sin emitir voto computado. Bloque: ${leg.block}. Provincia: ${leg.province}.`;
   }
-  return `${leg.name}. Voto: ${VOTE_LABELS[leg.vote]}. Bloque: ${leg.block}. Familia política: ${leg.family}. Provincia: ${leg.province}.`;
+  const role = leg.presided ? ' Presidió la sesión.' : '';
+  return `${leg.name}. Voto: ${VOTE_LABELS[leg.vote]}.${role} Bloque: ${leg.block}. Familia política: ${leg.family}. Provincia: ${leg.province}.`;
 }
 
 // Tooltip estructurado para una banca
@@ -4484,6 +4485,7 @@ function buildSeatTooltip(leg, scenario){
   return `
     <strong>${esc(leg.name)}</strong>
     <div class="tt-row"><span class="tt-badge ${voteClass}">${esc(VOTE_LABELS[leg.vote])}</span><span class="tt-prov">${esc(leg.province)}</span></div>
+    ${leg.presided ? '<div class="tt-block">Rol: presidió la sesión</div>' : ''}
     <div class="tt-block">${esc(leg.block)}</div>
     <em>${esc(leg.family)} · ${esc(scenario.caseName)} · ${esc(scenario.chamberShort)}</em>
   `;
@@ -4790,6 +4792,7 @@ function renderLegislatorDetail(leg){
       <span class="detail-province">${esc(leg.province)}</span>
     </div>
     <div class="kv-list">
+      ${leg.presided ? '<div class="kv-row"><div class="kv-k">Rol</div><div class="kv-v">Presidió la sesión</div></div>' : ''}
       <div class="kv-row"><div class="kv-k">Bloque</div><div class="kv-v">${esc(leg.block)}</div></div>
       <div class="kv-row"><div class="kv-k">Familia</div><div class="kv-v"><span class="family-dot" style="background:${FAMILY_COLORS[leg.family]}"></span>${esc(leg.family)}</div></div>
     </div>
@@ -4918,6 +4921,32 @@ function renderNationalPanel(s){
 // =====================================================================
 // COMPUTE — agregaciones desde el dataset (no hardcodear)
 // =====================================================================
+// Normalización de presentación (no estructural) del voto de quien preside.
+// Regla: "Presidencia" es un rol, no un sentido de voto.
+//  · Si quien preside emitió un voto computado en el resultado oficial
+//    (afirmativos_dataset + presidencia == yes_metadata, con afirmativos != yes),
+//    se reclasifica su voto de PRESIDENCIA a su voto efectivo (AFIRMATIVO) y se
+//    marca leg.presided = true para conservar el rol en tooltip/ficha.
+//  · Si presidió sin voto computado, queda como PRESIDENCIA ("Presidencia · no
+//    votó"), no se suma a ningún voto y figura solo en el total de bancas.
+// Idempotente. Caso real: Pampuro (Aerolíneas Senado) → Afirmativo.
+function normalizeScenarioVotes(s){
+  if(!s || s._votesNormalized) return;
+  s._votesNormalized = true;
+  if(!Array.isArray(s.legislators) || typeof s.yes !== 'number') return;
+  const sum = computeVoteSummary(s);
+  const presidencyVoted = sum.PRESIDENCIA > 0
+    && sum.AFIRMATIVO !== s.yes
+    && (sum.AFIRMATIVO + sum.PRESIDENCIA) === s.yes;
+  if(!presidencyVoted) return;
+  for(const leg of s.legislators){
+    if(leg.vote === 'PRESIDENCIA'){
+      leg.vote = 'AFIRMATIVO'; // voto efectivo según el acta oficial
+      leg.presided = true;     // rol institucional preservado
+    }
+  }
+}
+
 function computeVoteSummary(scenario){
   const out = { AFIRMATIVO:0, NEGATIVO:0, AUSENTE:0, ABSTENCION:0, PRESIDENCIA:0, total:0 };
   for(const l of scenario.legislators){
@@ -6837,10 +6866,10 @@ function exportLegislatorCsv(){
   const ctx = csvScenarioContext(s);
   const columns = [
     {key:'case',label:'Caso'},{key:'chamber',label:'Cámara'},{key:'date',label:'Fecha'},{key:'law',label:'Ley'},
-    {key:'name',label:'Legislador'},{key:'vote',label:'Voto'},{key:'block',label:'Bloque'},
+    {key:'name',label:'Legislador'},{key:'vote',label:'Voto'},{key:'role',label:'Rol'},{key:'block',label:'Bloque'},
     {key:'family',label:'Familia política'},{key:'province',label:'Provincia'}
   ];
-  const row = { ...ctx, name: leg.name, vote: csvLabelVote(leg.vote), block: leg.block, family: leg.family, province: leg.province };
+  const row = { ...ctx, name: leg.name, vote: csvLabelVote(leg.vote), role: leg.presided ? 'Presidió la sesión' : '', block: leg.block, family: leg.family, province: leg.province };
   exportCsv([row], columns, slugifyFilename([s.id, 'ficha', leg.name]) + '.csv');
 }
 function exportProvSummaryCsv(){
@@ -6904,6 +6933,7 @@ function buildLegislatorFichaSvg(s, leg){
   els.push(_svgText(NS, PAD_X, y+14, 'Voto: ' + VOTE_LABELS[leg.vote], { size:'14', weight:'700', fill: _VOTE_HEX[leg.vote] || '#14181f' }));
   y += 36;
   const kv = [['Provincia', leg.province], ['Bloque', leg.block], ['Familia política', leg.family]];
+  if(leg.presided) kv.unshift(['Rol', 'Presidió la sesión']);
   kv.forEach(([k,v]) => {
     els.push(_svgText(NS, PAD_X, y+12, k.toUpperCase(), { size:'9.5', weight:'700', fill:'#6a6a64', ls:'1.4' }));
     els.push(_svgText(NS, PAD_X, y+30, String(v), { size:'13', weight:'600' }));
@@ -10850,6 +10880,11 @@ window.addEventListener('afterprint', () => {
     }
   });
 });
+
+// Normalizar el voto de quien preside según el acta oficial (ver
+// normalizeScenarioVotes) antes del primer render: garantiza que hemiciclo,
+// leyenda, KPIs, barras, tablas, comparado y exports lean el voto efectivo.
+Object.values(SCENARIOS).forEach(normalizeScenarioVotes);
 
 // Inicialización
 render();

@@ -2,6 +2,23 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Presidencia como rol: voto efectivo según el acta
+
+"Presidencia" deja de ser una categoría de voto que mezcla situaciones distintas. Quien preside se clasifica por su voto efectivo según el acta oficial; "Presidencia · no votó" queda solo para quien presidió sin voto computado.
+
+### Normalización en el origen
+- Nueva `normalizeScenarioVotes(s)` (corre una vez por escenario antes del primer render): si el voto de quien preside está computado en el resultado oficial (`afirmativos_dataset + presidencia == yes` y `afirmativos != yes`), reclasifica su `vote` de PRESIDENCIA a AFIRMATIVO y marca `leg.presided = true`. Como todo el render lee `leg.vote`, la regla queda pareja en hemiciclo, leyenda, KPIs, barras, tablas, comparado, CSV y PNG **de una sola vez**. No altera los datasets del archivo (es presentación en runtime) ni las funciones `compute*`.
+- Caso real: **Pampuro · Aerolíneas Senado → Afirmativo** (el acta lo cuenta en los 42). **Fellner · Aerolíneas Diputados** y **Domínguez · YPF Diputados → "Presidencia · no votó"** (presidieron sin voto computado; cuentan solo en el total de bancas, como remanente). YPF Senado: sin caso.
+
+### Categoría y rol
+- `VOTE_LABELS`/`VOTE_LABELS_CSV` de PRESIDENCIA → **"Presidencia · no votó"** (la categoría significa únicamente eso).
+- El rol institucional se conserva para quien votó: tooltip y ficha lateral muestran "Rol: presidió la sesión"; la ficha PNG agrega una fila "ROL · Presidió la sesión"; el CSV de legislador agrega columna "Rol"; el aria-label lo incluye.
+
+### Coherencia verificada (24/24 headless)
+- Conteos == acta oficial en los 4 escenarios (afirmativos/negativos/ausentes); `validateScenario` OK en los 4.
+- **Hemiciclo == resumen == acta:** Aerolíneas Senado muestra 42 bancas verdes = "42 a favor" = 42 oficiales; FPV-PJ 35 a favor (Pampuro incluido). Leyenda sin chip de Presidencia donde el presidente votó; "Presidencia · no votó (1)" donde no votó.
+- Datasets del archivo fuente idénticos (la reclasificación es en runtime).
+
 ## 2026-06-02 — Regla: la presidencia no se cuenta como voto
 
 La categoría PRESIDENCIA (quien preside la sesión) no es un voto: deja de mostrarse como segmento ni de computarse como ausente en las composiciones de voto, de forma pareja en toda la herramienta. La banca sigue contando en el total (denominador); aparece como remanente vacío de la barra (igual que ya hacía el sidebar). Sin cambios de datos ni de `compute*`: solo cómo se presenta la presidencia.
