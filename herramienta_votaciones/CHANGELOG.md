@@ -2,6 +2,32 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Etapa 2 · navegación por dos ejes + ancla de contexto
+
+Segunda etapa del rediseño (jerarquía, navegación y orientación). Solo presentación, markup y lógica de navegación: **sin cambios de datos, conteos, paleta ni separación voto/partido** (verificado por diff de contenido contra el commit previo). Desarrollada sobre la copia `index-redesign-v1.html` y luego volcada al `index.html` maestro; el original previo queda preservado en git (commit `d9d3c7a`).
+
+### Navegación por dos ejes (Caso × Cámara)
+- Las 4 tarjetas-tab densas y repetitivas (`.scenario-tab`, con caso/cámara/fecha/bancas/ley en cada una) se reemplazan por dos controles segmentados: `.scenario-nav` con un eje **Caso** (Aerolíneas / YPF) y un eje **Cámara** (Diputados / Senado). El escenario activo se lee en el segmento relleno en tinta de cada eje (`.nav-seg[aria-pressed="true"]`).
+- La combinación de ambos ejes reconstituye el `scenarioId` (`${caso}_${camara}`), que sigue siendo la única fuente de verdad. La lógica de selección de escenario y el reseteo de estado al cambiar son idénticos a los de las tabs previas.
+- `renderTabs()` reescrito: descompone `state.scenarioId` y marca el segmento pulsado de cada eje (en vez de marcar una tarjeta completa).
+- El indicador de "dataset bajo revisión territorial" (antes marcado por-tarjeta) se preserva como etiqueta discreta `.nav-review` junto al selector, alimentada por la misma `validateScenario()`.
+
+### Ancla de contexto persistente
+- Nuevo `.context-anchor` (`position: fixed`): barra fina que aparece solo al scrollear, cuando el selector sale del viewport (vía `IntersectionObserver` sobre `.scenario-nav`). Muestra caso · cámara · fecha · resultado, con el resultado coloreado igual que la meta-bar y manteniendo la etiqueta analítica (AFIRMATIVO/NEGATIVO), sin vocabulario nuevo.
+- Nuevo `updateContextAnchor()`, invocado desde `render()`. `IntersectionObserver` inicializado una vez; si no está disponible, el ancla no aparece (degradación limpia, sin error).
+- Oculta en `@media print` para no duplicar el masthead.
+
+### Reducción de repetición de metadata
+- Al sacar fecha/ley/bancas de cada tarjeta, esa metadata deja de repetirse en la navegación: queda en la meta-bar (detalle completo) y en el ancla (orientación al scrollear). Jerarquía: caso → cámara → fecha → resultado → ley/metadatos.
+
+### Ajustes CSS dependientes
+- `@media print`: `.scenario-tabs` → `.scenario-nav`, y `.context-anchor` agregada a la lista de ocultos.
+- Responsive ≤720px, `:focus-visible` (`.nav-seg`) y `prefers-reduced-motion` (el ancla aparece sin deslizamiento) actualizados a las clases nuevas.
+- Eliminada la regla muerta `.scenario-tab.is-under-review .st-status` (sin elementos tras el reemplazo).
+
+### QA
+- Datasets, conteos y resultados idénticos al commit previo (diff de contenido vacío). Sintaxis JS válida (`node` parse). Las 4 combinaciones Caso×Cámara mapean a IDs válidos y marcan exactamente 2 segmentos. Render verificado con capturas headless a 1440px y 1024px; PDF de impresión generado sin error. jsdom no disponible en el entorno, smoke tests de render no ejecutados esta vez.
+
 ## 2026-06-02 — Etapa 1 · accesibilidad del hemiciclo + contador en vivo
 
 Primera etapa del repaso de accesibilidad. Sin cambios de datos, paleta ni separación voto/partido. Backup previo: `backups/versiones_anteriores/index_pre_etapa1_accesibilidad.html`.

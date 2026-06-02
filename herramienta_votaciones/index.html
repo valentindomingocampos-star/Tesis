@@ -216,82 +216,117 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   font-variant-numeric: tabular-nums;
 }
 
-/* Selector de escenarios — estilo institucional, activo sutil */
-.scenario-tabs{
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-2);
+/* Navegación por dos ejes — Caso × Cámara.
+   Reemplaza las 4 tarjetas densas y repetitivas por dos controles segmentados
+   compactos. La fecha, la ley y las bancas ya no se repiten por tab: viven en
+   la meta-bar y en el ancla de contexto. El escenario activo se lee siempre en
+   el segmento relleno en tinta de cada eje. */
+.scenario-nav{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-6);
   margin-bottom: var(--space-6);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--line);
 }
-.scenario-tab{
-  appearance: none;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-left: 3px solid transparent;
-  border-radius: var(--radius-sm);
-  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-5);
-  text-align: left;
-  cursor: pointer;
-  transition: border-color .2s cubic-bezier(.4,0,.2,1), background .2s, box-shadow .2s, transform .15s;
-  font-family: inherit;
-  color: var(--ink);
-  position: relative;
+.nav-axis{
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
-.scenario-tab:hover{
-  border-color: var(--line-strong);
+.nav-axis-label{
+  font-size: var(--t-xs);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: var(--w-semi);
+  font-feature-settings: "smcp", "c2sc", "kern";
+}
+.nav-seg-group{
+  display: inline-flex;
   background: var(--bg-soft);
-  transform: translateY(-1px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 2px;
+}
+.nav-seg{
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--t-sm);
+  font-weight: var(--w-medium);
+  color: var(--ink-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  letter-spacing: -0.006em;
+  white-space: nowrap;
+  transition: background .18s cubic-bezier(.4,0,.2,1), color .18s, box-shadow .18s;
+}
+.nav-seg:hover{
+  color: var(--ink);
+  background: var(--card);
+}
+.nav-seg[aria-pressed="true"]{
+  background: var(--ink);
+  color: var(--bg);
+  font-weight: var(--w-semi);
   box-shadow: var(--shadow-xs);
 }
-.scenario-tab[aria-selected="true"]{
-  border-color: var(--line-strong);
-  border-left: 5px solid var(--accent-gold);
-  padding-left: calc(var(--space-5) - 2px); /* compensa el border más ancho */
-  background: linear-gradient(180deg, var(--card) 0%, var(--bg-soft) 100%);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+/* Indicador discreto de dataset bajo revisión territorial. Preserva la señal
+   que antes vivía marcada por-tab, sin volver a saturar la navegación. */
+.nav-review{
+  align-self: center;
+  margin-left: auto;
+  font-size: var(--t-xs);
+  font-weight: var(--w-semi);
+  letter-spacing: .01em;
+  color: var(--accent-gold-text);
+  background: var(--accent-gold-soft);
+  border-radius: var(--radius-xs);
+  padding: 3px var(--space-3);
 }
-.scenario-tab[aria-selected="true"]::after{
-  content: '';
-  position: absolute;
+
+/* Ancla de contexto — barra fina sticky que aparece sólo cuando el masthead y
+   el selector salen del viewport (controlada por IntersectionObserver). Orienta
+   sin molestar: caso · cámara · fecha · resultado. Oculta en impresión para no
+   duplicar el masthead. */
+.context-anchor{
+  position: fixed;
+  top: 0;
   left: 0;
   right: 0;
-  bottom: -1px;
-  height: 2px;
-  background: var(--accent-gold);
-  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  z-index: 50;
+  background: var(--card);
+  -webkit-backdrop-filter: saturate(1.3) blur(8px);
+  backdrop-filter: saturate(1.3) blur(8px);
+  border-bottom: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-xs);
+  transform: translateY(-100%);
+  transition: transform .26s cubic-bezier(.4,0,.2,1);
+  will-change: transform;
 }
-.scenario-tab[aria-selected="true"] .st-chamber{ color: var(--ink); font-weight: var(--w-bold); }
-.scenario-tab[aria-selected="true"] .st-status{ color: var(--ink); }
-.scenario-tab[aria-selected="true"] .st-case{ color: var(--accent-gold-text); }
-
-.st-case{
-  font-size: var(--t-xs);
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  font-weight: var(--w-semi);
-  margin-bottom: var(--space-1);
-  color: var(--muted);
-}
-.st-chamber{
-  font-size: var(--t-lg);
-  font-weight: var(--w-semi);
-  margin-bottom: var(--space-2);
-  color: var(--ink);
-  letter-spacing: -0.012em;
-  line-height: 1.2;
-}
-.scenario-tab[aria-selected="true"] .st-chamber{
-  font-weight: var(--w-bold);
-}
-.st-meta{
+.context-anchor.is-visible{ transform: translateY(0); }
+.context-anchor-inner{
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-10);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
   font-size: var(--t-sm);
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.002em;
+  letter-spacing: -0.004em;
 }
-/* .st-status: removed — la ley se integró en .st-meta. Reglas heredadas
-   quedan inactivas y no afectan al render. */
+.ca-case{ font-weight: var(--w-bold); color: var(--ink); }
+.ca-chamber{ color: var(--ink-2); font-weight: var(--w-medium); }
+.ca-date{ color: var(--muted); font-variant-numeric: tabular-nums; }
+.ca-sep{ color: var(--muted-soft); }
+.ca-result{ font-weight: var(--w-semi); letter-spacing: .01em; }
+.ca-result.result-yes{ color: var(--vote-yes); }
+.ca-result.result-no{ color: var(--vote-no); }
 
 /* =====================================================================
    METADATOS DEL ESCENARIO ACTIVO
@@ -1441,15 +1476,6 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
 .terr-aliases{ margin-top: var(--space-2); font-size: var(--t-xs); opacity: .85; line-height: 1.5; }
 .terr-extra{ margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid currentColor; }
 
-/* Indicador en la tab de escenario cuando el dataset está bajo revisión */
-.scenario-tab.is-under-review .st-status{
-  color: var(--vote-abst);
-  background: var(--vote-abst-soft);
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-xs);
-  display: inline-block;
-  font-weight: var(--w-semi);
-}
 
 /* Cards con header de export — agrupación analítica */
 .exp-card{
@@ -1847,7 +1873,7 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
    ===================================================================== */
 @media print{
   body{ background: #fff; color: #14181f; }
-  .toolbar, .scenario-tabs, .subtabs, .viz-export-bar,
+  .toolbar, .scenario-nav, .context-anchor, .subtabs, .viz-export-bar,
   .tbl-card-actions, .stats-section-actions, .stats-division-actions,
   .btn-exp, .btn-exp-grid, .exp-card,
   #tooltip {
@@ -2817,7 +2843,9 @@ table.dtable td.col-block{
 @media (max-width: 720px){
   .shell{ padding: 16px 12px 40px; }
   .masthead h1{ font-size: 22px; }
-  .scenario-tabs{ grid-template-columns: repeat(2, 1fr); }
+  .scenario-nav{ gap: var(--space-4); }
+  .nav-seg-group{ flex-wrap: wrap; }
+  .nav-review{ margin-left: 0; }
   .toolbar-row{ gap: 8px; padding: 10px 12px; }
   .summary-strip{ grid-template-columns: repeat(2, 1fr); }
   .summary-cell:nth-child(2n){ border-right: none; }
@@ -2851,10 +2879,10 @@ a:focus-visible,
   border-radius: var(--radius-xs);
 }
 
-.scenario-tab:focus-visible{
+.nav-seg:focus-visible{
   outline: 2px solid var(--accent);
-  outline-offset: 3px;
-  border-radius: var(--radius-sm);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
 }
 
 .seg-btn:focus-visible,
@@ -2904,11 +2932,9 @@ a:focus-visible,
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
   }
-  .scenario-tab,
-  .scenario-tab:hover,
-  .scenario-tab[aria-selected="true"]{
-    transform: none !important;
-  }
+  /* El ancla de contexto aparece/desaparece sin deslizamiento bajo
+     preferencia de movimiento reducido. */
+  .context-anchor{ transition: none !important; }
   .seat:hover,
   .seat-halo{
     transition: none !important;
@@ -2917,6 +2943,20 @@ a:focus-visible,
 </style>
 </head>
 <body>
+
+<!-- Ancla de contexto persistente — se rellena en updateContextAnchor() y se
+     muestra vía IntersectionObserver cuando el selector sale del viewport. -->
+<div class="context-anchor" id="contextAnchor" aria-hidden="true">
+  <div class="context-anchor-inner">
+    <span class="ca-case"></span>
+    <span class="ca-sep">·</span>
+    <span class="ca-chamber"></span>
+    <span class="ca-sep">·</span>
+    <span class="ca-date"></span>
+    <span class="ca-sep">·</span>
+    <span class="ca-result"></span>
+  </div>
+</div>
 
 <div class="shell">
 
@@ -2936,28 +2976,23 @@ a:focus-visible,
   <!-- ====================================================
        TABS DE ESCENARIOS
        ==================================================== -->
-  <div class="scenario-tabs" role="tablist" aria-label="Escenarios">
-    <button class="scenario-tab" role="tab" data-scenario="aerolineas_diputados" aria-selected="true">
-      <div class="st-case">Aerolíneas Argentinas</div>
-      <div class="st-chamber">Cámara de Diputados</div>
-      <div class="st-meta">03/12/2008 · 257 bancas · L.&nbsp;26.466</div>
-    </button>
-    <button class="scenario-tab" role="tab" data-scenario="aerolineas_senado" aria-selected="false">
-      <div class="st-case">Aerolíneas Argentinas</div>
-      <div class="st-chamber">Senado de la Nación</div>
-      <div class="st-meta">17/12/2008 · 72 bancas · L.&nbsp;26.466</div>
-    </button>
-    <button class="scenario-tab" role="tab" data-scenario="ypf_diputados" aria-selected="false">
-      <div class="st-case">YPF</div>
-      <div class="st-chamber">Cámara de Diputados</div>
-      <div class="st-meta">03/05/2012 · 257 bancas · L.&nbsp;26.741</div>
-    </button>
-    <button class="scenario-tab" role="tab" data-scenario="ypf_senado" aria-selected="false">
-      <div class="st-case">YPF</div>
-      <div class="st-chamber">Senado de la Nación</div>
-      <div class="st-meta">26/04/2012 · 72 bancas · L.&nbsp;26.741</div>
-    </button>
-  </div>
+  <nav class="scenario-nav" aria-label="Selección de escenario por caso y cámara">
+    <div class="nav-axis">
+      <span class="nav-axis-label" id="navAxisCase">Caso</span>
+      <div class="nav-seg-group" role="group" aria-labelledby="navAxisCase">
+        <button class="nav-seg" data-axis="case" data-value="aerolineas" aria-pressed="true">Aerolíneas Argentinas</button>
+        <button class="nav-seg" data-axis="case" data-value="ypf" aria-pressed="false">YPF</button>
+      </div>
+    </div>
+    <div class="nav-axis">
+      <span class="nav-axis-label" id="navAxisChamber">Cámara</span>
+      <div class="nav-seg-group" role="group" aria-labelledby="navAxisChamber">
+        <button class="nav-seg" data-axis="chamber" data-value="diputados" aria-pressed="true">Diputados</button>
+        <button class="nav-seg" data-axis="chamber" data-value="senado" aria-pressed="false">Senado</button>
+      </div>
+    </div>
+    <span class="nav-review" hidden></span>
+  </nav>
 
   <!-- ====================================================
        META-BAR
@@ -3500,6 +3535,7 @@ function computeProvinceData(legislators){
 // =====================================================================
 function render(){
   renderTabs();
+  updateContextAnchor();
   renderMetaBar();
   renderVizCard();
   renderSidebar();
@@ -3694,27 +3730,50 @@ function renderFigureFooter(scenario, figureType, opts){
 }
 
 function renderTabs(){
-  document.querySelectorAll('.scenario-tab').forEach(btn => {
-    btn.setAttribute('aria-selected', btn.dataset.scenario === state.scenarioId ? 'true' : 'false');
-    // Marcar tab si el dataset asociado tiene problemas territoriales
-    const scen = SCENARIOS[btn.dataset.scenario];
-    if(scen){
-      const v = validateScenario(scen);
-      const statusEl = btn.querySelector('.st-status');
-      // Preservar el texto base (Ley 26.xxx) ya seteado en HTML, sin pisarlo dos veces
-      if(!btn.dataset.baseStatus && statusEl) btn.dataset.baseStatus = statusEl.textContent;
-      const base = btn.dataset.baseStatus || (statusEl ? statusEl.textContent : '');
-      if(!v.territorialOk){
-        btn.classList.add('is-under-review');
-        btn.title = 'Dataset bajo revisión territorial: la distribución de provincias no coincide con la composición institucional esperada.';
-        if(statusEl) statusEl.textContent = base + ' · revisión territorial';
-      } else {
-        btn.classList.remove('is-under-review');
-        btn.title = '';
-        if(statusEl) statusEl.textContent = base;
-      }
-    }
+  // Navegación por dos ejes: el escenario activo se descompone en caso y cámara
+  // (los IDs son siempre `${caso}_${camara}`) y se marca el segmento pulsado de
+  // cada eje. No altera la lógica de selección: el scenarioId sigue siendo la
+  // única fuente de verdad.
+  const [curCase, curChamber] = state.scenarioId.split('_');
+  document.querySelectorAll('.nav-seg').forEach(btn => {
+    const active = (btn.dataset.axis === 'case'    && btn.dataset.value === curCase)
+                || (btn.dataset.axis === 'chamber' && btn.dataset.value === curChamber);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
   });
+  // Indicador discreto si el dataset activo está bajo revisión territorial.
+  // Misma señal que antes marcaba la tarjeta; ahora vive junto al selector.
+  const rev = document.querySelector('.nav-review');
+  if(rev){
+    const v = validateScenario(activeScenario());
+    if(v && !v.territorialOk){
+      rev.hidden = false;
+      rev.textContent = 'Dataset bajo revisión territorial';
+      rev.title = 'La distribución de provincias no coincide con la composición institucional esperada.';
+    } else {
+      rev.hidden = true;
+      rev.textContent = '';
+      rev.removeAttribute('title');
+    }
+  }
+}
+
+// Rellena el ancla de contexto persistente con el escenario activo. Usa las
+// mismas etiquetas analíticas que el resto de la herramienta (resultado
+// AFIRMATIVO/NEGATIVO), sólo que coloreadas. No introduce vocabulario nuevo.
+function updateContextAnchor(){
+  const a = document.getElementById('contextAnchor');
+  if(!a) return;
+  const s = activeScenario();
+  const set = (sel, txt) => { const el = a.querySelector(sel); if(el) el.textContent = txt; };
+  set('.ca-case', s.caseName || '');
+  set('.ca-chamber', s.chamberShort || s.chamber || '');
+  set('.ca-date', s.date || '');
+  const resultEl = a.querySelector('.ca-result');
+  if(resultEl){
+    const rc = s.result === 'AFIRMATIVO' ? 'yes' : (s.result === 'NEGATIVO' ? 'no' : '');
+    resultEl.className = 'ca-result' + (rc ? ' result-' + rc : '');
+    resultEl.textContent = formatMetaValue(s.result, 'Sin dato');
+  }
 }
 
 // =====================================================================
@@ -10110,10 +10169,18 @@ function hideTooltip(){
   tooltipEl.style.opacity = '0';
 }
 
-// Bind de tabs de escenarios
-document.querySelectorAll('.scenario-tab').forEach(b => {
+// Bind del selector por dos ejes (Caso × Cámara). Cada segmento fija su eje y
+// conserva el valor del otro; la combinación reconstituye el scenarioId. El
+// reseteo de estado al cambiar de escenario es idéntico al de las tabs previas.
+document.querySelectorAll('.nav-seg').forEach(b => {
   b.addEventListener('click', () => {
-    state.scenarioId = b.dataset.scenario;
+    const [curCase, curChamber] = state.scenarioId.split('_');
+    const newCase    = b.dataset.axis === 'case'    ? b.dataset.value : curCase;
+    const newChamber = b.dataset.axis === 'chamber' ? b.dataset.value : curChamber;
+    const newId = `${newCase}_${newChamber}`;
+    if(!SCENARIOS[newId]) return;            // combinación inexistente (no debería ocurrir)
+    if(newId === state.scenarioId) return;   // re-clic en el segmento ya activo: sin cambios
+    state.scenarioId = newId;
     state.selectedIndex = null;
     state.provinceFilter = '';
     state.voteFilter = 'TODOS';
@@ -10125,6 +10192,19 @@ document.querySelectorAll('.scenario-tab').forEach(b => {
     render();
   });
 });
+
+// Ancla de contexto: se muestra al hacer scroll cuando el selector de escenario
+// sale del viewport. IntersectionObserver es aditivo y barato; si no está
+// disponible, el ancla simplemente no aparece (degradación limpia, sin error).
+(function initContextAnchor(){
+  const sentinel = document.querySelector('.scenario-nav');
+  const anchor = document.getElementById('contextAnchor');
+  if(!sentinel || !anchor || !('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => anchor.classList.toggle('is-visible', !e.isIntersecting));
+  }, { threshold: 0 });
+  io.observe(sentinel);
+})();
 
 // Inicialización
 render();
