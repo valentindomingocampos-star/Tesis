@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# IDE / JetBrains
+.idea/
+
+# Claude Code — configuración local (no compartir)
+.claude/settings.local.json
