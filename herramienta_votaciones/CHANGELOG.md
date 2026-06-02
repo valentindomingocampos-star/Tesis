@@ -2,6 +2,37 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Reorganización IA · cuatro tabs por nivel de lectura
+
+Reestructura de arquitectura de información (no rediseño visual). Las 4 sub-tabs pasan de **Visualización / Estadísticas / Tablas / Exportar** a **Análisis del caso / Análisis comparado / Datos / Metodología**. "Exportar" deja de ser tab: las exportaciones se reubican contextualmente. **Sin perder ninguna funcionalidad ni ningún botón de export** (verificado: los 30 `data-export` siguen presentes). Sin cambios de datos ni de cálculo.
+
+### Nueva arquitectura de tabs
+- **Análisis del caso** (`data-subtab="case"`): figura (hemiciclo/mapa) + controles vista/color + filtros plegables + leyenda + aviso modo familia + contador + summary-strip + export contextual de figura + validación del escenario + **División A** (lectura estadística del caso, ruteada desde `renderScenarioIndicators`). "Ver + interpretar el escenario activo."
+- **Análisis comparado** (`compare`): **División B** completa (`renderComparisonPanel`: tablas comparadas, heatmaps, Rae comparado). "Comparar entre escenarios."
+- **Datos** (`data`): las 4 tablas (`renderTables`) + sus exports CSV/PNG inline + disclosure **Exportaciones avanzadas**.
+- **Metodología** (`method`): `renderMethodologyNotes`. "Fuentes, criterios y límites."
+- `renderStatsTab` ahora rutea A→`#caseStatsPanel`, B→`#comparePanel`, metodología→`#methodPanel` (mismas funciones, distinto contenedor). `state.subtab` inicial `'viz'`→`'case'`. `activateSubtab(state.subtab)` se llama al final de `renderVizCard` para sincronizar la tab activa en cada re-render.
+
+### Reubicación de exportaciones (ninguna se borró)
+- **Figura** (`hemicycle/map-png[-ctx]`): export contextual `.ctx-export` en Análisis del caso, **view-aware** (muestra la figura activa) + botón **Imprimir / PDF** (`data-export="print"` → `window.print()`).
+- **Indicadores del caso** (`stats-png/csv`): ya inline en el header de División A.
+- **Comparador** (`comparator-png/csv`) + **comparativo general** (`summary-all-csv`, antes solo en la tab Exportar): en el header de División B.
+- **Tablas** (`legislators/provinces/families/summary-png/csv`): ya inline en cada `.tbl-card`.
+- **Granulares** (Rice, Rae, comparadores wide × csv/png, 12 botones): en el disclosure `.adv-export` "Exportaciones avanzadas" dentro de Datos.
+- Exports por **delegación** (`handleExportClick`) intactos: mover los botones no rompe handlers.
+
+### Filtros plegables
+- Buscador, select de provincia, pills de voto, limpiar — dentro de `<details class="filter-disclosure">` "Filtrar y buscar". Arranca cerrado; **se abre automáticamente si hay filtros activos** (con indicador "· filtros activos"). El contador `aria-live` se mantiene. El primer impacto vuelve a ser el gráfico.
+
+### Índice de secciones (División A)
+- Nuevo `buildStatsIndex()`: arma una barra de saltos rápidos (A.1 · A.2 · …) a partir de los marcadores existentes, asignando ids a cada `.stats-section`. No duplica ni borra contenido; A.7 (nota secundaria) se incluye como salto.
+
+### Impresión
+- Hidden list: fuera `.viz-export-bar` (eliminado); dentro `.ctx-export, .adv-export, .filter-disclosure, .stats-index`. `break-before: page` reapuntado a `#comparePanel, #tablesPanel, #methodPanel`.
+
+### QA
+- Batería headless **35/35**: datos en los 4 escenarios; 4 tabs nuevas + Exportar eliminada; A/B/metodología/tablas ruteadas y pobladas; índice con ≥5 saltos; `activateSubtab` en las 4; disclosure de filtros abre/cierra según filtros; nav por ejes, modo color, mapa, contador, selección toggle, roving tabindex, aria-labels, export por delegación sin throw. Render verificado de las 4 tabs a 1280px; PDF de impresión sin error (~7,9 MB). Los 30 `data-export` presentes.
+
 ## 2026-06-02 — Etapa 8 · polish final y batería de pruebas
 
 Octava y última etapa del plan de rediseño. Verificación integral + limpieza. Solo presentación.

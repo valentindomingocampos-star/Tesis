@@ -769,6 +769,112 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 }
 .viz-figmeta .seat-counter{ margin: 0; }
 
+/* ===== Reorganización IA: filtros plegables, export contextual, índice ===== */
+/* Filtros plegables — disclosure compacto en Análisis del caso. Arranca cerrado;
+   el primer impacto es el gráfico, no la toolbar. */
+.filter-disclosure{
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+  margin: var(--space-3) var(--space-5) 0;
+}
+.filter-summary{
+  cursor: pointer;
+  list-style: none;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--t-sm);
+  font-weight: var(--w-semi);
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.filter-summary::-webkit-details-marker{ display: none; }
+.filter-summary::before{ content: '⌕'; color: var(--muted); font-weight: var(--w-regular); }
+.filter-summary::after{ content: '▾'; margin-left: auto; color: var(--muted); font-size: var(--t-xs); }
+.filter-disclosure[open] .filter-summary::after{ content: '▴'; }
+.filter-summary-active{ color: var(--accent-gold-text); font-weight: var(--w-semi); font-size: var(--t-xs); }
+.filter-disclosure .toolbar-row{ border-top: 1px solid var(--line); border-bottom: none; }
+
+/* Exportación contextual (figura activa). */
+.ctx-export{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--line);
+  background: var(--bg-soft);
+}
+.ctx-export-label{
+  font-size: var(--t-xs);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  font-weight: var(--w-semi);
+  margin-right: var(--space-2);
+}
+
+/* Disclosure de exportaciones avanzadas (en Datos). */
+.adv-export{
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--card);
+  margin-top: var(--space-6);
+  overflow: hidden;
+}
+.adv-export-summary{
+  cursor: pointer;
+  list-style: none;
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--t-sm);
+  font-weight: var(--w-semi);
+  color: var(--ink);
+  letter-spacing: -0.005em;
+  display: flex;
+  align-items: center;
+}
+.adv-export-summary::-webkit-details-marker{ display: none; }
+.adv-export-summary::after{
+  content: 'mostrar ▾';
+  margin-left: auto;
+  font-size: var(--t-xs);
+  font-weight: var(--w-regular);
+  color: var(--muted);
+}
+.adv-export[open] .adv-export-summary::after{ content: 'ocultar ▴'; }
+.adv-export-note{ margin: 0; padding: 0 var(--space-5) var(--space-3); font-size: var(--t-xs); color: var(--muted); line-height: 1.5; }
+.adv-export .btn-exp-grid{ padding: 0 var(--space-5) var(--space-5); }
+
+/* Índice compacto de secciones estadísticas — saltos rápidos (A.1…A.7). */
+.stats-index{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-6);
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-soft);
+}
+.stats-index-label{
+  font-size: var(--t-xs);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--muted);
+  font-weight: var(--w-semi);
+}
+.stats-index-links{ display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); }
+.stats-index-link{
+  font-size: var(--t-xs);
+  font-weight: var(--w-semi);
+  color: var(--accent-gold-text);
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .02em;
+}
+.stats-index-link:hover{ color: var(--ink); text-decoration: underline; }
+.stats-index-sep{ color: var(--muted-soft); font-size: var(--t-xs); }
+
 /* Contador de resultados (región aria-live). Anuncia cuántas bancas quedan
    visibles según los filtros. Jerarquía baja: texto chico y muted para no
    competir con la leyenda ni con la figura. Su valor principal es semántico
@@ -1952,16 +2058,17 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
 @page{ margin: 1.5cm; }
 @media print{
   body{ background: #fff; color: #14181f; }
-  .toolbar, .scenario-nav, .context-anchor, .subtabs, .viz-export-bar,
+  .toolbar, .scenario-nav, .context-anchor, .subtabs,
   .fig-controls, .viz-figmeta, .meta-summary-toggle,
+  .ctx-export, .adv-export, .filter-disclosure, .stats-index,
   .tbl-card-actions, .stats-section-actions, .stats-division-actions,
   .btn-exp, .btn-exp-grid, .exp-card,
   #tooltip {
     display: none !important;
   }
-  /* Estructura del documento impreso: estadísticas y tablas arrancan en página
-     nueva, para una impresión ordenada estilo anexo de tesis. */
-  #statsPanel, #tablesPanel{ break-before: page; page-break-before: always; }
+  /* Estructura del documento impreso: comparado, datos y metodología arrancan en
+     página nueva, para una impresión ordenada estilo anexo de tesis. */
+  #comparePanel, #tablesPanel, #methodPanel{ break-before: page; page-break-before: always; }
   /* Meta-bar: en impresión se muestra la ficha institucional completa (sesión,
      expediente, orden del día, fuentes), no solo el resumen. La apertura del
      <details> la fuerza beforeprint; acá se asegura que las filas se vean. */
@@ -3460,7 +3567,7 @@ const state = {
   provinceFilter: '',
   search: '',
   selectedIndex: null,
-  subtab: 'viz',              // 'viz' | 'stats' | 'tables' | 'export'
+  subtab: 'case',             // 'case' | 'compare' | 'data' | 'method'
   tableSearch: '',
   sortCol: null,              // columna de orden en tabla legisladores
   sortDir: 1,                 // 1 asc, -1 desc
@@ -4041,38 +4148,23 @@ function renderVizCard(){
     s._assigned = true;
   }
 
+  // Vista activa de la figura (para la exportación contextual) y si hay filtros
+  // activos (para abrir el disclosure de filtros automáticamente).
+  const figType = state.view === 'map' ? 'map' : 'hemicycle';
+  const anyFilter = state.voteFilter !== 'TODOS' || !!state.provinceFilter || !!state.search.trim();
+
   card.innerHTML = `
-    <div id="validationPanel"></div>
-    <!-- Toolbar global: solo filtros (buscador, provincia, voto). Estos afectan
-         tanto a la visualización como a la tabla nominal, así que se mantienen
-         compartidos arriba. Los controles de vista/color (exclusivos de la
-         figura) se movieron junto a la leyenda — ver .fig-controls. -->
-    <div class="toolbar toolbar-filters">
-      <div class="toolbar-row">
-        <input type="text" class="search-input" id="searchInput" placeholder="Buscar nombre, bloque, provincia…" value="${esc(state.search)}">
-        <select class="select-input" id="provinceSelect"><option value="">Todas las provincias</option></select>
-        <div class="vote-pills" role="group" aria-label="Filtro de voto">
-          <button class="vote-pill" data-vote="TODOS" aria-pressed="${state.voteFilter === 'TODOS'}">Todos</button>
-          <button class="vote-pill" data-vote="AFIRMATIVO" aria-pressed="${state.voteFilter === 'AFIRMATIVO'}">A favor</button>
-          <button class="vote-pill" data-vote="NEGATIVO" aria-pressed="${state.voteFilter === 'NEGATIVO'}">En contra</button>
-          <button class="vote-pill" data-vote="ABSTENCION" aria-pressed="${state.voteFilter === 'ABSTENCION'}">Abstención</button>
-          <button class="vote-pill" data-vote="AUSENTE" aria-pressed="${state.voteFilter === 'AUSENTE'}">Ausentes</button>
-        </div>
-        <button class="btn-text" id="clearBtn">Limpiar filtros</button>
-      </div>
+    <div class="subtabs" role="tablist" aria-label="Secciones del análisis">
+      <button class="subtab is-on" data-subtab="case">Análisis del caso</button>
+      <button class="subtab" data-subtab="compare">Análisis comparado</button>
+      <button class="subtab" data-subtab="data">Datos</button>
+      <button class="subtab" data-subtab="method">Metodología</button>
     </div>
 
-    <div class="subtabs" role="tablist" aria-label="Vistas del escenario">
-      <button class="subtab is-on" data-subtab="viz">Visualización</button>
-      <button class="subtab" data-subtab="stats">Estadísticas</button>
-      <button class="subtab" data-subtab="tables">Tablas</button>
-      <button class="subtab" data-subtab="export">Exportar</button>
-    </div>
-
-    <div class="subpanel is-on" data-subtab="viz">
+    <!-- ===== ANÁLISIS DEL CASO: ver + interpretar el escenario activo ===== -->
+    <div class="subpanel is-on" data-subtab="case">
+      <div id="validationPanel"></div>
       <div id="figureHeader"></div>
-      <!-- Controles de la figura (vista y modo de color), pegados a la leyenda
-           que explican. No se mezclan con los filtros globales de arriba. -->
       <div class="fig-controls">
         <div class="seg-group" role="tablist" aria-label="Vista">
           <button class="seg-btn" data-view="hemicycle" aria-pressed="${state.view === 'hemicycle'}">Hemiciclo</button>
@@ -4083,6 +4175,23 @@ function renderVizCard(){
           <button class="seg-btn" data-color="family" aria-pressed="${state.colorMode === 'family'}">Colorear por familia política</button>
         </div>
       </div>
+      <!-- Filtros plegables: el primer impacto es el gráfico, no la toolbar.
+           Arranca cerrado; se abre solo si hay filtros activos. -->
+      <details class="filter-disclosure"${anyFilter ? ' open' : ''}>
+        <summary class="filter-summary"><span class="filter-summary-label">Filtrar y buscar</span>${anyFilter ? '<span class="filter-summary-active">· filtros activos</span>' : ''}</summary>
+        <div class="toolbar-row">
+          <input type="text" class="search-input" id="searchInput" placeholder="Buscar nombre, bloque, provincia…" value="${esc(state.search)}">
+          <select class="select-input" id="provinceSelect"><option value="">Todas las provincias</option></select>
+          <div class="vote-pills" role="group" aria-label="Filtro de voto">
+            <button class="vote-pill" data-vote="TODOS" aria-pressed="${state.voteFilter === 'TODOS'}">Todos</button>
+            <button class="vote-pill" data-vote="AFIRMATIVO" aria-pressed="${state.voteFilter === 'AFIRMATIVO'}">A favor</button>
+            <button class="vote-pill" data-vote="NEGATIVO" aria-pressed="${state.voteFilter === 'NEGATIVO'}">En contra</button>
+            <button class="vote-pill" data-vote="ABSTENCION" aria-pressed="${state.voteFilter === 'ABSTENCION'}">Abstención</button>
+            <button class="vote-pill" data-vote="AUSENTE" aria-pressed="${state.voteFilter === 'AUSENTE'}">Ausentes</button>
+          </div>
+          <button class="btn-text" id="clearBtn">Limpiar filtros</button>
+        </div>
+      </details>
       ${state.colorMode === 'family' ? `
       <div class="color-notice" role="note" aria-label="Aviso metodológico del modo de color">
         <span class="cn-icon" aria-hidden="true">⚠</span>
@@ -4098,90 +4207,52 @@ function renderVizCard(){
         <p class="viz-eyebrow">Resumen ejecutivo</p>
         <div class="summary-strip" id="summaryStrip"></div>
       </div>
-      <div class="viz-export-bar">
-        <button class="btn-exp btn-exp-jumpto" data-jumpto-subtab="export" title="Ver opciones de exportación (PNG con contexto académico, CSV, resumen comparado)">Exportar esta figura →</button>
+      <!-- Exportación contextual de la figura activa (hemiciclo o mapa). -->
+      <div class="ctx-export" role="group" aria-label="Descargar figura">
+        <span class="ctx-export-label">Descargar figura</span>
+        ${figType === 'map' ? `
+        <button class="btn-exp btn-exp-primary" data-export="map-png-ctx">↓ Con contexto académico</button>
+        <button class="btn-exp" data-export="map-png">↓ Solo figura</button>` : `
+        <button class="btn-exp btn-exp-primary" data-export="hemicycle-png-ctx">↓ Con contexto académico</button>
+        <button class="btn-exp" data-export="hemicycle-png">↓ Solo figura</button>`}
+        <button class="btn-exp" data-export="print">↓ Imprimir / PDF</button>
       </div>
       <div id="figureFooter"></div>
+      <!-- Lectura estadística del caso (División A: indicadores del escenario). -->
+      <div id="caseStatsPanel"></div>
     </div>
 
-    <div class="subpanel" data-subtab="stats">
-      <div id="statsPanel"></div>
+    <!-- ===== ANÁLISIS COMPARADO: comparar entre escenarios ===== -->
+    <div class="subpanel" data-subtab="compare">
+      <div id="comparePanel"></div>
     </div>
 
-    <div class="subpanel" data-subtab="tables">
+    <!-- ===== DATOS: tablas + exportaciones avanzadas ===== -->
+    <div class="subpanel" data-subtab="data">
       <div id="tablesPanel"></div>
+      <details class="adv-export">
+        <summary class="adv-export-summary">Exportaciones avanzadas</summary>
+        <p class="adv-export-note">Archivos granulares para análisis externo, R, SPSS, Stata o respaldo metodológico.</p>
+        <div class="btn-exp-grid">
+          <button class="btn-exp" data-export="stats-rice-fam-csv">↓ Rice familia · CSV</button>
+          <button class="btn-exp" data-export="stats-rice-fam-png">↓ Rice familia · PNG</button>
+          <button class="btn-exp" data-export="stats-rice-blk-csv">↓ Rice bloque · CSV</button>
+          <button class="btn-exp" data-export="stats-rice-blk-png">↓ Rice bloque · PNG</button>
+          <button class="btn-exp" data-export="stats-rae-scen-csv">↓ Rae escenario · CSV</button>
+          <button class="btn-exp" data-export="stats-rae-scen-png">↓ Rae escenario · PNG</button>
+          <button class="btn-exp" data-export="stats-comp-rae-csv">↓ Rae comparador · CSV</button>
+          <button class="btn-exp" data-export="stats-comp-rae-png">↓ Rae comparador · PNG</button>
+          <button class="btn-exp" data-export="stats-fam-comp-wide-csv">↓ Familias comparado · CSV</button>
+          <button class="btn-exp" data-export="stats-fam-comp-wide-png">↓ Familias comparado · PNG</button>
+          <button class="btn-exp" data-export="stats-prov-comp-wide-csv">↓ Territorial comparado · CSV</button>
+          <button class="btn-exp" data-export="stats-prov-comp-wide-png">↓ Territorial comparado · PNG</button>
+        </div>
+      </details>
     </div>
 
-    <div class="subpanel" data-subtab="export">
-      <div class="exp-card">
-        <div class="exp-card-h"><h3>Figuras PNG</h3></div>
-        <div class="exp-card-b">
-          <p class="exp-card-note">Las versiones <strong>con contexto académico</strong> son las recomendadas para tesis: incluyen eyebrow institucional, título, metadatos, leyenda cromática, nota de lectura, fuentes y crédito embebidos en la imagen, listas para pegar como figura. Las versiones “solo gráfico” quedan disponibles para usos editoriales donde el contexto se compone aparte.</p>
-          <div class="btn-exp-grid">
-            <button class="btn-exp btn-exp-primary" data-export="hemicycle-png-ctx">↓ Hemiciclo con contexto académico (recomendado)</button>
-            <button class="btn-exp btn-exp-primary" data-export="map-png-ctx">↓ Mapa con contexto académico (recomendado)</button>
-            <button class="btn-exp" data-export="hemicycle-png">↓ Solo gráfico PNG · hemiciclo</button>
-            <button class="btn-exp" data-export="map-png">↓ Solo gráfico PNG · mapa</button>
-          </div>
-        </div>
-      </div>
-      <div class="exp-card">
-        <div class="exp-card-h"><h3>Estadísticas politológicas — agregados</h3></div>
-        <div class="exp-card-b">
-          <p class="exp-card-note">Indicadores agregados del escenario activo (cohesión por familia y bloque, ausentismo territorial, polarización, Rice y Rae) y comparador entre los 4 escenarios. Los PNG quedan listos para anexo metodológico; los CSV pueden cruzarse con bases sectoriales en SPSS/R/Stata.</p>
-          <div class="btn-exp-grid">
-            <button class="btn-exp btn-exp-primary" data-export="stats-png">↓ Indicadores escenario · PNG</button>
-            <button class="btn-exp btn-exp-primary" data-export="comparator-png">↓ Comparador 4 escenarios · PNG</button>
-            <button class="btn-exp" data-export="stats-csv">↓ Indicadores escenario · CSV</button>
-            <button class="btn-exp" data-export="comparator-csv">↓ Comparador 4 escenarios · CSV</button>
-          </div>
-        </div>
-      </div>
-      <div class="exp-card">
-        <div class="exp-card-h"><h3>Estadísticas politológicas — indicadores específicos</h3></div>
-        <div class="exp-card-b">
-          <p class="exp-card-note">Exports dedicados por indicador: cohesión dicotómica de Rice (familia y bloque), fragmentación de Rae (escenario y comparador), y comparadores wide de familias y provincias × 4 escenarios. Apto para análisis politológico granular.</p>
-          <div class="btn-exp-grid">
-            <button class="btn-exp" data-export="stats-rice-fam-csv">↓ Rice familia · CSV</button>
-            <button class="btn-exp" data-export="stats-rice-fam-png">↓ Rice familia · PNG</button>
-            <button class="btn-exp" data-export="stats-rice-blk-csv">↓ Rice bloque · CSV</button>
-            <button class="btn-exp" data-export="stats-rice-blk-png">↓ Rice bloque · PNG</button>
-            <button class="btn-exp" data-export="stats-rae-scen-csv">↓ Rae escenario · CSV</button>
-            <button class="btn-exp" data-export="stats-rae-scen-png">↓ Rae escenario · PNG</button>
-            <button class="btn-exp" data-export="stats-comp-rae-csv">↓ Rae comparador · CSV</button>
-            <button class="btn-exp" data-export="stats-comp-rae-png">↓ Rae comparador · PNG</button>
-            <button class="btn-exp" data-export="stats-fam-comp-wide-csv">↓ Familias comparado · CSV</button>
-            <button class="btn-exp" data-export="stats-fam-comp-wide-png">↓ Familias comparado · PNG</button>
-            <button class="btn-exp" data-export="stats-prov-comp-wide-csv">↓ Territorial comparado · CSV</button>
-            <button class="btn-exp" data-export="stats-prov-comp-wide-png">↓ Territorial comparado · PNG</button>
-          </div>
-        </div>
-      </div>
-      <div class="exp-card">
-        <div class="exp-card-h"><h3>Tablas como figura PNG</h3></div>
-        <div class="exp-card-b">
-          <p class="exp-card-note">Cada tabla se renderiza como figura editorial PNG (con eyebrow, título, bajada, metadatos institucionales, badges/chips/mini-barras y fuentes al pie). La tabla nominal exporta por defecto las filas visibles tras filtros y búsqueda; para la nómina completa de 257 legisladores conviene usar el CSV.</p>
-          <div class="btn-exp-grid">
-            <button class="btn-exp btn-exp-primary" data-export="legislators-png">↓ Tabla nominal</button>
-            <button class="btn-exp btn-exp-primary" data-export="provinces-png">↓ Resumen provincial</button>
-            <button class="btn-exp btn-exp-primary" data-export="families-png">↓ Resumen por familia</button>
-            <button class="btn-exp btn-exp-primary" data-export="summary-png">↓ Resumen institucional</button>
-          </div>
-        </div>
-      </div>
-      <div class="exp-card">
-        <div class="exp-card-h"><h3>Tablas CSV</h3></div>
-        <div class="exp-card-b">
-          <p class="exp-card-note">Los CSV se generan desde los datos validados del escenario activo. Los valores de voto se exportan en formato legible y las fuentes se conservan para trazabilidad metodológica.</p>
-          <div class="btn-exp-grid">
-            <button class="btn-exp" data-export="legislators-csv">↓ Legisladores</button>
-            <button class="btn-exp" data-export="provinces-csv">↓ Provincias</button>
-            <button class="btn-exp" data-export="families-csv">↓ Familias políticas</button>
-            <button class="btn-exp" data-export="summary-csv">↓ Resumen institucional</button>
-            <button class="btn-exp" data-export="summary-all-csv">↓ Comparativo general (4 escenarios)</button>
-          </div>
-        </div>
-      </div>
+    <!-- ===== METODOLOGÍA: fuentes, criterios y límites ===== -->
+    <div class="subpanel" data-subtab="method">
+      <div id="methodPanel"></div>
     </div>
   `;
 
@@ -4196,6 +4267,7 @@ function renderVizCard(){
   bindToolbarEvents();
   bindExportEvents();
   bindSubtabEvents();
+  activateSubtab(state.subtab); // sincroniza la sub-tab activa con el estado
   updateSeatCounter(); // estado inicial del contador (también cubre arranque en vista mapa)
 }
 
@@ -7430,10 +7502,43 @@ function renderTables(){
 // RENDER — sub-tab Estadísticas (escenario activo + comparador)
 // =====================================================================
 function renderStatsTab(){
-  const host = document.getElementById('statsPanel');
-  if(!host) return;
+  // Reorganización en tres destinos: la lectura estadística del caso (División A)
+  // va a "Análisis del caso", el comparador (División B) a "Análisis comparado",
+  // y las notas metodológicas a "Metodología". Reusa las mismas funciones de
+  // render; solo cambia el contenedor de destino. No altera datos ni cálculos.
   const s = activeScenario();
-  host.innerHTML = renderScenarioIndicators(s) + renderComparisonPanel() + renderMethodologyNotes();
+  const caseHost = document.getElementById('caseStatsPanel');
+  const cmpHost = document.getElementById('comparePanel');
+  const methodHost = document.getElementById('methodPanel');
+  if(caseHost) caseHost.innerHTML = renderScenarioIndicators(s);
+  if(cmpHost) cmpHost.innerHTML = renderComparisonPanel();
+  if(methodHost) methodHost.innerHTML = renderMethodologyNotes();
+  buildStatsIndex(caseHost, 'Lectura estadística del caso');
+}
+
+// Construye un índice compacto de saltos rápidos a partir de los marcadores de
+// sección (.stats-section-marker) ya presentes en el contenedor. Asigna un id a
+// cada sección y antepone una barra de navegación. No duplica ni borra
+// contenido: solo agrega anclas y enlaces.
+function buildStatsIndex(container, label){
+  if(!container) return;
+  const sections = Array.from(container.querySelectorAll('.stats-section'))
+    .filter(sec => sec.querySelector('.stats-section-marker, .stats-aside-marker'));
+  if(sections.length < 2) return;
+  const links = sections.map((sec, i) => {
+    const marker = sec.querySelector('.stats-section-marker, .stats-aside-marker');
+    const titleEl = sec.querySelector('.stats-section-title, .stats-aside-label');
+    const mk = (marker.textContent || '').trim();
+    const id = 'sec-' + mk.toLowerCase().replace(/[^a-z0-9]+/g, '');
+    sec.id = id;
+    const title = titleEl ? (titleEl.textContent || '').replace(mk, '').replace(/^[·\s]+/, '').trim() : '';
+    return `<a class="stats-index-link" href="#${id}" title="${esc(title)}">${esc(mk)}</a>`;
+  }).join('<span class="stats-index-sep">·</span>');
+  const nav = document.createElement('nav');
+  nav.className = 'stats-index';
+  nav.setAttribute('aria-label', label || 'Índice de secciones');
+  nav.innerHTML = `<span class="stats-index-label">${esc(label || 'Secciones')}</span><span class="stats-index-links">${links}</span>`;
+  container.insertBefore(nav, container.firstChild);
 }
 
 // Header de sección dentro de una división
@@ -7984,6 +8089,7 @@ function renderComparisonPanel(){
         <div class="stats-division-actions">
           <button class="btn-exp" data-export="comparator-csv">↓ CSV comparador</button>
           <button class="btn-exp btn-exp-primary" data-export="comparator-png">↓ PNG comparador</button>
+          <button class="btn-exp" data-export="summary-all-csv">↓ Comparativo general (4 escenarios) · CSV</button>
         </div>
       </div>
       ${(() => {
@@ -10073,6 +10179,9 @@ function bindExportEvents(){
 
 function handleExportClick(kind){
   try {
+    // Imprimir / PDF: reutiliza el diálogo de impresión del navegador (que ya
+    // expande ficha y validación vía beforeprint y conserva el contexto).
+    if(kind === 'print'){ window.print(); return; }
     const s = activeScenario();
     if(!s){ console.error('handleExportClick: no hay escenario activo'); return; }
     const mode = state.colorMode;
@@ -10414,7 +10523,7 @@ document.querySelectorAll('.nav-seg').forEach(b => {
     state.tableSearch = '';
     state.sortCol = null;
     state.sortDir = 1;
-    state.subtab = 'viz';
+    state.subtab = 'case';
     render();
   });
 });
