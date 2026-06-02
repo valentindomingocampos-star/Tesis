@@ -2,6 +2,20 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Rediseño del PNG de resumen nacional/provincial
+
+`buildProvSummarySvg` pasa de una lista textual ancha (900px, plana, sin barras, con mucho espacio vacío) a una **ficha vertical editorial compacta** (840px de ancho, alto según familias). Solo se modificó esa función (más el helper `_svgBar`); ningún otro export, dato ni cálculo se tocó.
+
+### Nuevo diseño
+- **Header académico reutilizado** (`buildTablePngHeader`): eyebrow "FIGURA EXPORTADA · HERRAMIENTA DE VISUALIZACIÓN LEGISLATIVA", título serif ("Resumen nacional del cuerpo" / "Resumen provincial — {Provincia}"), subtítulo y chips CASO·CÁMARA·FECHA·LEY.
+- **Bloque 1 · Composición del voto:** ámbito + total de bancas, **barra horizontal apilada** por voto, y números grandes coloreados con label ("153 a favor · 84 en contra · 19 ausentes").
+- **Bloque 2 · Comportamiento por familia:** tarjeta sutil por familia con dot del color de familia, nombre, total (serif), **barra apilada por voto dentro de la familia** y mini-conteo (solo valores no-cero).
+- **Footer académico reutilizado** (`buildTablePngFooter`): FUENTE · FUENTE TERRITORIAL · ELABORACIÓN PROPIA.
+- Identidad mantenida: fondo papel cálido, tinta, dorado editorial; **colores de voto en las barras** (verde/rojo/ocre/piedra/tinta), color de familia **solo como dot**; cards y barras con bordes suaves.
+
+### QA
+- Render real verificado (SVG inyectado y capturado) para nacional (257 bancas, 10 familias) y provincial (Córdoba, 18 bancas): barras, jerarquía, header/footer y datos correctos. Sintaxis OK. Sin cambios de datos ni de otros exports.
+
 ## 2026-06-02 — Fichas del sidebar descargables (CSV + PNG) + título dinámico
 
 Las dos fichas del panel lateral (Ficha individual del legislador, Resumen provincial) ahora se descargan en CSV y PNG, y el título del resumen refleja el ámbito. Solo presentación/exportación: sin cambios de datos ni de cálculo.

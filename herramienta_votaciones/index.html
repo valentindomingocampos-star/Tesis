@@ -6916,32 +6916,124 @@ function buildLegislatorFichaSvg(s, leg){
   const footerOut = buildTablePngFooter(NS, s, y+6, totalW, PAD_X, null);
   return _wrapSvg(NS, totalW, footerOut.footerBottomY + 12, [headerOut.elements, els, footerOut.elements]);
 }
+// Barra horizontal apilada por voto. Colores de voto (verde/rojo/ocre/piedra),
+// nunca color de familia. Contorno sutil para definición editorial.
+function _svgBar(NS, x, y, w, h, segs, els){
+  const total = segs.reduce((a, s) => a + (s.value > 0 ? s.value : 0), 0) || 1;
+  let cx = x;
+  segs.forEach(seg => {
+    if(!seg.value || seg.value <= 0) return;
+    const sw = w * seg.value / total;
+    const r = document.createElementNS(NS, 'rect');
+    r.setAttribute('x', cx.toFixed(2)); r.setAttribute('y', y);
+    r.setAttribute('width', Math.max(0.8, sw).toFixed(2)); r.setAttribute('height', h);
+    r.setAttribute('fill', seg.color);
+    els.push(r);
+    cx += sw;
+  });
+  const out = document.createElementNS(NS, 'rect');
+  out.setAttribute('x', x); out.setAttribute('y', y); out.setAttribute('width', w); out.setAttribute('height', h);
+  out.setAttribute('rx', '2'); out.setAttribute('fill', 'none');
+  out.setAttribute('stroke', '#d9d3c4'); out.setAttribute('stroke-width', '0.75');
+  els.push(out);
+}
+
+// PNG del resumen nacional/provincial — ficha vertical editorial compacta:
+// barra apilada nacional + tarjetas por familia con su barra de voto. Header y
+// footer académicos reutilizados. Sólo presentación; datos ya calculados en `d`.
 function buildProvSummarySvg(s, d){
-  const NS = 'http://www.w3.org/2000/svg'; const PAD_X = 50; const totalW = 900;
+  const NS = 'http://www.w3.org/2000/svg';
+  const PAD_X = 44;
+  const totalW = 840;
+  const availW = totalW - 2 * PAD_X;
   const title = d.scope === 'province' ? ('Resumen provincial — ' + d.name) : 'Resumen nacional del cuerpo';
   const headerOut = buildTablePngHeader(NS, s, title,
-    `${s.caseName} · ${s.chamberShort} · ${s.date} · ${d.total} bancas`, totalW, PAD_X);
-  let y = headerOut.headerBottomY + 28;
+    `Composición del voto y comportamiento por familia · ${d.total} bancas`, totalW, PAD_X);
+  let y = headerOut.headerBottomY + 30;
   const els = [];
-  _svgSectionTitle(NS, PAD_X, y, 'COMPOSICIÓN DEL VOTO', els); y += 26;
-  [['AFIRMATIVO','Afirmativos'],['NEGATIVO','Negativos'],['ABSTENCION','Abstenciones'],['AUSENTE','Ausentes']].forEach(([vk,label]) => {
-    const n = d.votes[vk] || 0;
-    if(vk === 'ABSTENCION' && n === 0) return;
-    els.push(_svgText(NS, PAD_X, y+12, label, { size:'12', weight:'600' }));
-    els.push(_svgText(NS, PAD_X+260, y+12, n + '   (' + csvPercent(n, d.total) + '%)', { size:'12', weight:'700', fill: _VOTE_HEX[vk] }));
-    y += 22;
+
+  // ---- Bloque 1: composición del voto ----
+  _svgSectionTitle(NS, PAD_X, y, 'COMPOSICIÓN DEL VOTO', els);
+  y += 26;
+  // fila: ámbito + total de bancas
+  els.push(_svgText(NS, PAD_X, y + 4, d.name, { font: TBL_PNG_FONTS.serifTitle, size: '17', weight: '700' }));
+  els.push(_svgText(NS, totalW - PAD_X, y + 4, d.total + ' bancas', { size: '12.5', weight: '500', fill: '#6a6a64', anchor: 'end' }));
+  y += 18;
+  // barra apilada nacional/provincial
+  _svgBar(NS, PAD_X, y, availW, 16, [
+    { value: d.votes.AFIRMATIVO,  color: _VOTE_HEX.AFIRMATIVO },
+    { value: d.votes.NEGATIVO,    color: _VOTE_HEX.NEGATIVO },
+    { value: d.votes.ABSTENCION,  color: _VOTE_HEX.ABSTENCION },
+    { value: d.votes.AUSENTE,     color: _VOTE_HEX.AUSENTE },
+    { value: d.votes.PRESIDENCIA, color: _VOTE_HEX.PRESIDENCIA }
+  ], els);
+  y += 16 + 22;
+  // números grandes con label
+  const numParts = [
+    { n: d.votes.AFIRMATIVO, label: 'a favor',   color: _VOTE_HEX.AFIRMATIVO },
+    { n: d.votes.NEGATIVO,   label: 'en contra', color: _VOTE_HEX.NEGATIVO }
+  ];
+  if(d.votes.ABSTENCION > 0) numParts.push({ n: d.votes.ABSTENCION, label: 'abstenciones', color: _VOTE_HEX.ABSTENCION });
+  numParts.push({ n: d.votes.AUSENTE, label: 'ausentes', color: _VOTE_HEX.AUSENTE });
+  const numText = document.createElementNS(NS, 'text');
+  numText.setAttribute('x', PAD_X); numText.setAttribute('y', y);
+  numText.setAttribute('font-family', TBL_PNG_FONTS.sans);
+  numParts.forEach((p, i) => {
+    if(i > 0){
+      const sep = document.createElementNS(NS, 'tspan');
+      sep.setAttribute('fill', '#c9c2b2'); sep.setAttribute('font-size', '15'); sep.textContent = '    ·    ';
+      numText.appendChild(sep);
+    }
+    const num = document.createElementNS(NS, 'tspan');
+    num.setAttribute('fill', p.color); num.setAttribute('font-size', '20'); num.setAttribute('font-weight', '700');
+    num.textContent = String(p.n);
+    numText.appendChild(num);
+    const lab = document.createElementNS(NS, 'tspan');
+    lab.setAttribute('fill', '#6a6a64'); lab.setAttribute('font-size', '11.5'); lab.setAttribute('font-weight', '500');
+    lab.textContent = ' ' + p.label;
+    numText.appendChild(lab);
   });
-  y += 16;
-  _svgSectionTitle(NS, PAD_X, y, 'COMPORTAMIENTO POR FAMILIA', els); y += 26;
+  els.push(numText);
+  y += 26;
+
+  // ---- Bloque 2: comportamiento por familia ----
+  _svgSectionTitle(NS, PAD_X, y, 'COMPORTAMIENTO POR FAMILIA', els);
+  y += 24;
+  const CARD_H = 56;
   d.families.forEach(f => {
+    const top = y;
+    // tarjeta sutil
+    const card = document.createElementNS(NS, 'rect');
+    card.setAttribute('x', PAD_X); card.setAttribute('y', top); card.setAttribute('width', availW); card.setAttribute('height', CARD_H);
+    card.setAttribute('rx', '6'); card.setAttribute('fill', '#fdfbf4');
+    card.setAttribute('stroke', '#e4ddcd'); card.setAttribute('stroke-width', '0.75');
+    els.push(card);
+    // dot de familia (único uso del color de familia)
     const dot = document.createElementNS(NS, 'circle');
-    dot.setAttribute('cx', PAD_X+5); dot.setAttribute('cy', y+7); dot.setAttribute('r', '5');
-    dot.setAttribute('fill', FAMILY_COLORS[f.name] || '#57534e'); els.push(dot);
-    els.push(_svgText(NS, PAD_X+18, y+11, f.name, { size:'12', weight:'600' }));
-    els.push(_svgText(NS, totalW-PAD_X, y+11, String(f.total), { size:'12', weight:'700', anchor:'end' }));
-    y += 24;
+    dot.setAttribute('cx', PAD_X + 18); dot.setAttribute('cy', top + 18); dot.setAttribute('r', '5');
+    dot.setAttribute('fill', FAMILY_COLORS[f.name] || '#57534e');
+    els.push(dot);
+    els.push(_svgText(NS, PAD_X + 32, top + 22, f.name, { size: '12.5', weight: '600' }));
+    els.push(_svgText(NS, PAD_X + availW - 16, top + 22, String(f.total), { font: TBL_PNG_FONTS.serifTitle, size: '14', weight: '700', anchor: 'end' }));
+    // barra de voto de la familia
+    _svgBar(NS, PAD_X + 16, top + 30, availW - 32, 7, [
+      { value: f.AFIRMATIVO,  color: _VOTE_HEX.AFIRMATIVO },
+      { value: f.NEGATIVO,    color: _VOTE_HEX.NEGATIVO },
+      { value: f.ABSTENCION,  color: _VOTE_HEX.ABSTENCION },
+      { value: f.AUSENTE,     color: _VOTE_HEX.AUSENTE },
+      { value: f.PRESIDENCIA, color: _VOTE_HEX.PRESIDENCIA }
+    ], els);
+    // mini-conteo (solo no-cero)
+    const mini = [];
+    if(f.AFIRMATIVO > 0) mini.push(f.AFIRMATIVO + ' a favor');
+    if(f.NEGATIVO > 0) mini.push(f.NEGATIVO + ' en contra');
+    if(f.ABSTENCION > 0) mini.push(f.ABSTENCION + ' abst.');
+    if((f.AUSENTE + f.PRESIDENCIA) > 0) mini.push((f.AUSENTE + f.PRESIDENCIA) + ' ausentes');
+    els.push(_svgText(NS, PAD_X + 16, top + 48, mini.join('   ·   '), { size: '9.5', weight: '500', fill: '#6a6a64' }));
+    y += CARD_H + 8;
   });
-  const footerOut = buildTablePngFooter(NS, s, y+6, totalW, PAD_X, null);
+
+  const footerOut = buildTablePngFooter(NS, s, y + 8, totalW, PAD_X, null);
   return _wrapSvg(NS, totalW, footerOut.footerBottomY + 12, [headerOut.elements, els, footerOut.elements]);
 }
 function exportLegislatorPng(){
