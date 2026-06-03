@@ -2,6 +2,25 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Capa de movimiento editorial (Parte 1) + pulido acoplado
+
+Capa de animación y microinteracciones sobre el sistema editorial existente. Solo presentación; reutiliza tokens. Regla respetada: el estado final de toda animación es el estado visible (`animation … backwards` → revierte a opacity:1; si no corre, queda en el valor base visible). Datos y cálculos intactos.
+
+### Parte 1 (movimiento)
+- Nuevos tokens `--ease-out/--ease-soft/--dur-1..4`. Entrada de página escalonada (masthead → nav → workspace) con `omRise`. Entrada de secciones (`.stats-section/.tbl-card/.ficha-card`) al activarse su panel.
+- **Floración del hemiciclo** (`omSeatBloom`) al cambiar de escenario: cada banca anima con delay `calc(var(--seat-i) * 1.5ms)` (seteado en `renderHemicycle`); se dispara solo al cambiar de escenario (`state._bloomScenario`), no en cada toggle de color/vista, y respeta `prefers-reduced-motion`.
+- Subrayado dorado deslizante en subtabs; microinteracciones de hover (pills, btn-exp, stats-index, member-row, heatmap-cell).
+- **Count-up de KPIs** (`.kpi-hero-value`) al activar el tab; sin IntersectionObserver; desactivado bajo movimiento reducido.
+- Guards: `@media print` fuerza `opacity:1`/`transform:none` en lo animado; `prefers-reduced-motion` (`*{animation-duration:.001ms}`) neutraliza todo.
+
+### Parte 2 — ítems acoplados (de bajo riesgo)
+- #13 latido del halo en la banca seleccionada (`is-selected` en select/deselect).
+- #10 hover de banca con `scale(1.25)` (desactivado bajo reduced-motion).
+- #12 tooltip con micro fade+rise; el flip contra bordes ya existía.
+
+### QA
+- Sintaxis OK; datasets idénticos. Floración verificada (florece en 1er render y al cambiar de escenario; NO al togglear color). `--seat-i` en bancas, halo is-selected toggle, CSS de subrayado presente. **Render real confirma que nada queda invisible** (el opacity:0 en virtual-time headless es el frame `backwards`-fill durante la animación, no persistente). PDF de impresión sin error.
+
 ## 2026-06-02 — Presidencia como rol: voto efectivo según el acta
 
 "Presidencia" deja de ser una categoría de voto que mezcla situaciones distintas. Quien preside se clasifica por su voto efectivo según el acta oficial; "Presidencia · no votó" queda solo para quien presidió sin voto computado.
