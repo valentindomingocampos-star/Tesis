@@ -2,6 +2,27 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Rearquitectura de navegación · Fase A (scoping de controles por modo)
+
+Reorganización de la experiencia para que la arquitectura refleje la lógica de la tesis: cada modo de análisis muestra solo los controles que gobierna. La herramienta deja de sentirse "primero elegí un caso, después entrá a cualquier tab" y pasa a "elegí qué tipo de análisis querés hacer". Camino A de bajo riesgo: **no se movió el selector de caso/cámara del DOM ni se tocó su handler directo**; se muestra/oculta según la tab activa. Sin tocar datos, cálculos, compute*, votos, familias, métricas, trayectoria, B.1–B.10 funcionalmente ni exports.
+
+### Mecanismo
+- `activateSubtab()` fija una clase `mode-case|compare|data|method` en `<body>` (punto único; `renderVizCard` ya lo llama al final). Reglas de scoping **solo `@media screen`** → el print no se afecta. `display:none` deja los ocultos fuera del orden de tabulación (foco/teclado resueltos).
+
+### Reglas de visibilidad
+- **Selector de caso/cámara, meta-bar y ancla de contexto flotante:** visibles en **Caso y Datos**; ocultos en Comparado y Metodología.
+- **Sidebar:** visible **solo en Caso**. En Comparado/Datos/Metodología se oculta y el `workspace` pasa a **una columna (ancho completo)** — las tablas, heatmaps y trayectoria del comparado y los datos respiran más.
+- **Selector comparativo (par + color):** movido de antes de B.1 a **justo antes de B.4** (lo que controla), con encabezado «Exploración por par de escenarios» + bajada que aclara que B.1–B.3 son el ancla agregada de los cuatro escenarios y no dependen del par.
+
+### Microcopy
+- Etiqueta «Votación en análisis» sobre el selector de caso/cámara. Bajada introductoria por modo en Caso y Datos (Datos nombra el caso activo: «Base nominal de la votación seleccionada — {caso · cámara}»). Cabecera de Metodología actualizada a «Metodología y criterios de clasificación» (la bajada anterior decía «sub-tab de Estadísticas», desactualizado).
+
+### Datos / Metodología
+- **Datos** se mantiene **case-scoped** (usa `activeScenario()` en su núcleo) — no se refactorizó a tabla general (alto riesgo). Se aclaró con la bajada + el selector visible. **Metodología** queda independiente (ya no usaba el escenario).
+
+### QA
+- Sintaxis OK; datos idénticos a HEAD; **consola sin errores**. Scoping verificado por `getComputedStyle` en los 4 modos (selector/meta/ancla/sidebar/columnas del workspace coinciden con la spec). Orden del comparado `B.1 B.2 B.3 → selector → B.4 … B.10`. Handler `.nav-seg` intacto (cambio de escenario OK). Render limpio a 1440 y 1280. **Print: 51 páginas (idéntico — scoping screen-only).** B.10 sigue plegada.
+
 ## 2026-06-03 — Análisis comparado: consolidación (orden, grilla plegable, print)
 
 Consolidación del Análisis comparado tras la auditoría integral, antes de pasar a exports. Solo orden/presentación/print; sin tocar datos, cálculos, compute*, datasets, votos, familias, exportaciones ni la lógica de comparación.

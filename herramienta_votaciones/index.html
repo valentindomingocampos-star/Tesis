@@ -559,6 +559,29 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   .workspace{ grid-template-columns: 1fr; }
 }
 
+/* =====================================================================
+   ARQUITECTURA DE MODOS DE ANÁLISIS — scoping de controles por tab activa
+   Clase mode-* en <body> (la fija activateSubtab). Cada modo muestra solo los
+   controles que gobierna. SOLO @media screen: el print muestra todo (anexo
+   completo), así que estas reglas no tocan la impresión. display:none deja los
+   ocultos fuera del orden de tabulación (foco/teclado resueltos).
+   - Caso/Cámara + meta-bar + ancla de contexto: visibles en Caso y Datos.
+   - Sidebar: visible solo en Caso. Comparado/Datos/Metodología → ancho completo.
+   ===================================================================== */
+@media screen{
+  body.mode-compare .scenario-nav, body.mode-method .scenario-nav,
+  body.mode-compare .meta-bar,     body.mode-method .meta-bar,
+  body.mode-compare .context-anchor, body.mode-method .context-anchor{
+    display: none !important;
+  }
+  body.mode-compare .sidebar,
+  body.mode-data .sidebar,
+  body.mode-method .sidebar{ display: none !important; }
+  body.mode-compare .workspace,
+  body.mode-data .workspace,
+  body.mode-method .workspace{ grid-template-columns: minmax(0, 1fr); }
+}
+
 /* Lámina principal — la pieza central como figura de tesis: sin sombra, borde
    fino, filete dorado superior (firma de lámina). La elevación la da el montaje
    + el borde, no el box-shadow. */
@@ -2934,6 +2957,52 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   background: var(--gold-rule);
 }
 
+/* Etiqueta general del selector de caso/cámara — enmarca los ejes Caso/Cámara
+   como "la votación en análisis". Ocupa fila completa arriba de los ejes. */
+.nav-caption{
+  flex-basis: 100%;
+  font-size: var(--t-xs);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent-gold-text);
+  font-weight: var(--w-semi);
+  margin-bottom: var(--space-1);
+}
+
+/* Bajada introductoria de cada modo (Caso, Datos) — orienta sin competir con
+   los encabezados de sección. */
+.mode-bajada{
+  margin: 0 0 var(--space-5);
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  line-height: 1.6;
+  max-width: 820px;
+  letter-spacing: -0.003em;
+}
+.mode-bajada strong{ color: var(--ink); font-weight: var(--w-semi); }
+
+/* Bloque del selector comparativo (par + color) ubicado antes de B.4: separa el
+   ancla agregada (B.1–B.3) del bloque que el selector gobierna (B.4–B.6, B.10). */
+.cmp-selector-block{
+  margin-top: var(--space-6);
+  border-top: 2px solid var(--line-strong);
+}
+.cmp-selector-title{
+  margin: var(--space-5) var(--space-6) var(--space-1);
+  font-family: var(--font-serif);
+  font-size: var(--t-lg);
+  font-weight: var(--w-bold);
+  color: var(--ink);
+  letter-spacing: -0.015em;
+}
+.cmp-selector-bajada{
+  margin: 0 var(--space-6) 0;
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  line-height: 1.55;
+  max-width: 760px;
+}
+
 /* =====================================================================
    VISUALIZACIONES COMPARADAS (B.7–B.9) — hemiciclos/mapas lado a lado + grilla
    ===================================================================== */
@@ -3807,7 +3876,8 @@ a:focus-visible,
   <!-- ====================================================
        TABS DE ESCENARIOS
        ==================================================== -->
-  <nav class="scenario-nav" aria-label="Selección de escenario por caso y cámara">
+  <nav class="scenario-nav" aria-label="Votación en análisis: selección de caso y cámara">
+    <span class="nav-caption">Votación en análisis</span>
     <div class="nav-axis">
       <span class="nav-axis-label" id="navAxisCase">Caso</span>
       <div class="nav-seg-group" role="group" aria-labelledby="navAxisCase">
@@ -4770,6 +4840,7 @@ function renderVizCard(){
 
     <!-- ===== ANÁLISIS DEL CASO: ver + interpretar el escenario activo ===== -->
     <div class="subpanel is-on" data-subtab="case">
+      <p class="mode-bajada">Estudiá una votación nominal específica: seleccioná el caso y la cámara arriba para ver su composición legislativa, distribución territorial y comportamiento por bloque, familia política y provincia.</p>
       <div id="validationPanel"></div>
       <div class="fig-num">Figura 1</div>
       <div id="figureHeader"></div>
@@ -4837,6 +4908,7 @@ function renderVizCard(){
 
     <!-- ===== DATOS: tablas + exportaciones avanzadas ===== -->
     <div class="subpanel" data-subtab="data">
+      <p class="mode-bajada">Base nominal de la votación seleccionada — <strong>${esc(s.caseName)} · ${esc(s.chamberShort)}</strong>. Para cambiar el universo de datos, elegí otro caso y cámara en el selector de arriba.</p>
       <div id="tablesPanel"></div>
       <details class="adv-export">
         <summary class="adv-export-summary">Exportaciones avanzadas</summary>
@@ -9625,7 +9697,6 @@ function renderComparisonPanel(){
         ` : '';
       })()}
       <div class="stats-division-body">
-        ${cmpControlsHtml}
         <section class="stats-section">
           ${_sectionHead('B.1', 'Tabla comparativa agregada',
             'Indicadores cuantitativos agrupados en bloques temáticos: composición, resultado, participación, veredicto.',
@@ -9644,6 +9715,11 @@ function renderComparisonPanel(){
             'comp-rank')}
           ${rankingsHtml}
         </section>
+        <div class="cmp-selector-block">
+          <h3 class="cmp-selector-title">Exploración por par de escenarios</h3>
+          <p class="cmp-selector-bajada">Seleccioná dos votaciones para comparar hemiciclos, mapas y trayectorias nominales. Las secciones B.1–B.3 son el ancla agregada de los cuatro escenarios y no dependen de esta selección.</p>
+          ${cmpControlsHtml}
+        </div>
         ${cmpHemiSection}
         ${cmpMapSection}
         ${renderTrajectorySection()}
@@ -9697,8 +9773,8 @@ function renderMethodologyNotes(){
       <div class="stats-division-head">
         <div>
           <div class="stats-division-eyebrow">Apéndice metodológico</div>
-          <h2 class="stats-division-title">Criterios de cálculo</h2>
-          <p class="stats-division-bajada">Convenciones que aplican a toda la sub-tab de Estadísticas.</p>
+          <h2 class="stats-division-title">Metodología y criterios de clasificación</h2>
+          <p class="stats-division-bajada">Criterios de construcción de la base, clasificación de votos, familias políticas, cámaras y casos, y tratamiento de situaciones especiales. Aplican de manera transversal a todo el análisis.</p>
         </div>
       </div>
       <div class="methodology-note">
@@ -11668,6 +11744,13 @@ function activateSubtab(name){
   state.subtab = name;
   document.querySelectorAll('.subtab').forEach(x => x.classList.toggle('is-on', x.dataset.subtab === name));
   document.querySelectorAll('.subpanel').forEach(p => p.classList.toggle('is-on', p.dataset.subtab === name));
+  // Modo de análisis activo → clase en <body> para scopear (solo @media screen)
+  // los controles que gobiernan cada modo: el selector de caso/cámara y la
+  // meta-bar viven en Caso y Datos; el sidebar y el ancla de contexto, solo en
+  // Caso; el comparado y la metodología son autónomos. El print no se afecta
+  // (las reglas de scoping son screen-only; en papel se muestra todo). Punto
+  // único: renderVizCard llama activateSubtab(state.subtab) al final.
+  ['case','compare','data','method'].forEach(m => document.body.classList.toggle('mode-' + m, m === name));
 }
 
 // =====================================================================
