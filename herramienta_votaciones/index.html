@@ -552,12 +552,24 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   .workspace{ grid-template-columns: 1fr; }
 }
 
+/* Lámina principal — la pieza central como figura de tesis: sin sombra, borde
+   fino, filete dorado superior (firma de lámina). La elevación la da el montaje
+   + el borde, no el box-shadow. */
 .viz-card{
   background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
   overflow: hidden;
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
+  position: relative;
+}
+.viz-card::before{
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 56px; height: 2px;
+  background: var(--gold-rule);
+  z-index: 2;
 }
 
 /* Toolbar — barra de controles del escenario */
@@ -581,30 +593,40 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 .seg-group{
   display: inline-flex;
   background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 2px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
+  padding: 0;
   gap: 0;
+  overflow: hidden;
 }
 .seg-btn{
   appearance: none;
   border: none;
   background: transparent;
   font-family: inherit;
-  font-size: var(--t-base);
+  font-size: var(--t-sm);
   font-weight: var(--w-medium);
-  color: var(--ink-2);
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-xs);
+  color: var(--muted);
+  padding: 7px var(--space-4) 6px;
+  border-radius: 0;
   cursor: pointer;
+  position: relative;
   transition: background var(--dur-1) var(--ease-soft), color var(--dur-1) var(--ease-soft);
-  letter-spacing: -0.005em;
+  letter-spacing: -0.004em;
 }
-.seg-btn:hover{ color: var(--ink); background: var(--bg-soft); }
+.seg-btn + .seg-btn{ border-left: 1px solid var(--line); }
+.seg-btn:hover{ color: var(--ink-2); background: var(--paper-sunk); }
 .seg-btn[aria-pressed="true"]{
-  background: var(--ink);
-  color: var(--bg-soft);
-  box-shadow: inset 0 -2px 0 var(--accent-gold);
+  background: var(--paper-sunk);
+  color: var(--ink);
+  font-weight: var(--w-semi);
+}
+.seg-btn[aria-pressed="true"]::after{
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: var(--gold-rule);
 }
 
 .toolbar label{
@@ -792,8 +814,8 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
    el primer impacto es el gráfico, no la toolbar. */
 .filter-disclosure{
   border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--bg-soft);
+  border-radius: var(--radius-xs);
+  background: var(--paper-sunk);
   margin: var(--space-3) var(--space-5) 0;
 }
 .filter-summary{
@@ -822,7 +844,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   gap: var(--space-2);
   padding: var(--space-3) var(--space-5);
   border-top: 1px solid var(--line);
-  background: var(--bg-soft);
+  background: var(--paper-sunk);
 }
 .ctx-export-label{
   font-size: var(--t-xs);
@@ -1080,15 +1102,15 @@ svg.map-svg{
    aire entre la leyenda cromática y el bloque de cifras. */
 .viz-summary{
   border-top: 1px solid var(--line);
-  background: var(--bg-soft);
-  box-shadow: inset 0 1px 0 rgba(255,253,248,.6);
-  margin-top: 2px;
+  background: var(--paper-sunk);
+  box-shadow: none;
+  margin-top: 0;
 }
 .viz-eyebrow{
   margin: 0;
   padding: var(--space-3) var(--space-5) 0;
   font-size: var(--t-xs);
-  letter-spacing: .18em;
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--muted);
   font-weight: var(--w-semi);
@@ -1781,6 +1803,20 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
 /* =====================================================================
    FIGURA ACADÉMICA — encabezado, metadatos compactos y pie
    ===================================================================== */
+/* Número de figura (catálogo) sobre el título de la lámina principal. */
+.fig-num{
+  padding: var(--space-4) var(--space-5) 0;
+  font-size: var(--t-xs);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--accent-gold-text);
+  font-weight: var(--w-bold);
+  font-variant-numeric: tabular-nums;
+}
+/* La figura principal (no el sidebar): título con más presencia, pegado al número. */
+#figureHeader .fig-header{ padding-top: var(--space-2); }
+#figureHeader .fig-title{ font-size: var(--t-xl); letter-spacing: -0.018em; }
+
 .fig-header{
   padding: var(--space-5) var(--space-5) var(--space-4);
   border-bottom: 1px solid var(--line);
@@ -1835,7 +1871,7 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
 .fig-footer{
   padding: var(--space-4) var(--space-5);
   border-top: 1px solid var(--line);
-  background: var(--bg-soft);
+  background: var(--paper-sunk);
   font-size: var(--t-xs);
   color: var(--muted);
   line-height: 1.65;
@@ -4332,6 +4368,7 @@ function renderVizCard(){
     <!-- ===== ANÁLISIS DEL CASO: ver + interpretar el escenario activo ===== -->
     <div class="subpanel is-on" data-subtab="case">
       <div id="validationPanel"></div>
+      <div class="fig-num">Figura 1</div>
       <div id="figureHeader"></div>
       <div class="fig-controls">
         <div class="seg-group" role="tablist" aria-label="Vista">

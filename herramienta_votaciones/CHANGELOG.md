@@ -2,6 +2,25 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Rediseño "Atlas parlamentario académico" · Etapa 2 (lámina principal)
+
+Segunda etapa: el hemiciclo/mapa pasa a leerse como una figura de tesis (lámina). Solo presentación; sin tocar datos, cálculos ni lógica. Alcance acotado a la figura principal — no se tocó sidebar, tablas, comparado, exports ni metodología (se cuidó el escopeo para no afectar los headers compartidos del sidebar).
+
+### Viz-card → lámina
+- Sin sombra (`shadow-md` fuera), borde `--line-strong`, radio chico, y **filete dorado superior** (firma de lámina, vía `::before`). La elevación la dan el montaje + el borde.
+
+### Figura con número de catálogo
+- Nuevo `Figura 1` (número de catálogo en oro) sobre el título; el título de la figura principal sube a `--t-xl` con presencia editorial (escopeado a `#figureHeader`, el sidebar conserva su tamaño).
+
+### Controles de figura
+- `.seg-btn` (Hemiciclo/Mapa · voto/familia) pasa de pill con relleno en tinta (app) a **control plano con filete dorado en el activo** — mismo lenguaje que el selector Caso×Cámara y las tabs. `.seg-group` como registro plano.
+
+### Resumen y bandas internas
+- "Resumen ejecutivo", pie de figura (nota+fuente), export contextual y filtros plegables pasan a fondo **hundido** (`--paper-sunk`) con hairlines; sin sombras internas. Tracking de eyebrows bajado.
+
+### QA
+- Sintaxis JS OK; datos idénticos. Render verificado a 1440 y 1024px (figura como lámina numerada con controles planos). Print: 8 páginas (sin pérdida de contenido respecto al commit previo). Markup tocado: una línea (`<div class="fig-num">Figura 1</div>`); ids/handlers intactos.
+
 ## 2026-06-03 — Rediseño "Atlas parlamentario académico" · Etapa 1 (identidad base)
 
 Primera etapa del rediseño editorial (dirección: convención académica llevada a su versión más refinada — "serio por convención, hermoso por diseño"). Solo presentación; sin tocar datos, cálculos ni lógica. Alcance acotado: tokens, montaje de papel, sombras, filetes, masthead, selector Caso×Cámara, meta-bar, tabs, doctrina del dorado. NO se tocaron aún hemiciclo, sidebar, tablas, comparado, exports ni metodología.
