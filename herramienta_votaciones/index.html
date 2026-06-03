@@ -6413,7 +6413,10 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X, opts){
 // ---------------------------------------------------------------------
 // Footer común (fuente + credit)
 // ---------------------------------------------------------------------
-function buildTablePngFooter(NS, scenario, y, totalW, PAD_X, extraNote){
+// Fuente general para figuras comparadas (las que abarcan los 4 escenarios): no
+// corresponde la fuente de un solo escenario.
+const PNG_COMPARISON_SOURCE = 'Elaboración propia sobre los cuatro datasets validados de votaciones nominales HCDN/HSN — leyes 26.466 y 26.741.';
+function buildTablePngFooter(NS, scenario, y, totalW, PAD_X, extraNote, opts){
   const elements = [];
   const sep = document.createElementNS(NS, 'line');
   sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y);
@@ -6424,8 +6427,14 @@ function buildTablePngFooter(NS, scenario, y, totalW, PAD_X, extraNote){
   const availW = totalW - 2 * PAD_X;
   const maxChars = Math.max(40, Math.floor(availW / 6.8));
   const lines = [];
-  lines.push(...wrapSvgText('FUENTE  ' + csvSource(scenario, 'vote'), maxChars));
-  lines.push(...wrapSvgText('FUENTE TERRITORIAL  ' + csvSource(scenario, 'district'), maxChars));
+  if(opts && opts.generalSource){
+    // Figura comparada: una sola FUENTE general, sin fuente territorial de un
+    // solo escenario.
+    lines.push(...wrapSvgText('FUENTE  ' + opts.generalSource, maxChars));
+  } else {
+    lines.push(...wrapSvgText('FUENTE  ' + csvSource(scenario, 'vote'), maxChars));
+    lines.push(...wrapSvgText('FUENTE TERRITORIAL  ' + csvSource(scenario, 'district'), maxChars));
+  }
   if(extraNote) lines.push(...wrapSvgText('NOTA  ' + extraNote, maxChars));
 
   lines.forEach((line, i) => {
@@ -10151,7 +10160,8 @@ function exportStatsSectionPng(kind){
   // Footer y cierre del SVG
   // -----------------------------------------------------------------
   const footerStartY = cursorY + 12;
-  const footerOut = buildTablePngFooter(NS, s, footerStartY, totalW, PAD_X, spec.note);
+  const footerOut = buildTablePngFooter(NS, s, footerStartY, totalW, PAD_X, spec.note,
+    { generalSource: spec.noScenarioInName ? PNG_COMPARISON_SOURCE : null });
   const totalH = footerOut.footerBottomY + 12;
 
   const bg = addRect(0, 0, totalW, totalH, '#fffdf8');

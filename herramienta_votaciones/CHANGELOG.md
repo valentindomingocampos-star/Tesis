@@ -2,6 +2,10 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Figuras comparadas: fuente general en el footer
+
+En los PNG comparados, el footer mostraba la FUENTE (y fuente territorial) del escenario activo — engañoso en una figura de 4 escenarios. `buildTablePngFooter` acepta `opts.generalSource`: cuando se pasa, imprime una sola FUENTE general y omite la fuente territorial de un solo escenario. Texto: «Elaboración propia sobre los cuatro datasets validados de votaciones nominales HCDN/HSN — leyes 26.466 y 26.741.» Aplicado a los granulares comparados (`fam-comp-wide`, `prov-comp-wide`, `comp-rae`) vía `spec.noScenarioInName`. El `comparator-png` ya tenía su propio footer general (se conserva). Los PNG de un solo escenario (tablas, fichas, Rice/Rae por escenario, indicadores) conservan su fuente específica. Solo presentación; sin cambios de datos.
+
 ## 2026-06-02 — Figuras comparadas: sin meta-chips de un solo escenario
 
 En los PNG de **Análisis comparado** (comparador 4 escenarios, comparador wide de familias y de provincias), el header mostraba los chips "CASO · CÁMARA · FECHA · LEY" del escenario activo — engañoso, porque la figura compara los 4 casos (y el caso/cámara/fecha de cada votación ya va en los encabezados de columna). `buildTablePngHeader` acepta `opts.noMetaChips`: se omiten los chips (y el header se acorta) cuando el export es comparado. Se detecta por `spec.noScenarioInName` (granulares wide) y explícito en el comparador. Los PNG de un solo escenario (tablas, fichas, Rice/Rae por escenario, indicadores) conservan los chips. Solo presentación; sin cambios de datos.
