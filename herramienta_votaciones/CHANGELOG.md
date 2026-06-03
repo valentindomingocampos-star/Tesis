@@ -2,6 +2,24 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Análisis comparado: visualizaciones gráficas (Fase 1+2)
+
+Primer entregable del rediseño del comparado (División B), que hasta ahora era 100% tabular. Agrega visualizaciones gráficas comparativas. Sin tocar datasets, cálculos ni la lógica del análisis de caso. Decisiones de alcance acordadas: trayectoria same-chamber (fase futura), resaltado en el segundo mapa (sin tercer mapa diff), grilla 2×2 fija.
+
+### Infraestructura (Fase 1)
+- `state.comparePair` (par de escenarios), `state.compareColorMode` (voto/familia, independiente del caso) y `state.quadView` (hemiciclo/mapa de la grilla). Constantes `COMPARE_PRESETS` (4 presets) y `QUAD_ORDER`.
+- `ensureScenarioPrepared(s)`: preproceso idempotente (orden de bancas, layout con `_seat`, `_provinceData`) extraído de `renderVizCard` — antes era lazy sólo para el escenario activo; ahora cualquier escenario puede prepararse para renderizar varios a la vez. `getLegsForScenario(id)` centraliza el acceso (infra para la trayectoria).
+
+### Visualizaciones (Fase 2)
+- **Selector de par + color**: barra de controles con 4 presets (Diputados/Senado · Aero vs YPF, y Aero/YPF · Dip vs Sen) y toggle voto/familia, en el lenguaje de control plano del sistema.
+- **B.7 Hemiciclos lado a lado**: `buildCompareHemicycleSvg()` — versión compacta read-only (sin panel central ni selección, con tooltip), reutilizando el layout precomputado. Cada uno en card editorial con header (caso · cámara · fecha · resultado) y leyenda compartida.
+- **B.8 Mapas lado a lado**: `buildCompareMapSvg()` — reutiliza el choropleth; el segundo mapa resalta con borde dorado las provincias cuyo voto dominante cambió respecto del primero (`.is-changed`).
+- **B.9 Grilla panorámica 2×2**: los cuatro escenarios fijos, con toggle hemiciclos/mapas compartido.
+- Montaje vía `mountCompareVisuals()` tras inyectar el HTML del panel; handlers delegados para par/color/vista. Read-only (tooltips + aria, sin mutar filtros del caso). Respeta la regla voto≠partido (cada marca codifica una sola dimensión).
+
+### QA
+- Sintaxis JS OK; datos idénticos a HEAD. Test headless de interactividad: 2+2 hemiciclos/mapas y 4 celdas de grilla montados; 5 provincias resaltadas en B.8; toggles de color (relleno voto→familia), vista (grilla→mapas) y par (→Senado) funcionando. Análisis del caso intacto (selección + hemiciclo 257). Print: 50 páginas (45 previas + 5 de las nuevas secciones, sin clipping). Pendiente (fases siguientes): trayectoria/Sankey + tabla de repetidos + migración por familia, y los exports PNG de todo.
+
 ## 2026-06-03 — Resolución de auditoría experta (críticos + medios seguros)
 
 Resolución de los hallazgos de una auditoría técnica externa. Se atacaron los 2 críticos y los medios de bajo riesgo; los medios estructurales (IIFE/use-strict) se dejaron documentados por riesgo > beneficio (ver abajo). Sin tocar datos, cálculos ni lógica de negocio.

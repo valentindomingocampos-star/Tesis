@@ -2929,6 +2929,117 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   background: var(--gold-rule);
 }
 
+/* =====================================================================
+   VISUALIZACIONES COMPARADAS (B.7–B.9) — hemiciclos/mapas lado a lado + grilla
+   ===================================================================== */
+/* Barra de controles del comparado: par + color (+ vista de grilla). */
+.compare-controls-bar{
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-6);
+  align-items: flex-end;
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--line);
+  background: var(--paper-sunk);
+}
+.compare-controls-inset{
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xs);
+  background: var(--paper-sunk);
+  margin-bottom: var(--space-4);
+}
+.compare-ctrl{ display: flex; flex-direction: column; gap: var(--space-2); }
+.compare-ctrl-label{
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: var(--w-semi);
+}
+.compare-pair-toggle{ flex-wrap: wrap; }
+
+/* Par lado a lado y grilla 2×2 */
+.dual-viz{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+.quad-viz{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+@media (max-width: 1100px){
+  .dual-viz, .quad-viz{ grid-template-columns: 1fr; }
+}
+
+/* Celda: header editorial + SVG */
+.cmp-cell{
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
+  background: var(--card);
+  overflow: hidden;
+  position: relative;
+}
+.cmp-cell::before{
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 40px; height: 2px;
+  background: var(--gold-rule);
+  z-index: 2;
+}
+.cmp-cell-label{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--line);
+  background: var(--paper-sunk);
+}
+.cmp-cell-scen{
+  font-family: var(--font-serif);
+  font-size: var(--t-md);
+  font-weight: var(--w-bold);
+  color: var(--ink);
+  letter-spacing: -0.012em;
+}
+.cmp-cell-meta{
+  font-size: var(--t-xs);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.cmp-cell-meta .is-yes{ color: var(--vote-yes); font-weight: var(--w-semi); }
+.cmp-cell-meta .is-no{  color: var(--vote-no);  font-weight: var(--w-semi); }
+.cmp-cell.is-compact .cmp-cell-scen{ font-size: var(--t-base); }
+
+/* SVG comparados — escalan al ancho de la celda */
+.cmp-hemicycle{ display: block; width: 100%; height: auto; padding: var(--space-3) var(--space-3) var(--space-2); }
+.cmp-map{ display: block; width: 100%; height: auto; max-height: 520px; padding: var(--space-2); }
+.cmp-cell.is-compact .cmp-map{ max-height: 380px; }
+/* Read-only: las bancas del comparado no se seleccionan (sin cursor de acción). */
+.cmp-hemicycle .cmp-seat{ cursor: default; }
+/* Provincias que cambiaron de voto dominante (segundo mapa del par): borde
+   dorado. La clase CSS gana sobre el atributo stroke inline (menor especificidad). */
+.cmp-map .province-path.is-changed{
+  stroke: var(--accent-gold);
+  stroke-width: 3;
+  stroke-opacity: 1;
+}
+
+/* Leyenda compartida del comparado */
+.cmp-legend{
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  justify-content: center;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+}
+
 /* Nota metodológica editorial — bloque tipográfico, no card */
 .methodology-note{
   padding: var(--space-4) var(--space-6);
@@ -3842,8 +3953,24 @@ const state = {
   tableSearch: '',
   sortCol: null,              // columna de orden en tabla legisladores
   sortDir: 1,                 // 1 asc, -1 desc
-  famHeatMetric: 'pctYesPresent'  // métrica activa del heatmap familias × escenarios: 'pctYesPresent' | 'rice' | 'pctAbsent'
+  famHeatMetric: 'pctYesPresent',  // métrica activa del heatmap familias × escenarios: 'pctYesPresent' | 'rice' | 'pctAbsent'
+  // --- Análisis comparado: visualizaciones lado a lado (División B, secciones B.7+) ---
+  comparePair: ['aerolineas_diputados', 'ypf_diputados'], // par de escenarios a comparar
+  compareColorMode: 'vote',   // 'vote' | 'family' — color de las viz comparadas (independiente del caso)
+  quadView: 'hemicycle'       // 'hemicycle' | 'map' — tipo de viz en la grilla panorámica 2×2
 };
+
+// Presets del selector de par (mismas cámaras = comparación con sentido).
+// Los pares same-case cross-cámara (Aero Dip vs Sen, etc.) sirven para hemiciclos
+// y mapas, pero no para trayectoria (nadie está en ambas cámaras el mismo año).
+const COMPARE_PRESETS = [
+  { ids: ['aerolineas_diputados', 'ypf_diputados'], label: 'Diputados: Aero vs YPF' },
+  { ids: ['aerolineas_senado', 'ypf_senado'],       label: 'Senado: Aero vs YPF' },
+  { ids: ['aerolineas_diputados', 'aerolineas_senado'], label: 'Aerolíneas: Dip vs Sen' },
+  { ids: ['ypf_diputados', 'ypf_senado'],           label: 'YPF: Dip vs Sen' }
+];
+// Orden fijo de la grilla panorámica 2×2.
+const QUAD_ORDER = ['aerolineas_diputados', 'ypf_diputados', 'aerolineas_senado', 'ypf_senado'];
 
 // Set de votos permitidos: cualquier valor fuera de aquí dispara warning en validateScenario
 const VOTES_VALID = new Set(['AFIRMATIVO','NEGATIVO','AUSENTE','PRESIDENCIA','ABSTENCION']);
@@ -4004,6 +4131,26 @@ function buildHemicycleLayout(n, opts){
 // =====================================================================
 // ORDENAR LEGISLADORES POLÍTICAMENTE (izq -> der) Y ASIGNAR A BANCAS
 // =====================================================================
+// Prepara un escenario para render (idempotente): orden de bancas, layout del
+// hemiciclo con posiciones (_seat) y agregados por provincia. El preproceso es
+// lazy — antes sólo corría para el escenario activo; el comparado necesita
+// preparar cualquier escenario para renderizar varios a la vez.
+function ensureScenarioPrepared(s){
+  if(!s || s._assigned) return s;
+  const { sorted, layout } = assignSeats(s.legislators);
+  s._sortedLegislators = sorted;
+  s._layout = layout;
+  s._provinceData = computeProvinceData(sorted);
+  s._assigned = true;
+  return s;
+}
+// Acceso centralizado a los legisladores (ya ordenados y normalizados) de un
+// escenario por id. Garantiza el preproceso.
+function getLegsForScenario(id){
+  const s = ensureScenarioPrepared(SCENARIOS[id]);
+  return s ? s._sortedLegislators : [];
+}
+
 function assignSeats(legislators){
   // Ordenar legisladores: primero por orden político de familia, luego por bloque, luego por nombre.
   // Ausentes y presidencia van al extremo derecho (convención: sin posición política activa).
@@ -4422,13 +4569,7 @@ function renderVizCard(){
   const s = activeScenario();
 
   // Pre-procesar dataset una sola vez por escenario
-  if(!s._assigned){
-    const { sorted, layout } = assignSeats(s.legislators);
-    s._sortedLegislators = sorted;
-    s._layout = layout;
-    s._provinceData = computeProvinceData(sorted);
-    s._assigned = true;
-  }
+  ensureScenarioPrepared(s);
 
   // Vista activa de la figura (para la exportación contextual) y si hay filtros
   // activos (para abrir el disclosure de filtros automáticamente).
@@ -5019,6 +5160,223 @@ function buildProvinceTooltip(pName, info){
     ${absLine}
     ${famLine}
   `;
+}
+
+// ---------------------------------------------------------------------
+// VISUALIZACIONES COMPARADAS (División B · secciones B.7+)
+// Hemiciclos y mapas lado a lado + grilla panorámica 2×2. Read-only: tooltips
+// y aria, sin selección ni mutación de filtros (no hay sidebar en el comparado).
+// Reutilizan el layout/_provinceData precomputados de cada escenario.
+// ---------------------------------------------------------------------
+
+// Hemiciclo comparado (compacto, sin panel central ni selección).
+function buildCompareHemicycleSvg(s, colorMode){
+  ensureScenarioPrepared(s);
+  const sorted = s._sortedLegislators;
+  const layout = s._layout;
+  const mode = colorMode === 'family' ? 'family' : 'vote';
+  const sum = computeVoteSummary(s);
+
+  const svg = el('svg', {
+    class: 'cmp-hemicycle',
+    viewBox: '0 0 1200 500',
+    xmlns: 'http://www.w3.org/2000/svg',
+    role: 'img',
+    'aria-label': `Hemiciclo · ${s.caseName} · ${s.chamberShort}: ${sum.AFIRMATIVO} a favor, ${sum.NEGATIVO} en contra, ${sum.AUSENTE} ausentes. Resultado ${s.result}.`
+  });
+
+  const guides = el('g', { 'class': 'guides' });
+  layout.radii.forEach(r => {
+    const startRad = layout.cfg.startDeg * Math.PI / 180;
+    const endRad = layout.cfg.endDeg * Math.PI / 180;
+    const x1 = layout.cfg.cx + r * Math.cos(startRad);
+    const y1 = layout.cfg.cy - r * Math.sin(startRad);
+    const x2 = layout.cfg.cx + r * Math.cos(endRad);
+    const y2 = layout.cfg.cy - r * Math.sin(endRad);
+    guides.appendChild(el('path', { class: 'guide-arc',
+      d: `M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}` }));
+  });
+  svg.appendChild(guides);
+
+  const seatLayer = el('g', { 'class': 'seat-layer' });
+  sorted.forEach((leg, i) => {
+    const seat = leg._seat;
+    const isPres = leg.vote === 'PRESIDENCIA';
+    const rOuter = isPres ? 8.4 : 6.4;
+    const fillColor = mode === 'vote'
+      ? VOTE_COLORS[leg.vote]
+      : (FAMILY_COLORS[leg.family] || '#a09b8c');
+    seatLayer.appendChild(el('circle', {
+      class: 'seat cmp-seat',
+      cx: seat.x.toFixed(2), cy: seat.y.toFixed(2), r: rOuter,
+      fill: fillColor, stroke: 'rgba(255,255,255,0.9)', 'stroke-width': 1.2,
+      'data-idx': i
+    }));
+  });
+  svg.appendChild(seatLayer);
+
+  // Tooltip read-only (sin click-to-select)
+  svg.addEventListener('mousemove', (e) => {
+    const t = e.target;
+    if(t.classList && t.classList.contains('seat')){
+      const leg = sorted[+t.getAttribute('data-idx')];
+      if(leg) showTooltip(e, buildSeatTooltip(leg, s));
+    } else hideTooltip();
+  });
+  svg.addEventListener('mouseleave', hideTooltip);
+  return svg;
+}
+
+// Mapa comparado. opts.highlightVs = _provinceData del otro escenario: marca con
+// borde dorado las provincias cuyo voto dominante cambió. opts.showLabels=false
+// para la grilla (mapas chicos). Read-only.
+function buildCompareMapSvg(s, colorMode, opts){
+  opts = opts || {};
+  ensureScenarioPrepared(s);
+  const pData = s._provinceData;
+  const mode = colorMode === 'family' ? 'family' : 'vote';
+  const compareData = opts.highlightVs || null;
+  const showLabels = opts.showLabels !== false;
+
+  const svg = el('svg', {
+    class: 'cmp-map',
+    viewBox: '0 0 500 800',
+    xmlns: 'http://www.w3.org/2000/svg',
+    role: 'img',
+    'aria-label': `Mapa provincial · ${s.caseName} · ${s.chamberShort}. Voto predominante por provincia.`
+  });
+  svg.appendChild(el('rect', { class: 'map-bg', x: 0, y: 0, width: 500, height: 800 }));
+
+  const provLayer = el('g', { 'class': 'province-layer' });
+  Object.keys(PROVINCE_PATHS).forEach(pName => {
+    const info = pData[pName];
+    let fill, stroke;
+    if(!info){
+      fill = '#f1f5f9'; stroke = '#cbd5e1';
+    } else if(mode === 'vote'){
+      const baseColor = VOTE_COLORS[info.dominantVote] || '#a09b8c';
+      const pctDom = info.total ? ((info[info.dominantVote] || 0) / info.total * 100) : 0;
+      fill = mapHeatFill(baseColor, pctDom); stroke = mapHeatStroke(baseColor, pctDom);
+    } else {
+      const baseColor = FAMILY_COLORS[info.dominantFamily] || '#a09b8c';
+      const pctDom = info.total ? (((info.families && info.families[info.dominantFamily]) || 0) / info.total * 100) : 0;
+      fill = mapHeatFill(baseColor, pctDom); stroke = mapHeatStroke(baseColor, pctDom);
+    }
+    let pathD = PROVINCE_PATHS[pName];
+    if(pName === 'Tierra del Fuego'){
+      pathD = pathD + ' ' + Object.values(MALVINAS_PATHS).join(' ');
+    }
+    // ¿Cambió el voto dominante respecto del otro escenario del par?
+    let changed = false;
+    if(compareData && info){
+      const other = compareData[pName];
+      if(other && other.dominantVote && info.dominantVote && other.dominantVote !== info.dominantVote) changed = true;
+    }
+    provLayer.appendChild(el('path', {
+      class: 'province-path' + (changed ? ' is-changed' : ''),
+      d: pathD, fill, stroke, 'stroke-width': 1.0, 'stroke-opacity': 0.92,
+      'data-province': pName
+    }));
+  });
+  svg.appendChild(provLayer);
+
+  if(showLabels){
+    const labelLayer = el('g', { 'class': 'label-layer', 'pointer-events': 'none' });
+    Object.keys(PROVINCE_LABEL_POS).forEach(pName => {
+      const [x, y] = PROVINCE_LABEL_POS[pName];
+      const isSmall = PROVINCE_LABEL_SMALL.has(pName);
+      const txt = el('text', { class: 'province-label' + (isSmall ? ' is-small' : ''), x, y });
+      txt.textContent = PROVINCE_LABEL_SHORT[pName] || pName;
+      labelLayer.appendChild(txt);
+    });
+    svg.appendChild(labelLayer);
+    const malvinasLayer = el('g', { 'class': 'malvinas-layer', 'pointer-events': 'none' });
+    malvinasLayer.appendChild(el('text', { class: 'malvinas-label', x: 385, y: 712 }, 'Islas Malvinas'));
+    svg.appendChild(malvinasLayer);
+    if(pData['CABA']){
+      const calloutLayer = el('g', { 'class': 'caba-callout', 'pointer-events': 'none' });
+      calloutLayer.appendChild(el('path', { class: 'caba-callout-line', d: 'M 340.2 316.2 L 370.2 304.2 L 396.2 304.2' }));
+      calloutLayer.appendChild(el('text', { class: 'caba-callout-label', x: 400.2, y: 296.2 }, 'CABA'));
+      calloutLayer.appendChild(el('text', { class: 'caba-callout-sub', x: 400.2, y: 309.2 }, `${pData['CABA'].total} bancas`));
+      svg.appendChild(calloutLayer);
+    }
+  }
+
+  // Tooltip read-only (sin mutar provinceFilter)
+  svg.addEventListener('mousemove', (e) => {
+    const t = e.target;
+    if(t.classList && t.classList.contains('province-path')){
+      const pName = t.getAttribute('data-province');
+      const info = pData[pName];
+      if(!info){ showTooltip(e, `<strong>${esc(pName)}</strong><em>Sin legisladores en este escenario</em>`); return; }
+      showTooltip(e, buildProvinceTooltip(pName, info));
+    } else hideTooltip();
+  });
+  svg.addEventListener('mouseleave', hideTooltip);
+  return svg;
+}
+
+// Leyenda compartida del comparado (sin conteos: son dos/cuatro escenarios).
+function buildCompareLegendHtml(scens, colorMode){
+  const mode = colorMode === 'family' ? 'family' : 'vote';
+  const present = new Set();
+  scens.forEach(s => { if(s && s._sortedLegislators) s._sortedLegislators.forEach(l => present.add(mode === 'vote' ? l.vote : l.family)); });
+  if(mode === 'vote'){
+    const order = ['AFIRMATIVO','NEGATIVO','ABSTENCION','AUSENTE','PRESIDENCIA'];
+    return order.filter(v => present.has(v))
+      .map(v => `<span class="legend-chip"><span class="legend-sw" style="background:${VOTE_COLORS[v]}"></span>${esc(VOTE_LABELS[v])}</span>`).join('');
+  }
+  return Object.keys(FAMILY_COLORS).filter(f => present.has(f))
+    .map(f => `<span class="legend-chip"><span class="legend-sw" style="background:${FAMILY_COLORS[f]}"></span>${esc(f)}</span>`).join('');
+}
+
+// Celda con header editorial + SVG. compact = celda de la grilla 2×2.
+function cmpVizCell(s, svgNode, compact){
+  const cell = document.createElement('div');
+  cell.className = 'cmp-cell' + (compact ? ' is-compact' : '');
+  const resultCls = s.result === 'AFIRMATIVO' ? 'is-yes' : (s.result === 'NEGATIVO' ? 'is-no' : '');
+  const label = document.createElement('div');
+  label.className = 'cmp-cell-label';
+  label.innerHTML = `<span class="cmp-cell-scen">${esc(s.caseName)} · ${esc(s.chamberShort)}</span>`
+    + `<span class="cmp-cell-meta">${esc(s.date)} · <span class="${resultCls}">${esc(s.result)}</span></span>`;
+  cell.appendChild(label);
+  cell.appendChild(svgNode);
+  return cell;
+}
+
+// Monta los SVG comparados en sus placeholders tras inyectar el HTML del panel.
+function mountCompareVisuals(){
+  const pair = (state.comparePair && state.comparePair.length === 2) ? state.comparePair : ['aerolineas_diputados', 'ypf_diputados'];
+  const mode = state.compareColorMode === 'family' ? 'family' : 'vote';
+  const sA = ensureScenarioPrepared(SCENARIOS[pair[0]]);
+  const sB = ensureScenarioPrepared(SCENARIOS[pair[1]]);
+  if(!sA || !sB) return;
+
+  const hemiMount = document.getElementById('cmpDualHemi');
+  if(hemiMount){
+    hemiMount.innerHTML = '';
+    hemiMount.appendChild(cmpVizCell(sA, buildCompareHemicycleSvg(sA, mode)));
+    hemiMount.appendChild(cmpVizCell(sB, buildCompareHemicycleSvg(sB, mode)));
+  }
+  const mapMount = document.getElementById('cmpDualMap');
+  if(mapMount){
+    mapMount.innerHTML = '';
+    mapMount.appendChild(cmpVizCell(sA, buildCompareMapSvg(sA, mode)));
+    mapMount.appendChild(cmpVizCell(sB, buildCompareMapSvg(sB, mode, { highlightVs: sA._provinceData })));
+  }
+  const quadMount = document.getElementById('cmpQuad');
+  if(quadMount){
+    quadMount.innerHTML = '';
+    const qview = state.quadView === 'map' ? 'map' : 'hemicycle';
+    QUAD_ORDER.forEach(id => {
+      const sc = ensureScenarioPrepared(SCENARIOS[id]);
+      if(!sc) return;
+      const svg = qview === 'map'
+        ? buildCompareMapSvg(sc, mode, { showLabels: false })
+        : buildCompareHemicycleSvg(sc, mode);
+      quadMount.appendChild(cmpVizCell(sc, svg, true));
+    });
+  }
 }
 
 // ---------------------------------------------------------------------
@@ -8181,7 +8539,7 @@ function renderStatsTab(){
   const cmpHost = document.getElementById('comparePanel');
   const methodHost = document.getElementById('methodPanel');
   if(caseHost) caseHost.innerHTML = renderScenarioIndicators(s);
-  if(cmpHost) cmpHost.innerHTML = renderComparisonPanel();
+  if(cmpHost){ cmpHost.innerHTML = renderComparisonPanel(); mountCompareVisuals(); }
   if(methodHost) methodHost.innerHTML = renderMethodologyNotes();
   buildStatsIndex(caseHost, 'Lectura estadística del caso');
 }
@@ -8767,6 +9125,63 @@ function renderComparisonPanel(){
     </div>
   `;
 
+  // --- Visualizaciones comparadas (B.7–B.9): selector de par + color, hemiciclos
+  // y mapas lado a lado, grilla 2×2. Los SVG se montan tras inyectar el HTML
+  // (mountCompareVisuals); aquí van los placeholders + controles + leyendas. ---
+  const compareVisualsHtml = (() => {
+    const cmpMode = state.compareColorMode === 'family' ? 'family' : 'vote';
+    const cp = (state.comparePair && state.comparePair.length === 2) ? state.comparePair : ['aerolineas_diputados', 'ypf_diputados'];
+    const pairScens = [ensureScenarioPrepared(SCENARIOS[cp[0]]), ensureScenarioPrepared(SCENARIOS[cp[1]])];
+    const pairLegend = buildCompareLegendHtml(pairScens, cmpMode);
+    const quadLegend = buildCompareLegendHtml(QUAD_ORDER.map(id => ensureScenarioPrepared(SCENARIOS[id])), cmpMode);
+    const presetBtns = COMPARE_PRESETS.map(p => {
+      const on = cp[0] === p.ids[0] && cp[1] === p.ids[1];
+      return `<button type="button" data-compare-pair="${p.ids.join(',')}" aria-pressed="${on ? 'true' : 'false'}">${esc(p.label)}</button>`;
+    }).join('');
+    return `
+      <div class="compare-controls-bar">
+        <div class="compare-ctrl">
+          <span class="compare-ctrl-label">Par de escenarios</span>
+          <div class="metric-toggle compare-pair-toggle" role="group" aria-label="Par de escenarios a comparar">${presetBtns}</div>
+        </div>
+        <div class="compare-ctrl">
+          <span class="compare-ctrl-label">Color</span>
+          <div class="metric-toggle" role="group" aria-label="Modo de color del comparado">
+            <button type="button" data-compare-colormode="vote" aria-pressed="${cmpMode === 'vote' ? 'true' : 'false'}">Voto</button>
+            <button type="button" data-compare-colormode="family" aria-pressed="${cmpMode === 'family' ? 'true' : 'false'}">Familia</button>
+          </div>
+        </div>
+      </div>
+      <section class="stats-section">
+        ${_sectionHead('B.7', 'Hemiciclos lado a lado',
+          'Los dos escenarios del par, banca por banca, con el mismo criterio cromático. El cruce voto/familia se consulta en el tooltip.', null)}
+        <div class="dual-viz" id="cmpDualHemi"></div>
+        <div class="legend cmp-legend" aria-hidden="true">${pairLegend}</div>
+      </section>
+      <section class="stats-section">
+        ${_sectionHead('B.8', 'Mapas lado a lado',
+          'Voto predominante por provincia. En el segundo mapa, las provincias con borde dorado cambiaron de voto dominante respecto del primero.', null)}
+        <div class="dual-viz" id="cmpDualMap"></div>
+        <div class="legend cmp-legend" aria-hidden="true">${pairLegend}</div>
+      </section>
+      <section class="stats-section">
+        ${_sectionHead('B.9', 'Grilla panorámica · los cuatro escenarios',
+          'Vista de conjunto del corpus completo, en hemiciclos o mapas.', null)}
+        <div class="compare-controls-bar compare-controls-inset">
+          <div class="compare-ctrl">
+            <span class="compare-ctrl-label">Vista</span>
+            <div class="metric-toggle" role="group" aria-label="Tipo de visualización de la grilla">
+              <button type="button" data-quad-view="hemicycle" aria-pressed="${state.quadView !== 'map' ? 'true' : 'false'}">Hemiciclos</button>
+              <button type="button" data-quad-view="map" aria-pressed="${state.quadView === 'map' ? 'true' : 'false'}">Mapas</button>
+            </div>
+          </div>
+        </div>
+        <div class="quad-viz" id="cmpQuad"></div>
+        <div class="legend cmp-legend" aria-hidden="true">${quadLegend}</div>
+      </section>
+    `;
+  })();
+
   return `
     <div class="stats-division">
       <div class="stats-division-head">
@@ -8793,6 +9208,7 @@ function renderComparisonPanel(){
         ` : '';
       })()}
       <div class="stats-division-body">
+        ${compareVisualsHtml}
         <section class="stats-section">
           ${_sectionHead('B.1', 'Tabla comparativa agregada',
             'Indicadores cuantitativos agrupados en bloques temáticos: composición, resultado, participación, veredicto.',
@@ -10878,6 +11294,16 @@ function bindExportEvents(){
     if(!m) return;
     state.famHeatMetric = m.dataset.famMetric;
     renderStatsTab();
+  });
+  // Controles de las visualizaciones comparadas (B.7–B.9): par, color y vista de
+  // la grilla. Cambian el state y re-renderizan el panel (que re-monta los SVG).
+  document.addEventListener('click', (e) => {
+    const p = e.target.closest('[data-compare-pair]');
+    if(p){ state.comparePair = p.dataset.comparePair.split(','); renderStatsTab(); return; }
+    const cm = e.target.closest('[data-compare-colormode]');
+    if(cm){ state.compareColorMode = cm.dataset.compareColormode; renderStatsTab(); return; }
+    const qv = e.target.closest('[data-quad-view]');
+    if(qv){ state.quadView = qv.dataset.quadView; renderStatsTab(); return; }
   });
 }
 
