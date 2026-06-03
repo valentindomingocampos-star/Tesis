@@ -3040,6 +3040,122 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   border-top: 1px solid var(--line);
 }
 
+/* --- B.10 Trayectoria de legisladores --- */
+.traj-empty{
+  padding: var(--space-5);
+  background: var(--paper-sunk);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-xs);
+  color: var(--ink-2);
+  font-size: var(--t-sm);
+  line-height: 1.6;
+  max-width: 760px;
+}
+.traj-dir{
+  margin: 0 0 var(--space-3);
+  font-size: var(--t-sm);
+  color: var(--accent-gold-text);
+  font-weight: var(--w-semi);
+  letter-spacing: .01em;
+}
+.traj-metrics{ margin-bottom: var(--space-2); }
+.traj-block{ margin-top: var(--space-5); }
+.traj-block-title{
+  margin: 0 0 var(--space-1);
+  font-family: var(--font-serif);
+  font-size: var(--t-md);
+  font-weight: var(--w-bold);
+  color: var(--ink);
+  letter-spacing: -0.012em;
+}
+.traj-block-sub{
+  margin: 0 0 var(--space-3);
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  line-height: 1.55;
+  max-width: 760px;
+}
+.traj-table-head{
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+.traj-filter{ flex-wrap: wrap; }
+
+/* Matriz de transición voto A × voto B */
+.traj-matrix{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-sm);
+  border: none;
+}
+.traj-matrix th{
+  background: var(--paper-sunk);
+  padding: var(--space-2) var(--space-3);
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: .06em;
+  color: var(--ink-2);
+  font-weight: var(--w-semi);
+  border-bottom: 2px solid var(--line-strong);
+  white-space: nowrap;
+}
+.traj-matrix thead th:first-child, .traj-matrix tbody th{ text-align: left; }
+.traj-matrix .traj-corner{ font-size: 9.5px; color: var(--muted); letter-spacing: 0; font-weight: var(--w-medium); }
+.traj-matrix tbody th{
+  background: var(--paper-sunk);
+  font-weight: var(--w-semi);
+  color: var(--ink);
+  border-right: 1px solid var(--line);
+  white-space: nowrap;
+}
+.traj-matrix td{
+  padding: var(--space-2) var(--space-3);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-serif);
+  font-weight: var(--w-bold);
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+}
+.traj-matrix td.is-zero{ color: var(--muted-soft); font-family: var(--font-sans); font-weight: var(--w-regular); }
+.traj-matrix td.is-kept{ background: var(--vote-yes-soft); }
+.traj-matrix td.is-changed{ background: var(--accent-gold-soft); }
+.traj-matrix .traj-tot{ background: var(--paper-sunk); color: var(--ink-2); }
+.traj-matrix .traj-tot-row th, .traj-matrix .traj-tot-row td{ background: var(--paper-sunk); font-weight: var(--w-semi); border-top: 2px solid var(--line-strong); }
+.traj-sw{ display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+
+/* Tabla nominal de trayectoria */
+.traj-table th, .traj-fam-table th{ cursor: default; }
+.traj-table .traj-name{ display: block; font-weight: var(--w-semi); color: var(--ink); }
+.traj-table .traj-prov{ display: block; font-size: var(--t-xs); color: var(--muted); }
+.traj-fam-cell{ font-size: var(--t-xs); color: var(--ink-2); }
+.traj-block-cell{ font-size: var(--t-xs); color: var(--muted); max-width: 240px; }
+.traj-arrow{ color: var(--muted-soft); margin: 0 2px; }
+.traj-table-note{ margin: var(--space-2) 0 0; font-size: var(--t-xs); color: var(--muted); }
+
+/* Sellos de estado (mantuvo/cambió) — status, no voto */
+.traj-badge{
+  display: inline-block;
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-xs);
+  font-size: 10px;
+  font-weight: var(--w-semi);
+  letter-spacing: .02em;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.traj-badge.kept{ background: var(--vote-yes-soft); border-color: var(--vote-yes); color: var(--vote-yes); }
+.traj-badge.changed{ background: var(--vote-no-soft); border-color: var(--vote-no); color: var(--vote-no); }
+.traj-badge.fam{ background: var(--vote-abst-soft); border-color: var(--vote-abst); color: var(--accent-gold-text); margin-left: 4px; }
+
+.traj-fam-table .col-num.is-up{ color: var(--vote-yes); font-weight: var(--w-semi); }
+.traj-fam-table .col-num.is-down{ color: var(--vote-no); font-weight: var(--w-semi); }
+
 /* Nota metodológica editorial — bloque tipográfico, no card */
 .methodology-note{
   padding: var(--space-4) var(--space-6);
@@ -3957,7 +4073,8 @@ const state = {
   // --- Análisis comparado: visualizaciones lado a lado (División B, secciones B.7+) ---
   comparePair: ['aerolineas_diputados', 'ypf_diputados'], // par de escenarios a comparar
   compareColorMode: 'vote',   // 'vote' | 'family' — color de las viz comparadas (independiente del caso)
-  quadView: 'hemicycle'       // 'hemicycle' | 'map' — tipo de viz en la grilla panorámica 2×2
+  quadView: 'hemicycle',      // 'hemicycle' | 'map' — tipo de viz en la grilla panorámica 2×2
+  trajFilter: 'all'           // 'all' | 'changed' | 'kept' — filtro de la tabla nominal de trayectoria (B.10)
 };
 
 // Presets del selector de par (mismas cámaras = comparación con sentido).
@@ -5380,6 +5497,212 @@ function mountCompareVisuals(){
 }
 
 // ---------------------------------------------------------------------
+// TRAYECTORIA DE LEGISLADORES (B.10) — same-chamber
+// Identifica legisladores que repiten banca entre los dos escenarios del par y
+// analiza cómo cambia o se mantiene su voto. Match por nombre exacto normalizado
+// (sin tildes, case-insensitive, formato APELLIDO, Nombre). Usa el voto efectivo
+// ya normalizado (_sortedLegislators). NO toca datasets ni compute* existentes.
+// ---------------------------------------------------------------------
+function trajNormName(name){
+  return String(name || '').trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ');
+}
+function computeTrajectory(pair){
+  const idA = pair[0], idB = pair[1];
+  const sA = SCENARIOS[idA], sB = SCENARIOS[idB];
+  const legsA = getLegsForScenario(idA);
+  const legsB = getLegsForScenario(idB);
+  const sameChamber = !!(sA && sB && sA.chamber === sB.chamber);
+
+  const mapB = new Map();
+  legsB.forEach(l => { if(!mapB.has(trajNormName(l.name))) mapB.set(trajNormName(l.name), l); });
+
+  const matched = [];
+  // Trayectoria solo same-chamber por ahora (decisión metodológica). Para pares
+  // de cámaras distintas no se cruza: se devuelve vacío y la UI muestra el estado.
+  if(sameChamber){
+    legsA.forEach(a => {
+      const b = mapB.get(trajNormName(a.name));
+      if(b){
+        matched.push({
+          name: a.name, province: a.province,
+          voteA: a.vote, voteB: b.vote, sameVote: a.vote === b.vote,
+          familyA: a.family, familyB: b.family, sameFamily: a.family === b.family,
+          blockA: a.block, blockB: b.block
+        });
+      }
+    });
+  }
+
+  const nMatched = matched.length;
+  const nKeptVote = matched.filter(m => m.sameVote).length;
+  const nKeptFamily = matched.filter(m => m.sameFamily).length;
+
+  // Matriz de transición voto A × voto B
+  const cats = ['AFIRMATIVO', 'NEGATIVO', 'ABSTENCION', 'AUSENTE', 'PRESIDENCIA'];
+  const matrix = {};
+  cats.forEach(a => { matrix[a] = {}; cats.forEach(b => matrix[a][b] = 0); });
+  matched.forEach(m => { if(matrix[m.voteA] && matrix[m.voteA][m.voteB] != null) matrix[m.voteA][m.voteB]++; });
+
+  return {
+    idA, idB, scenA: sA, scenB: sB, sameChamber, matched, matrix, cats,
+    metrics: {
+      totalA: legsA.length, totalB: legsB.length, nMatched,
+      pctPermanencia: legsA.length ? (nMatched / legsA.length * 100) : 0,
+      nKeptVote, pctKeptVote: nMatched ? (nKeptVote / nMatched * 100) : 0,
+      nChangedVote: nMatched - nKeptVote,
+      nKeptFamily, nChangedFamily: nMatched - nKeptFamily
+    }
+  };
+}
+
+// HTML de la sección B.10 (aditivo dentro del comparado). Estado vacío para
+// pares cross-cámara o sin repetidos.
+function renderTrajectorySection(){
+  const cp = (state.comparePair && state.comparePair.length === 2) ? state.comparePair : ['aerolineas_diputados', 'ypf_diputados'];
+  const traj = computeTrajectory(cp);
+  const sA = traj.scenA, sB = traj.scenB;
+  const fmt1 = (n) => Number.isFinite(n) ? (Math.round(n * 10) / 10).toFixed(1) : '—';
+  const head = _sectionHead('B.10', 'Trayectoria de legisladores',
+    'Legisladores que repiten banca entre las dos votaciones del par y cómo cambia o se mantiene su voto. Match por nombre exacto (normalizado); se usa el voto efectivo (quien presidió y votó cuenta por su voto).', null);
+
+  if(!traj.sameChamber || traj.metrics.nMatched === 0){
+    return `<section class="stats-section">
+      ${head}
+      <div class="traj-empty">No hay legisladores repetidos entre estos dos escenarios. La trayectoria nominal se calcula solo cuando existe continuidad de banca entre ambas votaciones.</div>
+    </section>`;
+  }
+
+  const m = traj.metrics;
+  const dir = `${esc(sA.caseName)} · ${esc(sA.chamberShort)} (${esc(sA.date)}) &rarr; ${esc(sB.caseName)} · ${esc(sB.chamberShort)} (${esc(sB.date)})`;
+
+  // --- Métricas resumen ---
+  const metricsHtml = `
+    <p class="traj-dir">${dir}</p>
+    <div class="data-grid traj-metrics">
+      <div class="data-grid-cell"><div class="data-grid-label">Repiten banca</div><div class="data-grid-value">${m.nMatched}</div><div class="data-grid-sub">${fmt1(m.pctPermanencia)}% de ${m.totalA}</div></div>
+      <div class="data-grid-cell"><div class="data-grid-label">Mantienen el voto</div><div class="data-grid-value is-yes">${m.nKeptVote}</div><div class="data-grid-sub">${fmt1(m.pctKeptVote)}% de los repetidos</div></div>
+      <div class="data-grid-cell"><div class="data-grid-label">Cambian el voto</div><div class="data-grid-value is-no">${m.nChangedVote}</div><div class="data-grid-sub">${fmt1(100 - m.pctKeptVote)}%</div></div>
+      <div class="data-grid-cell"><div class="data-grid-label">Mantienen familia</div><div class="data-grid-value">${m.nKeptFamily}</div></div>
+      <div class="data-grid-cell"><div class="data-grid-label">Cambian familia</div><div class="data-grid-value is-warn">${m.nChangedFamily}</div></div>
+    </div>
+  `;
+
+  // --- Matriz de transición ---
+  const rowTot = {}, colTot = {};
+  traj.cats.forEach(a => { rowTot[a] = traj.cats.reduce((s, b) => s + traj.matrix[a][b], 0); });
+  traj.cats.forEach(b => { colTot[b] = traj.cats.reduce((s, a) => s + traj.matrix[a][b], 0); });
+  const rowsP = traj.cats.filter(a => rowTot[a] > 0);
+  const colsP = traj.cats.filter(b => colTot[b] > 0);
+  const sw = (v) => `<span class="traj-sw" style="background:${VOTE_COLORS[v]}"></span>`;
+  const matrixHtml = `
+    <div class="traj-block">
+      <h4 class="traj-block-title">Matriz de transición del voto</h4>
+      <p class="traj-block-sub">Filas: voto en ${esc(sA.caseName)}. Columnas: voto en ${esc(sB.caseName)}. La diagonal son quienes mantuvieron el sentido; fuera de la diagonal, los que cambiaron.</p>
+      <div class="dtable-wrap">
+        <table class="traj-matrix">
+          <thead><tr><th class="traj-corner">${esc(sA.caseName)} ↓ / ${esc(sB.caseName)} →</th>${colsP.map(b => `<th>${sw(b)}${esc(VOTE_LABELS[b])}</th>`).join('')}<th class="traj-tot">Total</th></tr></thead>
+          <tbody>
+            ${rowsP.map(a => `<tr>
+              <th>${sw(a)}${esc(VOTE_LABELS[a])}</th>
+              ${colsP.map(b => { const v = traj.matrix[a][b]; const cls = v === 0 ? 'is-zero' : (a === b ? 'is-kept' : 'is-changed'); return `<td class="${cls}">${v || '·'}</td>`; }).join('')}
+              <td class="traj-tot">${rowTot[a]}</td>
+            </tr>`).join('')}
+            <tr class="traj-tot-row"><th>Total</th>${colsP.map(b => `<td>${colTot[b]}</td>`).join('')}<td>${m.nMatched}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  // --- Tabla nominal (con filtro) ---
+  const filter = state.trajFilter || 'all';
+  let rows = traj.matched.slice();
+  if(filter === 'changed') rows = rows.filter(r => !r.sameVote);
+  else if(filter === 'kept') rows = rows.filter(r => r.sameVote);
+  // Orden: primero los que cambiaron el voto (lo más informativo), luego alfabético.
+  rows.sort((a, b) => { if(a.sameVote !== b.sameVote) return a.sameVote ? 1 : -1; return a.name.localeCompare(b.name, 'es'); });
+  const filterBtns = [['all', 'Todos'], ['changed', 'Cambiaron el voto'], ['kept', 'Mantuvieron el voto']]
+    .map(([k, l]) => `<button type="button" data-traj-filter="${k}" aria-pressed="${filter === k ? 'true' : 'false'}">${esc(l)}</button>`).join('');
+  const vb = (v) => `<span class="vote-badge ${VOTE_CLASS[v]}">${esc(VOTE_LABELS[v])}</span>`;
+  const dot = (f) => `<span class="family-dot" style="background:${FAMILY_COLORS[f] || '#a09b8c'}"></span>`;
+  const tableHtml = `
+    <div class="traj-block">
+      <div class="traj-table-head">
+        <h4 class="traj-block-title">Detalle nominal</h4>
+        <div class="metric-toggle traj-filter" role="group" aria-label="Filtro de la tabla de trayectoria">${filterBtns}</div>
+      </div>
+      <div class="dtable-wrap">
+        <table class="dtable traj-table">
+          <thead><tr>
+            <th>Legislador</th>
+            <th>Voto · ${esc(sA.caseName)}</th>
+            <th>Voto · ${esc(sB.caseName)}</th>
+            <th>Trayectoria</th>
+            <th>Familia (${esc(sA.caseName)} → ${esc(sB.caseName)})</th>
+            <th>Bloque</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(r => `<tr>
+              <td><span class="traj-name">${esc(r.name)}</span><span class="traj-prov">${esc(r.province)}</span></td>
+              <td>${vb(r.voteA)}</td>
+              <td>${vb(r.voteB)}</td>
+              <td>${r.sameVote ? '<span class="traj-badge kept">Mantuvo</span>' : '<span class="traj-badge changed">Cambió</span>'}${r.sameFamily ? '' : ' <span class="traj-badge fam">Cambió familia</span>'}</td>
+              <td class="traj-fam-cell">${r.sameFamily ? `${dot(r.familyA)}${esc(r.familyA)}` : `${dot(r.familyA)}${esc(r.familyA)} <span class="traj-arrow">→</span> ${dot(r.familyB)}${esc(r.familyB)}`}</td>
+              <td class="traj-block-cell">${r.blockA === r.blockB ? esc(r.blockA) : `${esc(r.blockA)} <span class="traj-arrow">→</span> ${esc(r.blockB)}`}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <p class="traj-table-note">${rows.length} de ${m.nMatched} legisladores repetidos${filter !== 'all' ? ' (filtrados)' : ''}.</p>
+    </div>
+  `;
+
+  // --- Migración por familia política ---
+  const famAgg = {};
+  traj.matched.forEach(r => {
+    const f = r.familyA;
+    if(!famAgg[f]) famAgg[f] = { n: 0, kept: 0, changed: 0, yesA: 0, yesB: 0 };
+    const g = famAgg[f]; g.n++;
+    if(r.sameVote) g.kept++; else g.changed++;
+    if(r.voteA === 'AFIRMATIVO') g.yesA++;
+    if(r.voteB === 'AFIRMATIVO') g.yesB++;
+  });
+  const famRows = Object.keys(famAgg).map(f => ({ f, ...famAgg[f] })).filter(r => r.n >= 2).sort((a, b) => b.n - a.n);
+  const migrationHtml = famRows.length ? `
+    <div class="traj-block">
+      <h4 class="traj-block-title">Migración por familia política</h4>
+      <p class="traj-block-sub">Sobre los legisladores que repiten banca; familias con al menos 2 repetidos. % afirmativo calculado sobre los repetidos de cada familia.</p>
+      <div class="dtable-wrap">
+        <table class="dtable traj-fam-table">
+          <thead><tr><th>Familia política</th><th class="col-num">Repiten</th><th class="col-num">Mantienen</th><th class="col-num">Cambian</th><th class="col-num">% Afirm. ${esc(sA.caseName)}</th><th class="col-num">% Afirm. ${esc(sB.caseName)}</th><th class="col-num">Δ pp</th></tr></thead>
+          <tbody>
+            ${famRows.map(r => { const pa = r.yesA / r.n * 100, pb = r.yesB / r.n * 100, d = pb - pa; const dcls = Math.abs(d) < 0.05 ? '' : (d > 0 ? 'is-up' : 'is-down'); return `<tr>
+              <td>${dot(r.f)}${esc(r.f)}</td>
+              <td class="col-num">${r.n}</td>
+              <td class="col-num">${r.kept}</td>
+              <td class="col-num">${r.changed}</td>
+              <td class="col-num">${fmt1(pa)}%</td>
+              <td class="col-num">${fmt1(pb)}%</td>
+              <td class="col-num ${dcls}">${d >= 0 ? '+' : ''}${fmt1(d)}</td>
+            </tr>`; }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  ` : '';
+
+  return `<section class="stats-section">
+    ${head}
+    ${metricsHtml}
+    ${matrixHtml}
+    ${tableHtml}
+    ${migrationHtml}
+  </section>`;
+}
+
+// ---------------------------------------------------------------------
 // SIDEBAR
 // ---------------------------------------------------------------------
 function renderSidebar(){
@@ -6290,7 +6613,7 @@ function slugifyFilename(parts){
   return parts
     .map(p => String(p ?? '')
       .toLowerCase()
-      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, '_')
       .replace(/^_+|_+$/g, ''))
     .filter(Boolean)
@@ -9179,6 +9502,7 @@ function renderComparisonPanel(){
         <div class="quad-viz" id="cmpQuad"></div>
         <div class="legend cmp-legend" aria-hidden="true">${quadLegend}</div>
       </section>
+      ${renderTrajectorySection()}
     `;
   })();
 
@@ -11304,6 +11628,8 @@ function bindExportEvents(){
     if(cm){ state.compareColorMode = cm.dataset.compareColormode; renderStatsTab(); return; }
     const qv = e.target.closest('[data-quad-view]');
     if(qv){ state.quadView = qv.dataset.quadView; renderStatsTab(); return; }
+    const tf = e.target.closest('[data-traj-filter]');
+    if(tf){ state.trajFilter = tf.dataset.trajFilter; renderStatsTab(); return; }
   });
 }
 

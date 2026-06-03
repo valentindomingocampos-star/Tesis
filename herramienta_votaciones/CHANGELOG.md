@@ -2,6 +2,25 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Análisis comparado: trayectoria de legisladores (Fase 3)
+
+Nueva sección **B.10 Trayectoria** dentro de Análisis comparado: qué legisladores repiten banca entre las dos votaciones del par y cómo cambia o se mantiene su voto. Alcance acotado: **same-chamber** (cross-cámara queda para una fase futura). Todo aditivo; sin tocar datasets, cálculos, compute* existentes, hemiciclo/mapa principal, análisis del caso ni exports.
+
+### Funciones nuevas
+- `computeTrajectory(pair)`: match de repetidos por nombre exacto normalizado (`trajNormName`: trim, lowercase, sin tildes vía NFD, `APELLIDO, Nombre`). Usa el voto efectivo (`_sortedLegislators`, ya normalizado). Devuelve `matched`, métricas y la matriz de transición voto A × voto B. Sólo cruza si ambas cámaras coinciden.
+- `renderTrajectorySection()`: HTML de B.10 (aditivo en `renderComparisonPanel`). `trajNormName(name)` helper de normalización.
+- `state.trajFilter` ('all'|'changed'|'kept') + handler delegado `[data-traj-filter]`.
+
+### Componentes
+- **Métricas resumen** (data-grid): repiten banca (% del universo base), mantienen/cambian voto, mantienen/cambian familia.
+- **Matriz de transición** voto A × voto B (en vez de un Sankey frágil, por decisión: "sólido y claro primero"). Diagonal = mantuvieron (tinte verde); fuera de diagonal = cambiaron (tinte oro); con totales de fila/columna.
+- **Tabla nominal** con sellos de voto (A→B), badges de estado (Mantuvo/Cambió/Cambió familia), familia y bloque A→B; filtro Todos/Cambiaron/Mantuvieron.
+- **Migración por familia** (familias con ≥2 repetidos): repiten, mantienen, cambian, % afirmativo A→B con Δ.
+- **Estado vacío** para pares cross-cámara o sin repetidos: mensaje sobrio en caja hundida, sin matriz/tabla rotas.
+
+### QA
+- Sintaxis OK; datos idénticos a HEAD. Métricas verificadas: **Diputados Aero→YPF = 64 repiten** (48 mantienen, 16 cambian, 56 familia); **Senado Aero→YPF = 38** (20/18/32). Cross-cámara (Aero Dip→Sen, YPF Dip→Sen) → estado vacío (`sameChamber=false`). Toggle voto/familia no rompe B.10; cambio de par no rompe B.7–B.9; filtro nominal correcto (16 filas en "cambiaron"). Análisis del caso intacto (selección + hemiciclo 257). Print: 58 páginas (sin clipping; la regla print de `.dtable-wrap` libera overflow). Sin Sankey (matriz como visualización de transición); exports de trayectoria → Fase 4.
+
 ## 2026-06-03 — Análisis comparado: visualizaciones gráficas (Fase 1+2)
 
 Primer entregable del rediseño del comparado (División B), que hasta ahora era 100% tabular. Agrega visualizaciones gráficas comparativas. Sin tocar datasets, cálculos ni la lógica del análisis de caso. Decisiones de alcance acordadas: trayectoria same-chamber (fase futura), resaltado en el segundo mapa (sin tercer mapa diff), grilla 2×2 fija.
