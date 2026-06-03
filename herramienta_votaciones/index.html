@@ -5809,8 +5809,14 @@ function renderTrajectorySection(){
   const traj = computeTrajectory(cp);
   const sA = traj.scenA, sB = traj.scenB;
   const fmt1 = (n) => Number.isFinite(n) ? (Math.round(n * 10) / 10).toFixed(1) : '—';
+  const canExport = traj.sameChamber && traj.metrics.nMatched > 0;
+  const trajActions = canExport
+    ? `<button class="btn-exp" data-export="traj-matriz-png" title="Matriz de transición · PNG">↓ Matriz</button>`
+      + `<button class="btn-exp" data-export="traj-nominal-png" title="Detalle nominal · PNG">↓ Nominal</button>`
+      + `<button class="btn-exp" data-export="traj-familias-png" title="Migración por familia · PNG">↓ Familias</button>`
+    : `<button class="btn-exp" disabled title="No hay legisladores repetidos en este par (la trayectoria es same-chamber).">↓ PNG · sin datos</button>`;
   const head = _sectionHead('B.6', 'Trayectoria de legisladores',
-    'Legisladores que repiten banca entre las dos votaciones del par y cómo cambia o se mantiene su voto. Match por nombre exacto (normalizado); se usa el voto efectivo (quien presidió y votó cuenta por su voto).', null);
+    'Legisladores que repiten banca entre las dos votaciones del par y cómo cambia o se mantiene su voto. Match por nombre exacto (normalizado); se usa el voto efectivo (quien presidió y votó cuenta por su voto).', null, trajActions);
 
   if(!traj.sameChamber || traj.metrics.nMatched === 0){
     return `<section class="stats-section">
@@ -7430,6 +7436,209 @@ function exportCompareVizPng(kind){
     credit: getExportFigureCredit()
   };
   exportSvgAsPng(composite, slugifyFilename(fileParts) + '.png', context);
+}
+
+// =====================================================================
+// EXPORTACIÓN PNG — TRAYECTORIA DE LEGISLADORES (B.6, Fase 4)
+// Matriz de transición, detalle nominal y migración por familia, como láminas
+// con el wrapper de tablas (buildTablePngHeader/Footer). Fuente específica de
+// trayectoria. Estado vacío (cross-cámara): los botones se deshabilitan en UI.
+// =====================================================================
+const PNG_TRAJECTORY_SOURCE = 'Elaboración propia sobre legisladores repetidos entre las dos votaciones nominales comparadas. Match exacto normalizado de nombres; trayectoria same-chamber.';
+
+// Paleta hex de voto para PNG (espeja los tokens; el canvas no resuelve var()).
+const _TRAJ_VOTE_HEX  = { AFIRMATIVO:'#3f6e44', NEGATIVO:'#a32a2a', ABSTENCION:'#7c6020', AUSENTE:'#6a6a64', PRESIDENCIA:'#14181f' };
+const _TRAJ_VOTE_SOFT = { AFIRMATIVO:'#e7efe6', NEGATIVO:'#f3e3e1', ABSTENCION:'#f1e7d3', AUSENTE:'#ecebe4', PRESIDENCIA:'#ece4d1' };
+const _TRAJ_VOTE_BORD = { AFIRMATIVO:'#3f6e44', NEGATIVO:'#a32a2a', ABSTENCION:'#a87523', AUSENTE:'#b7af9d', PRESIDENCIA:'#14181f' };
+
+function _svgText(NS, x, y, str, opts){
+  const t = document.createElementNS(NS, 'text');
+  t.setAttribute('x', x); t.setAttribute('y', y);
+  t.setAttribute('font-family', opts.serif ? TBL_PNG_FONTS.serifTitle : TBL_PNG_FONTS.sans);
+  t.setAttribute('font-size', opts.size || 12);
+  t.setAttribute('font-weight', opts.weight || '400');
+  t.setAttribute('fill', opts.fill || '#14181f');
+  if(opts.anchor) t.setAttribute('text-anchor', opts.anchor);
+  if(opts.ls) t.setAttribute('letter-spacing', opts.ls);
+  t.textContent = str;
+  return t;
+}
+// Sello de voto en PNG: rect redondeado (tinte + borde) + texto. Devuelve ancho.
+function _trajVoteBadgePng(NS, x, yc, vote, els){
+  const label = VOTE_LABELS[vote] || vote || '—';
+  const fs = 11, padX = 9, h = 20;
+  const w = Math.ceil(_measureTextW(label, fs, '600', TBL_PNG_FONTS.sans, 0)) + padX * 2;
+  const r = document.createElementNS(NS, 'rect');
+  r.setAttribute('x', x); r.setAttribute('y', yc - h / 2); r.setAttribute('width', w); r.setAttribute('height', h);
+  r.setAttribute('rx', 3); r.setAttribute('fill', _TRAJ_VOTE_SOFT[vote] || '#f1ece0');
+  r.setAttribute('stroke', _TRAJ_VOTE_BORD[vote] || '#b7af9d'); r.setAttribute('stroke-width', '1');
+  els.push(r);
+  els.push(_svgText(NS, x + w / 2, yc + 4, label, { size: fs, weight: '600', fill: _TRAJ_VOTE_HEX[vote] || '#6a6a64', anchor: 'middle' }));
+  return w;
+}
+// Cierra una lámina de tabla: bg + estilos + elementos → rasteriza.
+function _finalizeTrajPng(elements, totalW, totalH, filename){
+  const NS = 'http://www.w3.org/2000/svg';
+  const wrapper = document.createElementNS(NS, 'svg');
+  wrapper.setAttribute('xmlns', NS); wrapper.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
+  wrapper.setAttribute('width', totalW); wrapper.setAttribute('height', totalH);
+  const style = document.createElementNS(NS, 'style'); style.textContent = SVG_FIGURE_STYLES; wrapper.appendChild(style);
+  const bg = document.createElementNS(NS, 'rect');
+  bg.setAttribute('x', 0); bg.setAttribute('y', 0); bg.setAttribute('width', totalW); bg.setAttribute('height', totalH); bg.setAttribute('fill', '#fffdf8');
+  wrapper.appendChild(bg);
+  elements.forEach(e => wrapper.appendChild(e));
+  rasterizeSvgToPng(new XMLSerializer().serializeToString(wrapper), totalW, totalH, filename);
+}
+
+function exportTrajectoryPng(kind){
+  const NS = 'http://www.w3.org/2000/svg';
+  const PAD_X = 50;
+  const cp = (state.comparePair && state.comparePair.length === 2) ? state.comparePair : ['aerolineas_diputados', 'ypf_diputados'];
+  const traj = computeTrajectory(cp);
+  if(!traj.sameChamber || traj.metrics.nMatched === 0){ alert('No hay legisladores repetidos en este par (la trayectoria es same-chamber). No hay datos para exportar.'); return; }
+  const sA = traj.scenA, sB = traj.scenB;
+  const dirSub = `${sA.caseName} · ${sA.chamberShort} → ${sB.caseName} · ${sB.chamberShort}`;
+  const fileBase = ['comparado', 'trayectoria', sA.id + '_vs_' + sB.id];
+  const fmt1 = (n) => Number.isFinite(n) ? (Math.round(n * 10) / 10).toFixed(1) : '—';
+
+  if(kind === 'matriz'){
+    const rowTot = {}, colTot = {};
+    traj.cats.forEach(a => rowTot[a] = traj.cats.reduce((s, b) => s + traj.matrix[a][b], 0));
+    traj.cats.forEach(b => colTot[b] = traj.cats.reduce((s, a) => s + traj.matrix[a][b], 0));
+    const rowsP = traj.cats.filter(a => rowTot[a] > 0);
+    const colsP = traj.cats.filter(b => colTot[b] > 0);
+    const rhW = 210, cellW = 130, totW = 100, cellH = 48;
+    const tableW = rhW + colsP.length * cellW + totW;
+    const totalW = Math.max(940, PAD_X * 2 + tableW);
+    const headerOut = buildTablePngHeader(NS, sA, 'Trayectoria · matriz de transición del voto',
+      `${dirSub}. Diagonal: mantuvieron el sentido; fuera de la diagonal, cambiaron. Sobre ${traj.metrics.nMatched} legisladores que repiten banca.`,
+      totalW, PAD_X, { noMetaChips: true });
+    const els = [...headerOut.elements];
+    const x0 = PAD_X + (totalW - PAD_X * 2 - tableW) / 2;
+    let y = headerOut.headerBottomY + 30;
+    // fila de cabecera de columnas
+    els.push(_svgText(NS, x0 + 12, y + cellH / 2 - 2, `${sA.caseName} ↓`, { size: 10.5, weight: '700', fill: '#6a6a64', ls: 0.5 }));
+    els.push(_svgText(NS, x0 + 12, y + cellH / 2 + 13, `/ ${sB.caseName} →`, { size: 10.5, weight: '700', fill: '#6a6a64', ls: 0.5 }));
+    colsP.forEach((b, ci) => {
+      const cx = x0 + rhW + ci * cellW + cellW / 2;
+      const sw = document.createElementNS(NS, 'rect');
+      sw.setAttribute('x', cx - 30); sw.setAttribute('y', y + cellH / 2 - 14); sw.setAttribute('width', 9); sw.setAttribute('height', 9); sw.setAttribute('rx', 2); sw.setAttribute('fill', VOTE_COLORS[b]);
+      els.push(sw);
+      els.push(_svgText(NS, cx - 16, y + cellH / 2 - 6, VOTE_LABELS[b], { size: 11.5, weight: '600', fill: '#2c3543', anchor: 'start' }));
+    });
+    els.push(_svgText(NS, x0 + rhW + colsP.length * cellW + totW / 2, y + cellH / 2 + 4, 'Total', { size: 10.5, weight: '700', fill: '#6a6a64', anchor: 'middle', ls: 0.8 }));
+    y += cellH;
+    // filas
+    rowsP.forEach((a) => {
+      els.push(_svgText(NS, x0 + 12, y + cellH / 2 - 3, VOTE_LABELS[a], { size: 11.5, weight: '600', fill: '#14181f' }));
+      const swr = document.createElementNS(NS, 'rect');
+      swr.setAttribute('x', x0 + 12); swr.setAttribute('y', y + cellH / 2 + 6); swr.setAttribute('width', 9); swr.setAttribute('height', 9); swr.setAttribute('rx', 2); swr.setAttribute('fill', VOTE_COLORS[a]);
+      els.push(swr);
+      colsP.forEach((b, ci) => {
+        const cx = x0 + rhW + ci * cellW;
+        const v = traj.matrix[a][b];
+        const fillCell = v === 0 ? '#fffdf8' : (a === b ? '#e7efe6' : '#e9deba');
+        const rc = document.createElementNS(NS, 'rect');
+        rc.setAttribute('x', cx); rc.setAttribute('y', y); rc.setAttribute('width', cellW); rc.setAttribute('height', cellH);
+        rc.setAttribute('fill', fillCell); rc.setAttribute('stroke', '#d9d3c4'); rc.setAttribute('stroke-width', '1');
+        els.push(rc);
+        els.push(_svgText(NS, cx + cellW / 2, y + cellH / 2 + 6, v === 0 ? '·' : String(v), { serif: v > 0, size: v > 0 ? 18 : 14, weight: v > 0 ? '700' : '400', fill: v === 0 ? '#9a9588' : '#14181f', anchor: 'middle' }));
+      });
+      // total fila
+      const tx = x0 + rhW + colsP.length * cellW;
+      const rt = document.createElementNS(NS, 'rect');
+      rt.setAttribute('x', tx); rt.setAttribute('y', y); rt.setAttribute('width', totW); rt.setAttribute('height', cellH); rt.setAttribute('fill', '#f1ece0'); rt.setAttribute('stroke', '#d9d3c4'); rt.setAttribute('stroke-width', '1');
+      els.push(rt);
+      els.push(_svgText(NS, tx + totW / 2, y + cellH / 2 + 5, String(rowTot[a]), { size: 13, weight: '600', fill: '#2c3543', anchor: 'middle' }));
+      y += cellH;
+    });
+    // fila Total (columnas)
+    const rtb = document.createElementNS(NS, 'rect');
+    rtb.setAttribute('x', x0); rtb.setAttribute('y', y); rtb.setAttribute('width', tableW); rtb.setAttribute('height', cellH); rtb.setAttribute('fill', '#f1ece0'); rtb.setAttribute('stroke', '#b7af9d'); rtb.setAttribute('stroke-width', '1');
+    els.push(rtb);
+    els.push(_svgText(NS, x0 + 12, y + cellH / 2 + 5, 'Total', { size: 11, weight: '700', fill: '#2c3543' }));
+    colsP.forEach((b, ci) => els.push(_svgText(NS, x0 + rhW + ci * cellW + cellW / 2, y + cellH / 2 + 5, String(colTot[b]), { size: 13, weight: '700', fill: '#2c3543', anchor: 'middle' })));
+    els.push(_svgText(NS, x0 + rhW + colsP.length * cellW + totW / 2, y + cellH / 2 + 5, String(traj.metrics.nMatched), { size: 14, weight: '700', fill: '#14181f', anchor: 'middle' }));
+    y += cellH;
+    const footRead = `Mantienen el voto: ${traj.metrics.nKeptVote} de ${traj.metrics.nMatched} (${fmt1(traj.metrics.pctKeptVote)}%). Cambian: ${traj.metrics.nChangedVote}.`;
+    const footerOut = buildTablePngFooter(NS, sA, y + 18, totalW, PAD_X, footRead, { generalSource: PNG_TRAJECTORY_SOURCE });
+    _finalizeTrajPng([...els, ...footerOut.elements], totalW, footerOut.footerBottomY + 10, slugifyFilename([...fileBase, 'matriz']) + '.png');
+    return;
+  }
+
+  if(kind === 'familias'){
+    const famAgg = {};
+    traj.matched.forEach(r => { const f = r.familyA; if(!famAgg[f]) famAgg[f] = { n: 0, kept: 0, changed: 0, yesA: 0, yesB: 0 }; const g = famAgg[f]; g.n++; if(r.sameVote) g.kept++; else g.changed++; if(r.voteA === 'AFIRMATIVO') g.yesA++; if(r.voteB === 'AFIRMATIVO') g.yesB++; });
+    const rows = Object.keys(famAgg).map(f => ({ f, ...famAgg[f] })).filter(r => r.n >= 2).sort((a, b) => b.n - a.n);
+    const totalW = 1100;
+    const cols = [
+      { x: PAD_X + 14, label: 'FAMILIA POLÍTICA', align: 'left' },
+      { x: PAD_X + 360, label: 'REPITEN', align: 'right' }, { x: PAD_X + 480, label: 'MANTIENEN', align: 'right' }, { x: PAD_X + 600, label: 'CAMBIAN', align: 'right' },
+      { x: PAD_X + 760, label: `% AFI · ${sA.caseName.split(' ')[0]}`, align: 'right' }, { x: PAD_X + 900, label: `% AFI · ${sB.caseName.split(' ')[0]}`, align: 'right' }, { x: totalW - PAD_X - 6, label: 'Δ PP', align: 'right' }
+    ];
+    const headerOut = buildTablePngHeader(NS, sA, 'Trayectoria · migración por familia política',
+      `${dirSub}. Sobre los legisladores que repiten banca; familias con al menos 2 repetidos.`, totalW, PAD_X, { noMetaChips: true });
+    const els = [...headerOut.elements];
+    let y = headerOut.headerBottomY + 26;
+    const hb = document.createElementNS(NS, 'rect'); hb.setAttribute('x', PAD_X); hb.setAttribute('y', y); hb.setAttribute('width', totalW - 2 * PAD_X); hb.setAttribute('height', 30); hb.setAttribute('fill', '#f8f5ec'); hb.setAttribute('stroke', '#d9d3c4'); els.push(hb);
+    cols.forEach(c => els.push(_svgText(NS, c.x, y + 19, c.label, { size: 10, weight: '700', fill: '#6a6a64', ls: 1.1, anchor: c.align === 'right' ? 'end' : 'start' })));
+    y += 30;
+    const rowH = 30;
+    rows.forEach((r, i) => {
+      if(i % 2) { const zb = document.createElementNS(NS, 'rect'); zb.setAttribute('x', PAD_X); zb.setAttribute('y', y); zb.setAttribute('width', totalW - 2 * PAD_X); zb.setAttribute('height', rowH); zb.setAttribute('fill', '#faf8f1'); els.push(zb); }
+      const yc = y + rowH / 2 + 4;
+      const dot = document.createElementNS(NS, 'rect'); dot.setAttribute('x', cols[0].x); dot.setAttribute('y', yc - 9); dot.setAttribute('width', 9); dot.setAttribute('height', 9); dot.setAttribute('rx', 2); dot.setAttribute('fill', FAMILY_COLORS[r.f] || '#a09b8c'); els.push(dot);
+      els.push(_svgText(NS, cols[0].x + 16, yc, r.f, { size: 12, weight: '600', fill: '#14181f' }));
+      els.push(_svgText(NS, cols[1].x, yc, String(r.n), { size: 12, fill: '#14181f', anchor: 'end' }));
+      els.push(_svgText(NS, cols[2].x, yc, String(r.kept), { size: 12, fill: '#14181f', anchor: 'end' }));
+      els.push(_svgText(NS, cols[3].x, yc, String(r.changed), { size: 12, fill: '#14181f', anchor: 'end' }));
+      const pa = r.yesA / r.n * 100, pb = r.yesB / r.n * 100, dd = pb - pa;
+      els.push(_svgText(NS, cols[4].x, yc, fmt1(pa) + '%', { size: 12, fill: '#2c3543', anchor: 'end' }));
+      els.push(_svgText(NS, cols[5].x, yc, fmt1(pb) + '%', { size: 12, fill: '#2c3543', anchor: 'end' }));
+      els.push(_svgText(NS, cols[6].x, yc, (dd >= 0 ? '+' : '') + fmt1(dd), { size: 12, weight: '600', fill: Math.abs(dd) < 0.05 ? '#6a6a64' : (dd > 0 ? '#3f6e44' : '#a32a2a'), anchor: 'end' }));
+      const sep = document.createElementNS(NS, 'line'); sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y + rowH); sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', y + rowH); sep.setAttribute('stroke', '#ece6d5'); sep.setAttribute('stroke-width', '0.6'); els.push(sep);
+      y += rowH;
+    });
+    const footerOut = buildTablePngFooter(NS, sA, y + 18, totalW, PAD_X, '% afirmativo calculado sobre los repetidos de cada familia.', { generalSource: PNG_TRAJECTORY_SOURCE });
+    _finalizeTrajPng([...els, ...footerOut.elements], totalW, footerOut.footerBottomY + 10, slugifyFilename([...fileBase, 'familias']) + '.png');
+    return;
+  }
+
+  if(kind === 'nominal'){
+    const rows = traj.matched.slice().sort((a, b) => { if(a.sameVote !== b.sameVote) return a.sameVote ? 1 : -1; return a.name.localeCompare(b.name, 'es'); });
+    const totalW = 1320;
+    const C = { name: PAD_X + 14, votoA: PAD_X + 340, arrow: PAD_X + 470, votoB: PAD_X + 500, cambio: PAD_X + 640, fam: PAD_X + 800, bloque: PAD_X + 1080 };
+    const headerOut = buildTablePngHeader(NS, sA, 'Trayectoria · detalle nominal',
+      `${dirSub}. ${rows.length} legisladores que repiten banca y su voto en cada votación.`, totalW, PAD_X, { noMetaChips: true });
+    const els = [...headerOut.elements];
+    let y = headerOut.headerBottomY + 26;
+    const hb = document.createElementNS(NS, 'rect'); hb.setAttribute('x', PAD_X); hb.setAttribute('y', y); hb.setAttribute('width', totalW - 2 * PAD_X); hb.setAttribute('height', 30); hb.setAttribute('fill', '#f8f5ec'); hb.setAttribute('stroke', '#d9d3c4'); els.push(hb);
+    [['LEGISLADOR', C.name], [`VOTO · ${sA.caseName.split(' ')[0]} → ${sB.caseName.split(' ')[0]}`, C.votoA], ['TRAYECTORIA', C.cambio], ['FAMILIA', C.fam], ['BLOQUE', C.bloque]]
+      .forEach(([l, x]) => els.push(_svgText(NS, x, y + 19, l, { size: 10, weight: '700', fill: '#6a6a64', ls: 1.0 })));
+    y += 30;
+    const rowH = 36;
+    const trunc = (s, max) => { s = String(s || ''); return s.length > max ? s.slice(0, max - 1) + '…' : s; };
+    rows.forEach((r, i) => {
+      if(i % 2) { const zb = document.createElementNS(NS, 'rect'); zb.setAttribute('x', PAD_X); zb.setAttribute('y', y); zb.setAttribute('width', totalW - 2 * PAD_X); zb.setAttribute('height', rowH); zb.setAttribute('fill', '#faf8f1'); els.push(zb); }
+      const yc = y + rowH / 2;
+      els.push(_svgText(NS, C.name, yc - 1, trunc(r.name, 30), { size: 11.5, weight: '600', fill: '#14181f' }));
+      els.push(_svgText(NS, C.name, yc + 13, trunc(r.province, 26), { size: 9.5, fill: '#6a6a64' }));
+      _trajVoteBadgePng(NS, C.votoA, yc, r.voteA, els);
+      els.push(_svgText(NS, C.arrow, yc + 4, '→', { size: 13, fill: '#9a9588' }));
+      _trajVoteBadgePng(NS, C.votoB, yc, r.voteB, els);
+      els.push(_svgText(NS, C.cambio, yc + 4, r.sameVote ? 'Mantuvo' : 'Cambió' + (r.sameFamily ? '' : ' · familia'), { size: 11, weight: '600', fill: r.sameVote ? '#3f6e44' : '#a32a2a' }));
+      const famDot = document.createElementNS(NS, 'rect'); famDot.setAttribute('x', C.fam); famDot.setAttribute('y', yc - 5); famDot.setAttribute('width', 8); famDot.setAttribute('height', 8); famDot.setAttribute('rx', 2); famDot.setAttribute('fill', FAMILY_COLORS[r.familyA] || '#a09b8c'); els.push(famDot);
+      els.push(_svgText(NS, C.fam + 14, yc + 4, trunc(r.sameFamily ? r.familyA : r.familyA + ' → ' + r.familyB, 42), { size: 10.5, fill: '#2c3543' }));
+      els.push(_svgText(NS, C.bloque, yc + 4, trunc(r.blockA, 22), { size: 10, fill: '#6a6a64' }));
+      const sep = document.createElementNS(NS, 'line'); sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y + rowH); sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', y + rowH); sep.setAttribute('stroke', '#ece6d5'); sep.setAttribute('stroke-width', '0.6'); els.push(sep);
+      y += rowH;
+    });
+    const footerOut = buildTablePngFooter(NS, sA, y + 18, totalW, PAD_X, `Ordenado: primero los que cambiaron el voto. ${traj.metrics.nKeptVote} mantienen, ${traj.metrics.nChangedVote} cambian.`, { generalSource: PNG_TRAJECTORY_SOURCE });
+    _finalizeTrajPng([...els, ...footerOut.elements], totalW, footerOut.footerBottomY + 10, slugifyFilename([...fileBase, 'nominal']) + '.png');
+    return;
+  }
+
+  console.error('exportTrajectoryPng: kind desconocido →', kind);
 }
 
 // =====================================================================
@@ -12223,6 +12432,10 @@ function handleExportClick(kind){
     else if(kind === 'compare-hemicycles-png') exportCompareVizPng('hemicycles');
     else if(kind === 'compare-maps-png')       exportCompareVizPng('maps');
     else if(kind === 'compare-quad-png')       exportCompareVizPng('quad');
+    // Láminas PNG de la trayectoria (B.6).
+    else if(kind === 'traj-matriz-png')   exportTrajectoryPng('matriz');
+    else if(kind === 'traj-nominal-png')  exportTrajectoryPng('nominal');
+    else if(kind === 'traj-familias-png') exportTrajectoryPng('familias');
     // Exports granulares por bloque tabular dentro de Estadísticas (Etapa B3
     // — parseo robusto con regex en vez de slice contando caracteres, soporta
     // kinds con guiones internos como 'stats-comp-table-csv' sin trampearse).

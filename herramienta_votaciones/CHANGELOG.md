@@ -14,6 +14,13 @@ Exportación PNG de las visualizaciones nuevas del comparado, como **láminas ac
 - Convención de nombres: `comparado_{hemiciclos|mapas}_{idA}_vs_{idB}_{voto|familia}.png` · `comparado_grilla_2x2_{hemiciclos|mapas}_{voto|familia}.png`.
 - Verificado renderizando las láminas reales (hemiciclos, mapas con highlight, grilla 2×2) a alta resolución: wrapper correcto, sin clipping, texto legible; nombres correctos; modo familia OK; exports previos intactos; +3 botones (54→57); consola sin errores.
 
+### 4b — Trayectoria de legisladores (B.6)
+- Tres láminas PNG: **matriz de transición** (grilla con diagonal verde = mantuvieron / fuera de diagonal oro = cambiaron, totales), **migración por familia** (tabla con dots, repiten/mantienen/cambian, %afi A→B, Δ) y **detalle nominal** (las 64 filas con sellos de voto A→B, trayectoria, familia A→B, bloque). Botones «↓ Matriz / ↓ Nominal / ↓ Familias» en la cabecera de B.6.
+- Reutiliza `buildTablePngHeader`/`buildTablePngFooter` (header académico + footer con `generalSource`). Fuente específica `PNG_TRAJECTORY_SOURCE` («…match exacto normalizado; trayectoria same-chamber»). Helpers nuevos: `exportTrajectoryPng`, `buildTraj*` inline, `_trajVoteBadgePng`, `_svgText`, `_finalizeTrajPng`.
+- **Estado vacío (cross-cámara o sin repetidos):** los botones se reemplazan por «↓ PNG · sin datos» deshabilitado; si se invoca igual, alerta y NO genera PNG vacío.
+- Nombres: `comparado_trayectoria_{idA}_vs_{idB}_{matriz|familias|nominal}.png`.
+- Verificado con las 3 láminas reales renderizadas (matriz, familias, nominal 64 filas): wrapper correcto, sin clipping, datos consistentes con pantalla; estado vacío no rompe; +3 botones (57→60); consola sin errores; print 53 (los botones se ocultan en impresión).
+
 ## 2026-06-03 — Pulido post-Fase A · A.1 (lectura visual) + A.3 (metodología)
 
 Ajustes de terminación tras la rearquitectura, para que la herramienta pase de "funciona muy bien" a "pieza académica terminada". Solo presentación/markup/microcopy; sin tocar datos, cálculos, compute*, normalización, métricas, trayectoria validada ni exports.
