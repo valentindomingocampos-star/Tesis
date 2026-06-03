@@ -2,6 +2,22 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Rediseño "Atlas parlamentario académico" · Etapa 5 (metodología + polish final)
+
+Quinta y última etapa: la pestaña **Metodología** y un repaso de pulido global para barrer los restos de estética "dashboard". Solo presentación; sin tocar datos, cálculos ni lógica.
+
+### Metodología
+- La pestaña ya heredó el sistema en la Etapa 4 (usa `.stats-division` + `.methodology-note`). Verificada: lee como **apéndice académico** — lámina plana, cabecera con eyebrow en oro «Apéndice metodológico», título serif «Criterios de cálculo», y los criterios como aparato crítico en dos columnas.
+
+### Polish final (restos fuera del sistema cálido)
+- **Tabla territorial de auditoría**: la fila "normalizada" (`terr-nor`) dejaba un **púrpura frío** (`rgba(91,33,182,…)`) off-palette → tinte neutro cálido. Wrapper (`.terr-wrap`) de blanco translúcido → `--card` con radio chico. Código inline de validación: gris azulado → tinta cálida.
+- **Resumen ejecutivo**: el tinte slate del gradiente de celdas secundarias (`rgba(15,23,42,…)`) → tinta cálida (`rgba(20,24,31,…)`).
+- **Trackings y radios**: número de figura (`.fig-num`) .16em → .14em; figuras-tabla (`.tbl-figure` header/footer) de radio grande → `--radius-xs`.
+- Confirmado: ya no quedan grises fríos, púrpura ni azul UI en la capa visible (los `rgba(15,23,42,…)` restantes son tokens de sombra y trazos faint del SVG del hemiciclo; los focos azules de teclado se conservan por accesibilidad). `.exp-card` (CSS muerto, sin uso en markup) no se tocó.
+
+### QA
+- Sintaxis JS OK; datos idénticos a HEAD. Render de la pestaña Metodología verificado a 1440px. Print: 45 páginas (idéntico a HEAD). Exports no tocados. Con esto, **toda la capa visible queda bajo el mismo sistema editorial Atlas** (Etapas 1–5).
+
 ## 2026-06-03 — Rediseño "Atlas parlamentario académico" · Etapa 4 (capa analítica)
 
 Cuarta etapa, amplia: toda la **capa analítica** pasa a un mismo sistema editorial (lámina académica · anexo técnico · matriz analítica · aparato comparado), para que ninguna parte parezca "dashboard". Solo presentación; sin tocar datos, cálculos, índices Rice/Rae, votos, nombres, bloques, provincias, familias, exportaciones (funcionalmente) ni handlers. Hecho en orden controlado y verificado bloque por bloque.

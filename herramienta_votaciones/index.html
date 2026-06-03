@@ -1149,7 +1149,7 @@ svg.map-svg{
 /* Jerarquía de KPIs en el resumen ejecutivo: el par A favor / En contra domina
    (número mayor); abstención, ausentes y margen quedan en tier secundario. */
 .summary-cell.is-primary .sc-value{ font-size: var(--t-2xl); }
-.summary-cell.is-secondary{ background: linear-gradient(180deg, transparent, rgba(15,23,42,.012)); }
+.summary-cell.is-secondary{ background: linear-gradient(180deg, transparent, rgba(20,24,31,.012)); }
 .summary-cell.is-secondary .sc-value{ font-size: var(--t-lg); color: var(--ink-2); }
 .summary-cell.is-secondary .sc-value.yes{ color: var(--vote-yes); }
 .summary-cell.is-secondary .sc-value.no{ color: var(--vote-no); }
@@ -1717,7 +1717,7 @@ details.validation.is-ok[open] > summary::after{ content: 'ocultar'; }
   color: var(--ink-2);
 }
 .validation code{
-  background: rgba(15,23,42,.05);
+  background: rgba(20,24,31,.06);
   padding: 1px var(--space-2);
   border-radius: var(--radius-xs);
   font-size: var(--t-xs);
@@ -1727,8 +1727,8 @@ details.validation.is-ok[open] > summary::after{ content: 'ocultar'; }
 /* Tabla territorial dentro del panel de validación */
 .terr-wrap{
   margin-top: var(--space-3);
-  background: rgba(255,255,255,.6);
-  border-radius: var(--radius-sm);
+  background: var(--card);
+  border-radius: var(--radius-xs);
   padding: var(--space-3) var(--space-4);
 }
 table.terr-table{ width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
@@ -1757,7 +1757,7 @@ table.terr-table .col-num{ text-align: right; font-variant-numeric: tabular-nums
 table.terr-table tr.terr-ok td{ color: inherit; opacity: .7; }
 table.terr-table tr.terr-fal td{ background: rgba(163,42,42,.10); font-weight: var(--w-semi); }
 table.terr-table tr.terr-sob td{ background: rgba(168,117,35,.14); font-weight: var(--w-semi); }
-table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: italic; font-weight: var(--w-semi); }
+table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: italic; font-weight: var(--w-semi); }
 .terr-aliases{ margin-top: var(--space-2); font-size: var(--t-xs); opacity: .85; line-height: 1.5; }
 .terr-extra{ margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid currentColor; }
 
@@ -1842,7 +1842,7 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
 .fig-num{
   padding: var(--space-4) var(--space-5) 0;
   font-size: var(--t-xs);
-  letter-spacing: .16em;
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--accent-gold-text);
   font-weight: var(--w-bold);
@@ -1943,8 +1943,8 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
 
 /* Tablas con encabezado y pie de figura */
 .tbl-figure{ margin-bottom: var(--space-5); }
-.tbl-figure .fig-header{ border-radius: var(--radius) var(--radius) 0 0; }
-.tbl-figure .fig-footer{ border-radius: 0 0 var(--radius) var(--radius); }
+.tbl-figure .fig-header{ border-radius: var(--radius-xs) var(--radius-xs) 0 0; }
+.tbl-figure .fig-footer{ border-radius: 0 0 var(--radius-xs) var(--radius-xs); }
 .tbl-figure > .exp-card{ margin-bottom: 0; border-radius: 0; border-top: 0; border-bottom: 0; box-shadow: none; }
 
 /* =====================================================================
