@@ -1194,13 +1194,26 @@ svg.map-svg{
 
 /* Card anexa: paneles del sidebar. Sombra suave para no competir con el
    viz-card central. */
+/* Ficha lateral (Atlas): panel plano de archivo — filete dorado superior,
+   borde firme, sin sombra. La elevación viene del montaje y el borde, no de
+   la sombra (coherente con viz-card). */
 .panel{
   background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
   padding: var(--space-5) var(--space-5) var(--space-5);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
   position: relative;
+}
+.panel::before{
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 48px;
+  height: 2px;
+  background: var(--gold-rule);
+  z-index: 2;
 }
 .panel-h{
   font-size: var(--t-xs);
@@ -1223,21 +1236,25 @@ svg.map-svg{
   background: var(--accent-gold);
 }
 
-/* Detalle de legislador — jerarquía analítica */
-/* Label de dato (contexto compact): neutro, sin uppercase, tracking
-   ligero. Antes era eyebrow uppercase pero compite con eyebrows
-   institucionales del masthead/tabs/cards. Bajada de jerarquía. */
+/* Detalle de legislador — jerarquía analítica de ficha de archivo */
+/* Línea de catálogo (caso · cámara · fecha): versalitas sobrias. Se distingue
+   de los eyebrows ALL-CAPS del masthead/tabs por ser small-caps, no mayúsculas
+   plenas; funciona como encabezado de registro, no como rótulo institucional. */
 .detail-context{
-  font-size: var(--t-xs);
-  letter-spacing: -0.002em;
+  font-variant: all-small-caps;
+  font-size: var(--t-sm);
+  letter-spacing: .06em;
   color: var(--muted);
   font-weight: var(--w-medium);
   margin-bottom: var(--space-2);
 }
+/* Nombre del legislador: serif, como pieza titular de la ficha (coherente con
+   fig-title y masthead). */
 .detail-name{
+  font-family: var(--font-serif);
   font-size: var(--t-lg);
   font-weight: var(--w-bold);
-  letter-spacing: -0.015em;
+  letter-spacing: -0.012em;
   color: var(--ink);
   margin: 0 0 var(--space-3);
   line-height: 1.25;
@@ -1255,19 +1272,24 @@ svg.map-svg{
   padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--line);
 }
+/* Sello de voto: marca con borde en el color del voto sobre tinte tenue, no
+   relleno pleno. Lee como sello de archivo, no como botón. La doctrina
+   "Presidencia no es relleno" se cumple aquí (pres también es sello). */
 .detail-vote-badge{
   display: inline-block;
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
-  font-size: var(--t-sm);
-  font-weight: var(--w-semi);
-  letter-spacing: -0.005em;
+  padding: 3px var(--space-3);
+  border-radius: var(--radius-xs);
+  font-size: var(--t-xs);
+  font-weight: var(--w-bold);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  border: 1px solid;
 }
-.detail-vote-badge.yes{  background: var(--vote-yes-soft); color: var(--vote-yes); }
-.detail-vote-badge.no{   background: var(--vote-no-soft);  color: var(--vote-no); }
-.detail-vote-badge.abs{  background: var(--vote-abs-soft); color: var(--ink-2); }
-.detail-vote-badge.abst{ background: var(--vote-abst-soft); color: var(--vote-abst); }
-.detail-vote-badge.pres{ background: var(--vote-pres); color: #fff; }
+.detail-vote-badge.yes{  background: var(--vote-yes-soft);  border-color: var(--vote-yes);   color: var(--vote-yes); }
+.detail-vote-badge.no{   background: var(--vote-no-soft);   border-color: var(--vote-no);    color: var(--vote-no); }
+.detail-vote-badge.abs{  background: var(--vote-abs-soft);  border-color: var(--line-strong); color: var(--ink-2); }
+.detail-vote-badge.abst{ background: var(--vote-abst-soft); border-color: var(--vote-abst);  color: var(--vote-abst); }
+.detail-vote-badge.pres{ background: var(--paper-sunk);     border-color: var(--vote-pres);  color: var(--vote-pres); }
 .detail-province{
   font-size: var(--t-base);
   color: var(--ink-2);
@@ -1317,12 +1339,13 @@ svg.map-svg{
   align-items: baseline;
 }
 .kv-row:last-child{ border-bottom: none; }
-/* Label de dato (key en key-value list): forma neutra para metadatos
-   tabulares del detalle. Sin uppercase, tracking ligero, peso medio.
-   El valor (.kv-v) sigue siendo la pieza dominante. */
+/* Rótulo de campo (key en key-value list): versalitas de ficha de archivo.
+   Small-caps (no ALL-CAPS) para distinguirlo de los eyebrows institucionales;
+   el valor (.kv-v) sigue siendo la pieza dominante. */
 .kv-k{
-  font-size: var(--t-xs);
-  letter-spacing: -0.002em;
+  font-variant: all-small-caps;
+  font-size: var(--t-sm);
+  letter-spacing: .05em;
   color: var(--muted);
   font-weight: var(--w-medium);
 }
@@ -1335,11 +1358,16 @@ svg.map-svg{
   letter-spacing: -0.005em;
 }
 
+/* Estado vacío sobrio: nota de registro sin selección, en caja hundida con
+   filete punteado (no itálica, que lee informal). */
 .detail-empty{
   color: var(--muted);
-  font-size: var(--t-base);
-  font-style: italic;
-  padding: var(--space-2) 0;
+  font-size: var(--t-sm);
+  line-height: 1.6;
+  padding: var(--space-4);
+  background: var(--paper-sunk);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-xs);
 }
 /* Acciones de descarga de las fichas del sidebar (legislador / resumen). */
 .panel-actions{
@@ -1357,9 +1385,10 @@ svg.map-svg{
   margin-bottom: 4px;
 }
 .prov-name{
+  font-family: var(--font-serif);
   font-size: var(--t-lg);
   font-weight: var(--w-bold);
-  letter-spacing: -0.015em;
+  letter-spacing: -0.012em;
   color: var(--ink);
 }
 .prov-count{
@@ -1369,10 +1398,11 @@ svg.map-svg{
 }
 .prov-bar{
   display: flex;
-  height: 8px;
-  border-radius: 4px;
+  height: 7px;
+  border-radius: 2px;
   overflow: hidden;
-  background: var(--line);
+  background: var(--paper-sunk);
+  box-shadow: inset 0 0 0 1px var(--line);
   margin: 12px 0 8px;
 }
 .prov-bar > span{ height: 100%; transition: width .2s; }
@@ -1397,9 +1427,9 @@ svg.map-svg{
   color: var(--ink-2);
   font-weight: var(--w-medium);
   padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-sm);
-  background: var(--bg-soft);
-  border: 1px solid var(--line);
+  border-radius: var(--radius-xs);
+  background: var(--paper-sunk);
+  border: 1px solid var(--line-strong);
   letter-spacing: -0.005em;
 }
 .prov-tally{
@@ -1416,15 +1446,16 @@ svg.map-svg{
   align-items: center;
   gap: var(--space-2);
   font-size: var(--t-sm);
-  font-weight: var(--w-medium);
+  font-weight: var(--w-semi);
   padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   margin-bottom: var(--space-3);
   letter-spacing: -0.005em;
+  border: 1px solid;
 }
-.prov-tendency.yes{ background: var(--vote-yes-soft); color: var(--vote-yes); }
-.prov-tendency.no{ background: var(--vote-no-soft); color: var(--vote-no); }
-.prov-tendency.mixed{ background: var(--vote-abst-soft); color: var(--vote-abst); }
+.prov-tendency.yes{ background: var(--vote-yes-soft); border-color: var(--vote-yes); color: var(--vote-yes); }
+.prov-tendency.no{ background: var(--vote-no-soft); border-color: var(--vote-no); color: var(--vote-no); }
+.prov-tendency.mixed{ background: var(--vote-abst-soft); border-color: var(--vote-abst); color: var(--vote-abst); }
 
 .member-list{
   display: grid;
@@ -1435,9 +1466,9 @@ svg.map-svg{
   padding: 0 var(--space-2);
 }
 .member-row{
-  background: var(--bg-soft);
+  background: var(--paper-sunk);
   border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   padding: var(--space-3) var(--space-3);
   cursor: pointer;
   transition: border-color .12s, background .12s;
@@ -1461,18 +1492,22 @@ svg.map-svg{
   line-height: 1.3;
   letter-spacing: -0.005em;
 }
+/* Sello compacto del miembro en la lista: tinte + hairline en el color del
+   voto (sello-lite). Coherente con .detail-vote-badge; pres tampoco va relleno. */
 .mr-badge{
   font-size: var(--t-xs);
   font-weight: var(--w-semi);
-  padding: 2px var(--space-2);
+  padding: 1px var(--space-2);
   border-radius: var(--radius-xs);
   white-space: nowrap;
   letter-spacing: .02em;
+  border: 1px solid transparent;
 }
-.mr-badge.yes{ background: var(--vote-yes-soft); color: var(--vote-yes); }
-.mr-badge.no{ background: var(--vote-no-soft); color: var(--vote-no); }
-.mr-badge.abs{ background: var(--vote-abs-soft); color: var(--ink-2); }
-.mr-badge.pres{ background: var(--vote-pres); color: #fff; }
+.mr-badge.yes{ background: var(--vote-yes-soft); border-color: var(--vote-yes); color: var(--vote-yes); }
+.mr-badge.no{ background: var(--vote-no-soft); border-color: var(--vote-no); color: var(--vote-no); }
+.mr-badge.abs{ background: var(--vote-abs-soft); border-color: var(--line-strong); color: var(--ink-2); }
+.mr-badge.abst{ background: var(--vote-abst-soft); border-color: var(--vote-abst); color: var(--vote-abst); }
+.mr-badge.pres{ background: var(--paper-sunk); border-color: var(--vote-pres); color: var(--vote-pres); }
 .mr-block{
   font-size: var(--t-xs);
   color: var(--muted);
@@ -1903,7 +1938,7 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
 .panel .fig-header .fig-subtitle{ font-size: var(--t-xs); }
 .panel .fig-footer{
   margin: var(--space-4) calc(var(--space-5) * -1) calc(var(--space-5) * -1);
-  border-radius: 0 0 var(--radius) var(--radius);
+  border-radius: 0 0 var(--radius-xs) var(--radius-xs);
 }
 
 /* Tablas con encabezado y pie de figura */
@@ -3109,9 +3144,9 @@ table.dtable .col-num{ text-align: right; font-variant-numeric: tabular-nums; }
 }
 .fam-list{ display: grid; gap: var(--space-2); }
 .fam-card{
-  background: var(--bg-soft);
+  background: var(--paper-sunk);
   border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   padding: var(--space-2) var(--space-3);
 }
 .fam-card-top{
@@ -3143,9 +3178,10 @@ table.dtable .col-num{ text-align: right; font-variant-numeric: tabular-nums; }
 .fam-bar{
   display: flex;
   height: 5px;
-  border-radius: 3px;
+  border-radius: 2px;
   overflow: hidden;
-  background: var(--line);
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px var(--line);
 }
 .fam-bar > span{ height: 100%; }
 .fam-bar-yes{ background: var(--vote-yes); }
@@ -4970,7 +5006,7 @@ function renderSidebar(){
     <section class="panel">
       ${legTitleHeader}
       ${selLeg ? `<div class="panel-actions"><button class="btn-exp" data-export="legislator-csv">↓ CSV</button><button class="btn-exp" data-export="legislator-png">↓ PNG</button></div>` : ''}
-      ${selLeg ? renderLegislatorDetail(selLeg) : '<p class="detail-empty">Seleccioná una banca del hemiciclo para ver el detalle individual.</p>'}
+      ${selLeg ? renderLegislatorDetail(selLeg) : '<p class="detail-empty">Sin banca seleccionada. Elegí una en el hemiciclo o en el mapa para abrir su ficha.</p>'}
       ${legFooter}
     </section>
     <section class="panel">

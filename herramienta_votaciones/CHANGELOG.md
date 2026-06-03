@@ -2,6 +2,26 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Rediseño "Atlas parlamentario académico" · Etapa 3 (ficha lateral)
+
+Tercera etapa: el sidebar pasa a leerse como una **ficha analítica de archivo legislativo**. Solo presentación; sin tocar datos, cálculos, conteos ni lógica de selección. Alcance acotado al sidebar — no se tocaron tablas, comparado, exports ni metodología (esas son Etapas 4–5).
+
+### Panel → ficha de archivo
+- `.panel` plano: borde `--line-strong`, radio chico, **sin sombra** y **filete dorado superior** (`::before`), igual que la lámina principal. La elevación viene del montaje + borde.
+
+### Detalle del legislador
+- Nombre en **serif** (pieza titular, coherente con `fig-title`/masthead). Línea de catálogo (caso · cámara · fecha) y rótulos de campo (`Bloque`/`Familia`/`Rol`) en **versalitas** (`all-small-caps`), distintas de los eyebrows ALL-CAPS institucionales: leen como rótulos de registro.
+- Voto como **sello**: marca con borde en el color del voto sobre tinte tenue, no relleno pleno. La doctrina "Presidencia no es relleno" se cumple también aquí (el sello de presidencia pasa de relleno tinta+blanco a sello con borde).
+
+### Resumen provincial / nacional
+- Título de provincia en serif. Chips de tendencia y familia como sellos planos con borde. Barras editoriales (radio 2px, filete interno, fondo hundido). Lista de miembros y tarjetas de familia sobre **hundido** (`--paper-sunk`); badges de la lista alineados con el sello (pres deja de ir relleno; se agrega la clase `abst` que faltaba).
+
+### Estado vacío
+- Nota de registro sobria en caja hundida con filete punteado (sin itálica). Microcopy ajustado para no duplicar el subtítulo del header ("Sin banca seleccionada…").
+
+### QA
+- Sintaxis JS OK; datos idénticos a HEAD (conteos y arrays de legisladores). Render verificado a 1440 y 1280px con legislador y provincia seleccionados, y en estado vacío + panel nacional. Print: 45 páginas (idéntico a HEAD, sin clipping). Builders SVG de los PNG descargables (ficha individual / resumen) no tocados → exports intactos. ids/handlers preservados; cambio de markup: solo microcopy del estado vacío.
+
 ## 2026-06-03 — Rediseño "Atlas parlamentario académico" · Etapa 2 (lámina principal)
 
 Segunda etapa: el hemiciclo/mapa pasa a leerse como una figura de tesis (lámina). Solo presentación; sin tocar datos, cálculos ni lógica. Alcance acotado a la figura principal — no se tocó sidebar, tablas, comparado, exports ni metodología (se cuidó el escopeo para no afectar los headers compartidos del sidebar).
