@@ -2,6 +2,21 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Fase 5.1 · Mudanza física del selector de caso/cámara
+
+El selector de caso/cámara y la meta-bar dejan de ser controles globales superiores: ahora viven físicamente **dentro de los subpaneles Caso y Datos** (la meta-bar solo en Caso). Sin tocar datos, cálculos, compute*, votos, exports validados.
+
+### Handler a delegación (requisito previo)
+- El bind directo de `.nav-seg` se convirtió a **delegación sobre `document`** (`closest('.nav-seg')`), para que sobreviva a los re-render de `renderVizCard`. Además se quitó el `state.subtab = 'case'` del cambio de escenario: **cambiar de votación desde Datos te deja en Datos** (renderVizCard sincroniza el subtab al final).
+
+### Mudanza
+- Nuevo helper `renderScenarioSelector()` (markup reutilizable, aria-pressed + indicador de revisión territorial inline desde el estado; usa `aria-label` en los grupos en vez de ids para no colisionar entre las dos instancias). Se monta al inicio del subpanel Caso (selector → meta-bar → bajada → figura) y del subpanel Datos (selector → bajada → tabla). Se eliminó el `<nav class="scenario-nav">` y el `<details id="metaBar">` estáticos globales.
+- `render()` reordenado: `renderVizCard()` primero (crea los subpaneles, el selector y `#metaBar`), luego `renderTabs/updateContextAnchor/renderMetaBar` (que ahora encuentran sus elementos). El scoping CSS de `scenario-nav`/`meta-bar` se eliminó (ya quedan acotados por el subpanel; el ancla de contexto, el sidebar y el footer mantienen su scoping).
+- **Context-anchor:** el IIFE `initContextAnchor` pasó a función `bindContextAnchor()` re-llamable que observa el selector del subpanel activo (`.subpanel.is-on .scenario-nav`); se invoca tras `renderVizCard` y en `activateSubtab`. En Comparado/Metodología no hay selector → el ancla queda oculta.
+
+### QA
+- Selector funciona en Caso y en Datos; cambia escenario y actualiza hemiciclo (257), sidebar y tabla nominal; no aparece en Comparado/Metodología; sin ids duplicados (las 2 instancias son una por subpanel, solo una visible); aria-pressed correcto; cambiar escenario desde Datos se queda en Datos; meta-bar solo en Caso y populada; foco resuelto (subpaneles ocultos = display:none, no tabulables); print 53 (selector oculto en impresión); exports del caso y comparado intactos (60 botones); datos idénticos; consola sin errores.
+
 ## 2026-06-03 — Fase 4 · Exports PNG del Análisis comparado
 
 Exportación PNG de las visualizaciones nuevas del comparado, como **láminas académicas** (mismo wrapper que los exports existentes: eyebrow, filete tinta+oro, título, subtítulo, etiquetas, leyenda, fuente y crédito). Solo exportación; sin tocar datos, cálculos, compute*, B.1–B.10 funcionalmente ni los exports previos.

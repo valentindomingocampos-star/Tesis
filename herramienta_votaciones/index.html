@@ -569,16 +569,11 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
    - Sidebar: visible solo en Caso. Comparado/Datos/Metodología → ancho completo.
    ===================================================================== */
 @media screen{
-  /* Selector de caso/cámara + ancla de contexto flotante: visibles en Caso y
-     Datos (ambos dependen del escenario activo). */
-  body.mode-compare .scenario-nav, body.mode-method .scenario-nav,
-  body.mode-compare .context-anchor, body.mode-method .context-anchor{
-    display: none !important;
-  }
-  /* Meta-bar (ficha institucional resumida): canónica solo en Caso. En Datos la
-     ficha "Resumen institucional de la votación" ya cumple ese rol → se evita
-     la duplicación de metadatos (A.1.1). */
-  body.mode-compare .meta-bar, body.mode-data .meta-bar, body.mode-method .meta-bar{ display: none !important; }
+  /* Selector de caso/cámara y meta-bar: desde Fase 5.1 viven físicamente dentro
+     de los subpaneles Caso/Datos (se montan en renderVizCard), así que ya no
+     necesitan scoping por clase — quedan acotados por el propio subpanel activo.
+     El ancla de contexto flotante sí es global → se oculta en Comparado/Metodología. */
+  body.mode-compare .context-anchor, body.mode-method .context-anchor{ display: none !important; }
   /* Footer "Caso visualizado…": es contexto del caso activo → Caso y Datos;
      residuo en Comparado/Metodología. */
   body.mode-compare .footer, body.mode-method .footer{ display: none !important; }
@@ -3972,33 +3967,10 @@ a:focus-visible,
   </header>
 
   <!-- ====================================================
-       TABS DE ESCENARIOS
-       ==================================================== -->
-  <nav class="scenario-nav" aria-label="Votación en análisis: selección de caso y cámara">
-    <span class="nav-caption">Votación en análisis</span>
-    <div class="nav-axis">
-      <span class="nav-axis-label" id="navAxisCase">Caso</span>
-      <div class="nav-seg-group" role="group" aria-labelledby="navAxisCase">
-        <button class="nav-seg" data-axis="case" data-value="aerolineas" aria-pressed="true">Aerolíneas Argentinas</button>
-        <button class="nav-seg" data-axis="case" data-value="ypf" aria-pressed="false">YPF</button>
-      </div>
-    </div>
-    <div class="nav-axis">
-      <span class="nav-axis-label" id="navAxisChamber">Cámara</span>
-      <div class="nav-seg-group" role="group" aria-labelledby="navAxisChamber">
-        <button class="nav-seg" data-axis="chamber" data-value="diputados" aria-pressed="true">Diputados</button>
-        <button class="nav-seg" data-axis="chamber" data-value="senado" aria-pressed="false">Senado</button>
-      </div>
-    </div>
-    <span class="nav-review" hidden></span>
-  </nav>
-
-  <!-- ====================================================
-       META-BAR
-       ==================================================== -->
-  <details class="meta-bar" id="metaBar"></details>
-
-  <!-- ====================================================
+       Selector de caso/cámara y meta-bar: Fase 5.1 — ya no son controles
+       globales; se renderizan DENTRO de los subpaneles Caso y Datos
+       (renderScenarioSelector / #metaBar en renderVizCard).
+       ====================================================
        WORKSPACE
        ==================================================== -->
   <main class="workspace">
@@ -4582,10 +4554,10 @@ function computeProvinceData(legislators){
 // RENDERIZADO
 // =====================================================================
 function render(){
-  renderTabs();
-  updateContextAnchor();
-  renderMetaBar();
-  renderVizCard();
+  renderVizCard();          // crea la estructura de subpaneles, incluido el selector y #metaBar (Fase 5.1)
+  renderTabs();             // aria-pressed del selector ya recién creado + indicador de revisión
+  updateContextAnchor();    // rellena el contenido del ancla de contexto
+  renderMetaBar();          // popula #metaBar (ahora dentro del subpanel Caso, creado por renderVizCard)
   renderSidebar();
   renderFooter();
 }
@@ -4777,6 +4749,39 @@ function renderFigureFooter(scenario, figureType, opts){
   `;
 }
 
+// Markup del selector de caso/cámara (Fase 5.1: vive dentro de los subpaneles
+// Caso y Datos, no como control global). Dos instancias posibles (una por
+// subpanel); por eso usa aria-label en los grupos en vez de ids (que colisionarían)
+// y refleja aria-pressed + el indicador de revisión territorial inline desde el
+// estado. Los clics se manejan por delegación.
+function renderScenarioSelector(){
+  const [curCase, curChamber] = state.scenarioId.split('_');
+  const v = validateScenario(activeScenario());
+  const review = !!(v && !v.territorialOk);
+  const seg = (axis, value, label, cur) =>
+    `<button class="nav-seg" data-axis="${axis}" data-value="${value}" aria-pressed="${value === cur ? 'true' : 'false'}">${esc(label)}</button>`;
+  return `
+    <nav class="scenario-nav" aria-label="Votación en análisis: selección de caso y cámara">
+      <span class="nav-caption">Votación en análisis</span>
+      <div class="nav-axis">
+        <span class="nav-axis-label">Caso</span>
+        <div class="nav-seg-group" role="group" aria-label="Caso">
+          ${seg('case', 'aerolineas', 'Aerolíneas Argentinas', curCase)}
+          ${seg('case', 'ypf', 'YPF', curCase)}
+        </div>
+      </div>
+      <div class="nav-axis">
+        <span class="nav-axis-label">Cámara</span>
+        <div class="nav-seg-group" role="group" aria-label="Cámara">
+          ${seg('chamber', 'diputados', 'Diputados', curChamber)}
+          ${seg('chamber', 'senado', 'Senado', curChamber)}
+        </div>
+      </div>
+      <span class="nav-review"${review ? '' : ' hidden'} title="La distribución de provincias no coincide con la composición institucional esperada.">${review ? 'Dataset bajo revisión territorial' : ''}</span>
+    </nav>
+  `;
+}
+
 function renderTabs(){
   // Navegación por dos ejes: el escenario activo se descompone en caso y cámara
   // (los IDs son siempre `${caso}_${camara}`) y se marca el segmento pulsado de
@@ -4938,6 +4943,8 @@ function renderVizCard(){
 
     <!-- ===== ANÁLISIS DEL CASO: ver + interpretar el escenario activo ===== -->
     <div class="subpanel is-on" data-subtab="case">
+      ${renderScenarioSelector()}
+      <details class="meta-bar" id="metaBar"></details>
       <p class="mode-bajada">Estudiá una votación nominal específica: seleccioná el caso y la cámara arriba para ver su composición legislativa, distribución territorial y comportamiento por bloque, familia política y provincia.</p>
       <div id="validationPanel"></div>
       <div class="fig-num">Figura 1</div>
@@ -5006,6 +5013,7 @@ function renderVizCard(){
 
     <!-- ===== DATOS: tablas + exportaciones avanzadas ===== -->
     <div class="subpanel" data-subtab="data">
+      ${renderScenarioSelector()}
       <p class="mode-bajada">Base nominal de la votación seleccionada — <strong>${esc(s.caseName)} · ${esc(s.chamberShort)}</strong>. Para cambiar el universo de datos, elegí otro caso y cámara en el selector de arriba.</p>
       <div id="tablesPanel"></div>
       <details class="adv-export">
@@ -5046,6 +5054,7 @@ function renderVizCard(){
   bindExportEvents();
   bindSubtabEvents();
   activateSubtab(state.subtab); // sincroniza la sub-tab activa con el estado
+  bindContextAnchor();          // re-vincula el ancla al selector del subpanel activo (Fase 5.1)
   updateSeatCounter(); // estado inicial del contador (también cubre arranque en vista mapa)
 }
 
@@ -12299,6 +12308,7 @@ function activateSubtab(name){
   // (las reglas de scoping son screen-only; en papel se muestra todo). Punto
   // único: renderVizCard llama activateSubtab(state.subtab) al final.
   ['case','compare','data','method'].forEach(m => document.body.classList.toggle('mode-' + m, m === name));
+  if(typeof bindContextAnchor === 'function') bindContextAnchor(); // re-vincula el ancla al selector del subpanel activo (Fase 5.1)
 }
 
 // =====================================================================
@@ -12709,42 +12719,50 @@ function hideTooltip(){
   tooltipEl.style.transform = 'translateY(4px)';
 }
 
-// Bind del selector por dos ejes (Caso × Cámara). Cada segmento fija su eje y
-// conserva el valor del otro; la combinación reconstituye el scenarioId. El
-// reseteo de estado al cambiar de escenario es idéntico al de las tabs previas.
-document.querySelectorAll('.nav-seg').forEach(b => {
-  b.addEventListener('click', () => {
-    const [curCase, curChamber] = state.scenarioId.split('_');
-    const newCase    = b.dataset.axis === 'case'    ? b.dataset.value : curCase;
-    const newChamber = b.dataset.axis === 'chamber' ? b.dataset.value : curChamber;
-    const newId = `${newCase}_${newChamber}`;
-    if(!SCENARIOS[newId]) return;            // combinación inexistente (no debería ocurrir)
-    if(newId === state.scenarioId) return;   // re-clic en el segmento ya activo: sin cambios
-    state.scenarioId = newId;
-    state.selectedIndex = null;
-    state.provinceFilter = '';
-    state.voteFilter = 'TODOS';
-    state.search = '';
-    state.tableSearch = '';
-    state.sortCol = null;
-    state.sortDir = 1;
-    state.subtab = 'case';
-    render();
-  });
+// Bind del selector por dos ejes (Caso × Cámara) por DELEGACIÓN sobre document
+// (Fase 5.1): sobrevive a los re-render de renderVizCard, que ahora reconstruye
+// el selector dentro de los subpaneles Caso/Datos. Cada segmento fija su eje y
+// conserva el valor del otro; la combinación reconstituye el scenarioId. No se
+// fuerza la sub-tab: cambiar de escenario desde Datos te deja en Datos
+// (renderVizCard sincroniza state.subtab al final).
+document.addEventListener('click', (e) => {
+  const b = e.target.closest && e.target.closest('.nav-seg');
+  if(!b) return;
+  const [curCase, curChamber] = state.scenarioId.split('_');
+  const newCase    = b.dataset.axis === 'case'    ? b.dataset.value : curCase;
+  const newChamber = b.dataset.axis === 'chamber' ? b.dataset.value : curChamber;
+  const newId = `${newCase}_${newChamber}`;
+  if(!SCENARIOS[newId]) return;            // combinación inexistente (no debería ocurrir)
+  if(newId === state.scenarioId) return;   // re-clic en el segmento ya activo: sin cambios
+  state.scenarioId = newId;
+  state.selectedIndex = null;
+  state.provinceFilter = '';
+  state.voteFilter = 'TODOS';
+  state.search = '';
+  state.tableSearch = '';
+  state.sortCol = null;
+  state.sortDir = 1;
+  render();
 });
 
 // Ancla de contexto: se muestra al hacer scroll cuando el selector de escenario
-// sale del viewport. IntersectionObserver es aditivo y barato; si no está
-// disponible, el ancla simplemente no aparece (degradación limpia, sin error).
-(function initContextAnchor(){
-  const sentinel = document.querySelector('.scenario-nav');
+// sale del viewport. Fase 5.1: el selector ahora vive dentro del subpanel activo
+// (Caso/Datos) y se reconstruye en cada render, así que el observer se re-vincula
+// al selector visible. En Comparado/Metodología no hay selector → el ancla queda
+// oculta (también por scoping CSS). IntersectionObserver es aditivo y barato; si
+// no está disponible, el ancla simplemente no aparece (degradación limpia).
+let _ctxAnchorIO = null;
+function bindContextAnchor(){
   const anchor = document.getElementById('contextAnchor');
-  if(!sentinel || !anchor || !('IntersectionObserver' in window)) return;
-  const io = new IntersectionObserver((entries) => {
+  if(!anchor || !('IntersectionObserver' in window)) return;
+  if(_ctxAnchorIO){ _ctxAnchorIO.disconnect(); _ctxAnchorIO = null; }
+  const sentinel = document.querySelector('.subpanel.is-on .scenario-nav');
+  if(!sentinel){ anchor.classList.remove('is-visible'); return; }
+  _ctxAnchorIO = new IntersectionObserver((entries) => {
     entries.forEach(e => anchor.classList.toggle('is-visible', !e.isIntersecting));
   }, { threshold: 0 });
-  io.observe(sentinel);
-})();
+  _ctxAnchorIO.observe(sentinel);
+}
 
 // Impresión: expandir la ficha institucional (meta-bar) y las notas de
 // validación colapsadas, para que el contexto metodológico completo (sesión,
