@@ -3326,6 +3326,69 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .traj-fam-table .col-num.is-up{ color: var(--vote-yes); font-weight: var(--w-semi); }
 .traj-fam-table .col-num.is-down{ color: var(--vote-no); font-weight: var(--w-semi); }
 
+/* Apéndice metodológico (A.3) — aparato de secciones numeradas, no FAQ ni
+   bullets eternos: subtítulos claros, texto respirado, filete sobrio entre
+   secciones. */
+.method-index{ margin-bottom: 0; }
+.method-body{ padding: 0; }
+.method-section{
+  padding: var(--space-5) var(--space-6);
+  border-top: 1px solid var(--line);
+}
+.method-section:first-of-type{ border-top: none; }
+.method-section-head{
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.method-section-num{
+  flex-shrink: 0;
+  font-family: var(--font-serif);
+  font-size: var(--t-lg);
+  font-weight: var(--w-bold);
+  color: var(--accent-gold-text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.method-section-title{
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--t-md);
+  font-weight: var(--w-bold);
+  color: var(--ink);
+  letter-spacing: -0.012em;
+  line-height: 1.2;
+}
+.method-section-body p{
+  margin: 0 0 var(--space-3);
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  line-height: 1.7;
+  max-width: 840px;
+  letter-spacing: -0.003em;
+}
+.method-section-body p:last-child{ margin-bottom: 0; }
+.method-section-body strong{ color: var(--ink); font-weight: var(--w-semi); }
+.method-section-body em{ font-style: italic; color: var(--ink-2); }
+/* Línea del espectro de familias — chips sobrios en orden izquierda→derecha. */
+.method-spectrum{
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-1) 0 var(--space-3);
+  max-width: 840px;
+}
+.method-spectrum-item{
+  font-size: var(--t-xs);
+  color: var(--ink-2);
+  background: var(--paper-sunk);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xs);
+  padding: 2px var(--space-2);
+  letter-spacing: -0.003em;
+}
+
 /* Nota metodológica editorial — bloque tipográfico, no card */
 .methodology-note{
   padding: var(--space-4) var(--space-6);
@@ -9843,16 +9906,92 @@ function renderMethodologyNotes(){
           <p class="stats-division-bajada">Criterios de construcción de la base, clasificación de votos, familias políticas, cámaras y casos, y tratamiento de situaciones especiales. Aplican de manera transversal a todo el análisis.</p>
         </div>
       </div>
-      <div class="methodology-note">
-        <strong>Criterios</strong>
-        <ul>
-          <li>Los porcentajes de voto se calculan sobre <strong>presentes</strong>, salvo que se indique lo contrario.</li>
-          <li>La <strong>tasa de ausencia</strong> se calcula sobre el total de bancas del escenario.</li>
-          <li>La <strong>cohesión</strong> es el peso del voto dominante dentro de una familia o bloque sobre presentes (excluye ausentes).</li>
-          <li>Las comparaciones <strong>Diputados / Senado</strong> deben leerse considerando que el principio de representación es distinto: población vs. 3 senadores por jurisdicción.</li>
-          <li>No se calcula <strong>alineamiento oficialismo/oposición</strong>: requiere una variable analítica adicional que no está en el dataset actual.</li>
-          <li>Umbrales editoriales: <em>unificada</em> ≥ ${Math.round(COHESION_UNIFIED_THRESHOLD*100)}%; <em>dividida</em> &lt; ${Math.round(COHESION_DIVIDED_THRESHOLD*100)}%.</li>
-        </ul>
+      <nav class="stats-index method-index" aria-label="Contenido del apéndice metodológico">
+        <span class="stats-index-label">Contenido</span>
+        <span class="stats-index-links">
+          <a class="stats-index-link" href="#met-1">1 · Fuentes</a><span class="stats-index-sep">·</span>
+          <a class="stats-index-link" href="#met-2">2 · Casos y cámaras</a><span class="stats-index-sep">·</span>
+          <a class="stats-index-link" href="#met-3">3 · Votos</a><span class="stats-index-sep">·</span>
+          <a class="stats-index-link" href="#met-4">4 · Presidencia</a><span class="stats-index-sep">·</span>
+          <a class="stats-index-link" href="#met-5">5 · Bloques y familias</a><span class="stats-index-sep">·</span>
+          <a class="stats-index-link" href="#met-6">6 · Provincias</a><span class="stats-index-sep">·</span>
+          <a class="stats-index-link" href="#met-7">7 · Rice</a><span class="stats-index-sep">·</span>
+          <a class="stats-index-link" href="#met-8">8 · Rae</a><span class="stats-index-sep">·</span>
+          <a class="stats-index-link" href="#met-9">9 · Trayectoria</a><span class="stats-index-sep">·</span>
+          <a class="stats-index-link" href="#met-10">10 · Lectura y exportación</a>
+        </span>
+      </nav>
+      <div class="method-body">
+        <section class="method-section" id="met-1">
+          <div class="method-section-head"><span class="method-section-num">1</span><h3 class="method-section-title">Fuentes y universo empírico</h3></div>
+          <div class="method-section-body">
+            <p>La herramienta reconstruye las cuatro votaciones nominales con que el Congreso trató las reestatizaciones de Aerolíneas Argentinas (Ley 26.466) e YPF (Ley 26.741): una por cámara y caso. Cada banca proviene de las <strong>actas oficiales de votación nominal</strong> de la Cámara de Diputados (HCDN) y del Senado (HSN). No es una muestra: es el <strong>universo</strong> de esas cuatro votaciones.</p>
+            <p>Los conteos se calculan directamente sobre ese padrón y se <strong>validan contra la metadata oficial del acta</strong> (presentes, afirmativos, negativos, abstenciones, ausentes y resultado).</p>
+          </div>
+        </section>
+        <section class="method-section" id="met-2">
+          <div class="method-section-head"><span class="method-section-num">2</span><h3 class="method-section-title">Casos y cámaras analizadas</h3></div>
+          <div class="method-section-body">
+            <p><strong>Aerolíneas Argentinas — Ley 26.466:</strong> Diputados (03/12/2008) y Senado (17/12/2008). <strong>YPF — Ley 26.741:</strong> Senado (26/04/2012) y Diputados (03/05/2012). El cuerpo es de <strong>257 bancas</strong> en Diputados y <strong>72</strong> en el Senado; las cuatro votaciones resultaron afirmativas.</p>
+            <p>Las comparaciones <strong>Diputados / Senado</strong> deben leerse considerando que el principio de representación es distinto: proporcional a la población en Diputados, y tres senadores por jurisdicción en el Senado.</p>
+          </div>
+        </section>
+        <section class="method-section" id="met-3">
+          <div class="method-section-head"><span class="method-section-num">3</span><h3 class="method-section-title">Clasificación de votos</h3></div>
+          <div class="method-section-body">
+            <p>Cada legislador se clasifica en una de cinco categorías: <strong>afirmativo</strong>, <strong>negativo</strong>, <strong>abstención</strong>, <strong>ausente</strong> y <strong>presidencia</strong>. Los porcentajes de apoyo y rechazo se calculan sobre <strong>presentes</strong> (excluyen ausentes), salvo indicación contraria; la <strong>tasa de ausencia</strong> se calcula sobre el total de bancas del cuerpo.</p>
+            <p>El color de cada banca codifica el <em>voto</em> o la <em>familia política</em> —nunca ambos a la vez—; la dimensión restante se consulta en el tooltip, el panel lateral y la tabla nominal. Esta separación es deliberada y sostiene el rigor de la lectura.</p>
+          </div>
+        </section>
+        <section class="method-section" id="met-4">
+          <div class="method-section-head"><span class="method-section-num">4</span><h3 class="method-section-title">Tratamiento de presidencia y no voto</h3></div>
+          <div class="method-section-body">
+            <p>La presidencia es un <strong>rol</strong>, no un sentido de voto. Cuando quien preside no emite voto computado, se registra como «<strong>Presidencia · no votó</strong>» y queda fuera de la composición del voto (se cuenta solo en las bancas del cuerpo). En Diputados, la presidencia vota únicamente en caso de empate.</p>
+            <p>Cuando el acta oficial <strong>sí computa</strong> el voto de quien preside, se reclasifica a su <strong>sentido efectivo</strong> y se conserva la nota «presidió la sesión» en el tooltip y la ficha. Es el caso de la presidencia del <strong>Senado en Aerolíneas Argentinas</strong>, cuyo voto afirmativo está incorporado al resultado oficial.</p>
+          </div>
+        </section>
+        <section class="method-section" id="met-5">
+          <div class="method-section-head"><span class="method-section-num">5</span><h3 class="method-section-title">Bloques y familias políticas</h3></div>
+          <div class="method-section-body">
+            <p>Los bloques originales del acta se agrupan en <strong>diez familias políticas</strong> según afinidad programática y cabecera de bloque, ordenadas en un eje de izquierda a derecha:</p>
+            <div class="method-spectrum">${FAMILY_POLITICAL_ORDER.map(f => `<span class="method-spectrum-item">${esc(f)}</span>`).join('')}</div>
+            <p>La asignación es <strong>analítica y revisable</strong> —no una clasificación oficial— y permite leer por coaliciones sin perder el bloque de origen, que se conserva en el dato (tooltip, panel y tabla nominal).</p>
+          </div>
+        </section>
+        <section class="method-section" id="met-6">
+          <div class="method-section-head"><span class="method-section-num">6</span><h3 class="method-section-title">Provincias y agregación territorial</h3></div>
+          <div class="method-section-body">
+            <p>El voto se agrega por las <strong>24 provincias y la Ciudad Autónoma de Buenos Aires</strong>. En el mapa, las Islas Malvinas se integran a la jurisdicción de <strong>Tierra del Fuego, Antártida e Islas del Atlántico Sur</strong>, conforme a su estatus constitucional.</p>
+            <p>La intensidad cromática de cada provincia es proporcional al peso de su voto dominante: una jurisdicción unánime queda saturada; una dividida, pálida.</p>
+          </div>
+        </section>
+        <section class="method-section" id="met-7">
+          <div class="method-section-head"><span class="method-section-num">7</span><h3 class="method-section-title">Indicadores de cohesión · Rice</h3></div>
+          <div class="method-section-body">
+            <p>El índice de <strong>Rice</strong> mide la cohesión interna de una familia o bloque: <strong>Rice = |afirmativos − negativos| / (afirmativos + negativos)</strong>, sobre los votos emitidos (excluye ausentes, presidencia y abstenciones). Cercano a 100% indica cohesión dicotómica plena; <em>no es calculable</em> cuando no hay votos afirmativos ni negativos.</p>
+            <p>A efectos de lectura, una agrupación se considera <em>unificada</em> con voto dominante ≥ ${Math.round(COHESION_UNIFIED_THRESHOLD*100)}% y <em>dividida</em> por debajo de ${Math.round(COHESION_DIVIDED_THRESHOLD*100)}% (sobre presentes).</p>
+          </div>
+        </section>
+        <section class="method-section" id="met-8">
+          <div class="method-section-head"><span class="method-section-num">8</span><h3 class="method-section-title">Fragmentación · Rae</h3></div>
+          <div class="method-section-body">
+            <p>El índice de <strong>Rae</strong> mide cuán repartido está el voto emitido entre afirmativo, negativo y abstención: <strong>Rae = 1 − Σpᵢ²</strong>. Cercano a 0 indica un voto concentrado en una sola categoría; valores más altos, un voto distribuido entre las tres. Permite comparar la fragmentación del voto entre los cuatro escenarios.</p>
+          </div>
+        </section>
+        <section class="method-section" id="met-9">
+          <div class="method-section-head"><span class="method-section-num">9</span><h3 class="method-section-title">Trayectoria de legisladores</h3></div>
+          <div class="method-section-body">
+            <p>La trayectoria identifica a los legisladores que <strong>repiten banca</strong> entre las dos votaciones de un par y observa cómo cambia o se mantiene su voto. El emparejamiento es por <strong>nombre exacto normalizado</strong> (sin tildes, sin distinción de mayúsculas, formato Apellido, Nombre); <em>no</em> se usa coincidencia aproximada. Se trabaja sobre el voto efectivo, con la presidencia ya normalizada.</p>
+            <p>Por ahora la trayectoria se limita a una <strong>misma cámara</strong> —ningún legislador integra ambas cámaras en una misma votación—. El cruce temporal entre cámaras (de Diputados a Senado entre 2008 y 2012) es analíticamente interesante pero queda pendiente.</p>
+          </div>
+        </section>
+        <section class="method-section" id="met-10">
+          <div class="method-section-head"><span class="method-section-num">10</span><h3 class="method-section-title">Criterios de lectura y exportación</h3></div>
+          <div class="method-section-body">
+            <p>Las figuras y tablas pueden exportarse como <strong>PNG</strong> (con contexto académico embebido: título, metadatos, leyenda y fuentes) y como <strong>CSV</strong> para análisis externo. Cada export conserva la trazabilidad al acta oficial.</p>
+            <p>Dos advertencias de lectura: la agrupación en familias es <strong>analítica y revisable</strong>, no oficial; y <strong>no se calcula alineamiento oficialismo/oposición</strong>, que requeriría una variable adicional ausente del dataset. Las comparaciones entre cámaras no deben leerse como equivalencias directas (ver §2).</p>
+          </div>
+        </section>
       </div>
     </div>
   `;

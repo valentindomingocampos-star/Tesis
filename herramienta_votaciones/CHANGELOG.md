@@ -20,6 +20,12 @@ Ajustes de terminación tras la rearquitectura, para que la herramienta pase de 
 - Cada movimiento abre con cabecera editorial: numeral romano dorado (serif) + título serif + bajada, sobre filete de tinta (`--rule-ink`). Da respiración y estructura al scroll.
 - **Índice de recorrido** al inicio del cuerpo (reusa el lenguaje de `.stats-index`) con saltos a los tres movimientos (`#cmp-mov-1/2/3`, anchors verificados). El selector comparativo quedó integrado como apertura del Movimiento II. Solo markup/CSS; markers B.1–B.10 y export-keys intactos; visualizaciones siguen montadas (2+2+4).
 
+### A.3 — Metodología como aparato real
+- La pestaña Metodología deja de ser una nota de 5 bullets y pasa a ser un **apéndice académico navegable** de **diez secciones** numeradas, con índice de contenido (anchors `#met-1…#met-10`), subtítulos serif y texto respirado (sin bullets eternos ni estética de FAQ):
+  1. Fuentes y universo empírico · 2. Casos y cámaras · 3. Clasificación de votos · 4. Tratamiento de presidencia y no voto · 5. Bloques y familias políticas (con el espectro de las 10 familias en orden) · 6. Provincias y agregación territorial · 7. Cohesión / Rice · 8. Fragmentación / Rae · 9. Trayectoria de legisladores · 10. Criterios de lectura y exportación.
+- **Solo contenido/markup**, escrito sobre lo ya implementado y validado: Rice = |Afi−Neg|/(Afi+Neg); Rae = 1−Σpᵢ²; umbrales de cohesión leídos de las constantes existentes; normalización de presidencia (incl. el caso Pampuro en Aerolíneas·Senado); match de trayectoria exacto normalizado same-chamber; familias analíticas y revisables; advertencias de lectura (Dip/Senado no equivalentes, sin alineamiento oficialismo/oposición, color voto≠familia). **Sin tocar cálculos, datasets, compute*, votos ni exports.**
+- Verificado: 10 secciones, índice con anchors resueltos, espectro de 10 familias, scoping de Metodología intacto (sin selector/meta/sidebar/footer), tabs y Comparado intactos, consola sin errores, print 53 páginas (estable).
+
 ### A.1.3 — Ancho de lectura para bloques tipográficos
 - En el comparado a ancho completo, los bloques simples (tabla agregada, diferencias, rankings) se estiraban con columnas muy separadas. Cap de lectura a **1080px** (scopeado a `#comparePanel`, left-aligned). Las visualizaciones SVG (dual-viz), la trayectoria (`.traj-table`/matriz) y los heatmaps **conservan el ancho completo** (1280px) donde aporta. Verificado por anchos reales: comp-table/diff-grid/ranking = 1080; heatmap/traj/dual-viz = 1280; ranking del Análisis del caso intacto (900). Solo CSS.
 
