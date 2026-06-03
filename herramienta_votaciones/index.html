@@ -5968,7 +5968,7 @@ function exportSvgAsPng(svgElement, filename, context){
       let row = [];
       let rowW = 0;
       context.legend.forEach(item => {
-        const textW = String(item.label).length * 6.2; // ≈ 11px Helvetica/600
+        const textW = _measureTextW(item.label, 11, '600', TBL_PNG_FONTS.sans, 0); // ancho real (11px Helvetica/600)
         const itemW = LEGEND_DOT_R * 2 + LEGEND_DOT_GAP + textW + LEGEND_ITEM_GAP_X;
         if(rowW + itemW > availW && row.length){
           legendRowsLayout.push(row);
@@ -6292,6 +6292,19 @@ function exportTableAsPng(scenario, kind){
   rasterizeSvgToPng(svgStr, totalW, totalH, filename);
 }
 
+// Medición real del ancho de texto para los PNG (canvas measureText). Reemplaza
+// los cálculos por conteo de caracteres que provocaban textos encimados. El
+// letter-spacing no lo aplica el canvas, así que se suma aparte.
+let _measCtx = null;
+function _measureTextW(text, px, weight, family, letterSpacing){
+  if(!_measCtx) _measCtx = document.createElement('canvas').getContext('2d');
+  _measCtx.font = (weight || '400') + ' ' + px + 'px ' + (family || TBL_PNG_FONTS.sans);
+  const s = String(text);
+  let w = _measCtx.measureText(s).width;
+  if(letterSpacing) w += letterSpacing * Math.max(0, s.length);
+  return w;
+}
+
 // ---------------------------------------------------------------------
 // Header común para PNG de tablas (eyebrow + título + bajada + meta-chips)
 // ---------------------------------------------------------------------
@@ -6370,7 +6383,7 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X){
     k.setAttribute('fill', '#6a6a64'); k.setAttribute('letter-spacing', '1.3');
     k.textContent = c.k;
     elements.push(k);
-    cursorX += c.k.length * 6.6 + 8;
+    cursorX += _measureTextW(c.k, 9.5, '700', TBL_PNG_FONTS.sans, 1.3) + 8;
     const v = document.createElementNS(NS, 'text');
     v.setAttribute('x', cursorX); v.setAttribute('y', metaY);
     v.setAttribute('font-family', TBL_PNG_FONTS.sans);
@@ -6378,7 +6391,7 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X){
     v.setAttribute('fill', '#2c3543');
     v.textContent = c.v;
     elements.push(v);
-    cursorX += c.v.length * 6.4 + 14;
+    cursorX += _measureTextW(c.v, 11, '600', TBL_PNG_FONTS.sans, 0) + 14;
   });
 
   const headerBottomY = metaY + 14;
@@ -6446,16 +6459,36 @@ function buildTablePngFooter(NS, scenario, y, totalW, PAD_X, extraNote){
 function buildTablePngSvg(scenario, kind, rows){
   const NS = 'http://www.w3.org/2000/svg';
   const PAD_X = 50;
-  const totalW = 1100;
-  const availW = totalW - 2 * PAD_X;
 
   const spec = TABLE_PNG_SPECS[kind];
   const headerH = 28;          // alto del header de la tabla
   const rowH = spec.rowH;
   const tableTopGap = 24;      // espacio entre header de figura y tabla
 
-  // Calcular anchos absolutos a partir de fracciones
-  const colWs = spec.columns.map(c => Math.round(availW * c.width));
+  // Anchos de columna: parten de la fracción de diseño pero se garantiza que
+  // cada columna entre a su ENCABEZADO medido (+ margen), de modo que ningún
+  // texto se encime. El lienzo se ensancha lo necesario (las tablas son anchas
+  // por naturaleza). Los renderers de celda ya truncan al ancho de su columna.
+  const baseAvail = 1000;
+  const HEAD_PAD = 26;
+  const colWs = spec.columns.map(c => {
+    const fracW = Math.round(baseAvail * c.width);
+    const headW = Math.ceil(_measureTextW(c.label.toUpperCase(), 10, '700', TBL_PNG_FONTS.sans, 1.4)) + HEAD_PAD;
+    // Columnas de badge de voto: garantizar que el pill más ancho entre completo
+    // (no se desborde a la columna siguiente).
+    let badgeW = 0;
+    if(c.renderer === 'voteBadge' || c.renderer === 'voteBadgeOrMixed'){
+      rows.forEach(r => {
+        const lbl = (c.renderer === 'voteBadgeOrMixed' && r.isMixed)
+          ? 'Composición mixta'
+          : (VOTE_LABELS[r[c.key]] || r[c.key] || '—');
+        badgeW = Math.max(badgeW, Math.ceil(_measureTextW(lbl, 10.5, '600', TBL_PNG_FONTS.sans, 0)) + 16 + 24);
+      });
+    }
+    return Math.max(fracW, headW, badgeW);
+  });
+  const availW = colWs.reduce((a, b) => a + b, 0);
+  const totalW = availW + 2 * PAD_X;
   const colXs = [];
   let cx = PAD_X;
   for(let i = 0; i < colWs.length; i++){ colXs.push(cx); cx += colWs[i]; }
@@ -6610,7 +6643,7 @@ const TABLE_CELL_RENDERERS = {
     const v = row[c.key];
     const label = VOTE_LABELS[v] || v || '—';
     const color = VOTE_COLORS[v] || '#a09b8c';
-    const txtW = label.length * 6 + 12;
+    const txtW = Math.ceil(_measureTextW(label, 10.5, '600', TBL_PNG_FONTS.sans, 0)) + 16;
     const bx = h.x + 12;
     const by = h.y - 12;
     const rect = document.createElementNS(h.NS, 'rect');
@@ -6634,7 +6667,7 @@ const TABLE_CELL_RENDERERS = {
       const out = [];
       const label = 'Composición mixta';
       const color = '#a87523';
-      const txtW = label.length * 6 + 12;
+      const txtW = Math.ceil(_measureTextW(label, 10.5, '600', TBL_PNG_FONTS.sans, 0)) + 16;
       const bx = h.x + 12;
       const by = h.y - 12;
       const rect = document.createElementNS(h.NS, 'rect');

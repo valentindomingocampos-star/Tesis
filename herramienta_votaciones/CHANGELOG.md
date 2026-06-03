@@ -2,6 +2,22 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Fix: textos encimados en los PNG exportables
+
+Los PNG de tabla mostraban encabezados y meta-chips encimados (p. ej. "CÁMARADiputados", "ABSTENCIONES/AUSENTES/%AFIRMATIVO/PROVINCIAS" pisándose). Causa raíz: los anchos de texto se estimaban por conteo de caracteres (sin medir, sin letter-spacing) y las columnas tenían anchos fraccionales fijos demasiado angostos para sus encabezados. Solo presentación de exports; sin cambios de datos.
+
+### Medición real en vez de estimación por caracteres
+- Nuevo `_measureTextW(text, px, weight, family, letterSpacing)` con `canvas.measureText` (suma el letter-spacing aparte). Reemplaza los cálculos `length * N`.
+- **Meta-chips** (`buildTablePngHeader`, usados por todos los PNG de tabla y las fichas): el avance del cursor key→value usa anchos medidos → se acabó el "CÁMARADiputados".
+- **Columnas de tabla** (`buildTablePngSvg`): cada columna se dimensiona al **máximo entre su fracción de diseño y el ancho medido de su encabezado** (+ margen); el lienzo se ensancha lo necesario. Las columnas de **badge de voto** además garantizan el ancho del pill más largo (p. ej. "Presidencia · no votó") para que no se desborde a la columna siguiente.
+- **Leyenda de la figura con contexto** (`exportSvgAsPng`): el posicionamiento de cada chip usa ancho medido → sin encimado entre familias.
+- **Badges de voto** (renderers `voteBadge`/`voteBadgeOrMixed`): el rect del pill se ajusta al texto medido.
+
+### Verificado por render real
+- Tablas por familia, por provincia y nominal (incluido el badge "Presidencia · no votó"): meta y encabezados completos, badges dentro de su columna, nada encimado.
+- Figura (hemiciclo) con contexto en modo familia: leyenda de 10 familias en una fila sin pisarse.
+- Los demás PNG (ficha institucional, fichas del sidebar, stats/comparador) ya usaban truncado con "…" (seguro) y los meta-chips compartidos; quedan correctos.
+
 ## 2026-06-02 — Scroll independiente del sidebar (desktop)
 
 UX de scroll del sidebar derecho. Solo CSS (sin JS). En desktop/notebook el sidebar queda sticky con scroll interno propio, independiente de la columna izquierda; debajo de 1100px vuelve al comportamiento normal en flujo.
