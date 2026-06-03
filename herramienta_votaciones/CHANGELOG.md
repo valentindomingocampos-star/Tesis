@@ -17,6 +17,12 @@ El selector de caso/cámara y la meta-bar dejan de ser controles globales superi
 ### QA
 - Selector funciona en Caso y en Datos; cambia escenario y actualiza hemiciclo (257), sidebar y tabla nominal; no aparece en Comparado/Metodología; sin ids duplicados (las 2 instancias son una por subpanel, solo una visible); aria-pressed correcto; cambiar escenario desde Datos se queda en Datos; meta-bar solo en Caso y populada; foco resuelto (subpaneles ocultos = display:none, no tabulables); print 53 (selector oculto en impresión); exports del caso y comparado intactos (60 botones); datos idénticos; consola sin errores.
 
+### Integración visual (terminación de 5.1)
+- El selector dejó de verse como un bloque trasladado y pasó a ser una **cabecera funcional de sección**: ritmo compacto (gap/margin/padding reducidos), filete inferior de separación, rótulo «Votación en análisis» pegado a los controles. Se quitó la animación `omRise` propia del selector (su entrada + `overflow:hidden` del viz-card recortaba el rótulo).
+- **Caso:** preámbulo aligerado (selector → meta-bar → bajada concisa → figura); la bajada se acortó y dejó de decir «seleccioná… arriba».
+- **Datos:** microcopy actualizado: «…elegí otro caso o cámara en **este** selector» (el selector ya está dentro de la sección).
+- **Foco:** el `:focus-visible` azul (`var(--accent)`) de tabs/selector/botones/exports/asientos se reemplazó por **oro del sistema** (`var(--accent-gold)`), conservando accesibilidad (sin `outline:none` sin reemplazo). Verificado: 0 outlines azules, 5 dorados. Render a 1440 y 1280 (Caso y Datos) sin huecos ni recortes; print 53; exports y datos intactos.
+
 ## 2026-06-03 — Fase 4 · Exports PNG del Análisis comparado
 
 Exportación PNG de las visualizaciones nuevas del comparado, como **láminas académicas** (mismo wrapper que los exports existentes: eyebrow, filete tinta+oro, título, subtítulo, etiquetas, leyenda, fuente y crédito). Solo exportación; sin tocar datos, cálculos, compute*, B.1–B.10 funcionalmente ni los exports previos.
