@@ -9486,7 +9486,22 @@ function exportStatsSectionPng(kind){
 
   const NS = 'http://www.w3.org/2000/svg';
   const PAD_X = 50;
-  const totalW = kind.startsWith('comp-') ? 1300 : 1100;
+  let totalW = kind.startsWith('comp-') ? 1300 : 1100;
+  // Tablas simples (Rice, Rae, comparadores wide): columnas dimensionadas al
+  // encabezado medido; el lienzo se ensancha lo necesario para que ningún
+  // encabezado se encime. Se calcula antes del header para fijar el ancho.
+  let _simpleColWs = null;
+  if(spec.layout === 'simple-table' && spec.pngColumns){
+    const def = totalW - 2 * PAD_X;
+    let ws = spec.pngColumns.map(c => Math.max(
+      Math.round(def * c.width),
+      Math.ceil(_measureTextW((c.label || c.key).toUpperCase(), 10, '700', TBL_PNG_FONTS.sans, 1.4)) + 26
+    ));
+    const sum = ws.reduce((a, b) => a + b, 0);
+    if(sum > def){ totalW = sum + 2 * PAD_X; }            // ensanchar el lienzo
+    else { const k = def / sum; ws = ws.map(w => Math.round(w * k)); } // o escalar para llenar
+    _simpleColWs = ws;
+  }
   const availW = totalW - 2 * PAD_X;
   const headerOut = buildTablePngHeader(NS, s, spec.title, spec.bajada, totalW, PAD_X);
   let cursorY = headerOut.headerBottomY + 28;
@@ -9898,9 +9913,9 @@ function exportStatsSectionPng(kind){
     const headerH = 28;
     const rowH = 28;
     const cols = spec.pngColumns;
+    const colWs = _simpleColWs || cols.map(c => Math.round(availW * c.width));
     const colXs = []; let cx = PAD_X;
-    cols.forEach(c => { colXs.push(cx); cx += Math.round(availW * c.width); });
-    const colWs = cols.map(c => Math.round(availW * c.width));
+    colWs.forEach(w => { colXs.push(cx); cx += w; });
     let rowsToRender = spec.rows;
     if(spec.pngLimit && rowsToRender.length > spec.pngLimit) rowsToRender = rowsToRender.slice(0, spec.pngLimit);
 

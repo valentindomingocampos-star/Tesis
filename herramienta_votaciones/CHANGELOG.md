@@ -13,10 +13,11 @@ Los PNG de tabla mostraban encabezados y meta-chips encimados (p. ej. "CÁMARADi
 - **Leyenda de la figura con contexto** (`exportSvgAsPng`): el posicionamiento de cada chip usa ancho medido → sin encimado entre familias.
 - **Badges de voto** (renderers `voteBadge`/`voteBadgeOrMixed`): el rect del pill se ajusta al texto medido.
 
-### Verificado por render real
-- Tablas por familia, por provincia y nominal (incluido el badge "Presidencia · no votó"): meta y encabezados completos, badges dentro de su columna, nada encimado.
-- Figura (hemiciclo) con contexto en modo familia: leyenda de 10 familias en una fila sin pisarse.
-- Los demás PNG (ficha institucional, fichas del sidebar, stats/comparador) ya usaban truncado con "…" (seguro) y los meta-chips compartidos; quedan correctos.
+### Tablas de estadísticas granulares (mismo bug)
+- El layout `simple-table` de `exportStatsSectionPng` (Rice, Rae, comparadores wide de familia/territorio) usaba el **mismo** esquema fraccional fijo → mismos encabezados encimados. Ahora dimensiona cada columna al máximo entre su fracción y el ancho medido del encabezado, ensancha el lienzo si hace falta o escala para llenar.
+
+### Auditoría completa por render real (todos los PNG descargables)
+Se rendereó y verificó **cada** export: tabla nominal / provincias / familias; hemiciclo y mapa con contexto académico; comparador 4 escenarios; indicadores; granulares Rice familia/bloque, Rae escenario/comparador, comparadores wide familia/territorio; ficha institucional, ficha de legislador y resumen provincial/nacional. En todos: meta-chips, encabezados, badges y leyendas sin encimarse. Las figuras "solo gráfico" (sin contexto) no tienen tablas de texto. Datos y cálculos intactos.
 
 ## 2026-06-02 — Scroll independiente del sidebar (desktop)
 
