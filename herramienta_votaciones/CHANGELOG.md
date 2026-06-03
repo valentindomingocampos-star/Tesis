@@ -2,6 +2,18 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Fase 4 · Exports PNG del Análisis comparado
+
+Exportación PNG de las visualizaciones nuevas del comparado, como **láminas académicas** (mismo wrapper que los exports existentes: eyebrow, filete tinta+oro, título, subtítulo, etiquetas, leyenda, fuente y crédito). Solo exportación; sin tocar datos, cálculos, compute*, B.1–B.10 funcionalmente ni los exports previos.
+
+### 4a — Visualizaciones comparadas (B.4 / B.5 / B.10)
+- **B.4 Hemiciclos lado a lado**, **B.5 Mapas lado a lado** y **B.10 Grilla 2×2** exportan a PNG con el par y el modo de color activos (voto/familia). Botón «↓ PNG lámina» en cada sección.
+- Reutiliza el wrapper académico existente (`exportSvgAsPng`) componiendo un SVG con las celdas (etiqueta caso·cámara·fecha·resultado + sub-SVG). Helpers nuevos: `getCompareLegendItems`, `buildCompareCompositeSvg`, `exportCompareVizPng`. Helpers existentes reutilizados: `exportSvgAsPng`, `rasterizeSvgToPng`, `slugifyFilename`, `getExportFigureCredit`, los builders `buildCompareHemicycleSvg`/`buildCompareMapSvg`.
+- **Mapas:** el resaltado dorado de provincias que cambiaron de voto dominante **sobrevive al export** (regla `.province-path.is-changed` añadida a `SVG_EXPORT_STYLES`), con nota de LECTURA. **Fuente general comparada** (`PNG_COMPARISON_SOURCE`), no «Caso visualizado…».
+- Hooks mínimos a la infraestructura (aditivos, sin romper nada): `context.legendEyebrow` opcional en `exportSvgAsPng`; parámetro opcional `customActions` en `_sectionHead`.
+- Convención de nombres: `comparado_{hemiciclos|mapas}_{idA}_vs_{idB}_{voto|familia}.png` · `comparado_grilla_2x2_{hemiciclos|mapas}_{voto|familia}.png`.
+- Verificado renderizando las láminas reales (hemiciclos, mapas con highlight, grilla 2×2) a alta resolución: wrapper correcto, sin clipping, texto legible; nombres correctos; modo familia OK; exports previos intactos; +3 botones (54→57); consola sin errores.
+
 ## 2026-06-03 — Pulido post-Fase A · A.1 (lectura visual) + A.3 (metodología)
 
 Ajustes de terminación tras la rearquitectura, para que la herramienta pase de "funciona muy bien" a "pieza académica terminada". Solo presentación/markup/microcopy; sin tocar datos, cálculos, compute*, normalización, métricas, trayectoria validada ni exports.

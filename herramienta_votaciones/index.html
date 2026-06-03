@@ -6896,6 +6896,7 @@ const SVG_EXPORT_STYLES = `
   .seat.is-dim { opacity: 0.22; }
   .map-bg { fill: #fbfaf5; }
   .province-path { stroke-linejoin: round; stroke-linecap: round; stroke-opacity: 0.85; }
+  .province-path.is-changed { stroke: #9c7a2c; stroke-width: 3; stroke-opacity: 1; }
   .province-label { font-size: 9.5px; font-weight: 600; fill: #14181f; text-anchor: middle; paint-order: stroke; stroke: rgba(255,253,248,0.95); stroke-width: 2.8; stroke-linejoin: round; }
   .province-label.is-small { font-size: 8.5px; stroke-width: 2.4; }
   .malvinas-label { font-size: 8.5px; font-style: italic; fill: #2c3543; font-weight: 600; text-anchor: middle; letter-spacing: .02em; paint-order: stroke; stroke: rgba(255,253,248,0.95); stroke-width: 2.4; stroke-linejoin: round; }
@@ -7190,7 +7191,7 @@ function exportSvgAsPng(svgElement, filename, context){
       eyebrow.setAttribute('class', 'fig-legend-eyebrow');
       eyebrow.setAttribute('x', PAD_X);
       eyebrow.setAttribute('y', legendTop);
-      eyebrow.textContent = state.colorMode === 'family' ? 'Familias políticas' : 'Sentido del voto';
+      eyebrow.textContent = context.legendEyebrow || (state.colorMode === 'family' ? 'Familias políticas' : 'Sentido del voto');
       wrapper.appendChild(eyebrow);
 
       legendRowsLayout.forEach((row, ri) => {
@@ -7306,6 +7307,129 @@ function buildFigureContext(scenario, figureType){
     note:     getExportMapNote(scenario, figureType),
     credit:   getExportFigureCredit(scenario)
   };
+}
+
+// =====================================================================
+// EXPORTACIÓN PNG — VISUALIZACIONES COMPARADAS (Fase 4)
+// Hemiciclos/mapas lado a lado (B.4/B.5) y grilla 2×2 (B.10) como láminas
+// académicas. Reutiliza el wrapper (exportSvgAsPng) componiendo un SVG con las
+// celdas (etiqueta + sub-SVG). Fuente general comparada, no atada a un caso.
+// =====================================================================
+
+// Legend {label,color}[] del comparado: categorías presentes en los escenarios
+// del par/los cuatro, sin conteos (son varios escenarios). Formato que consume
+// exportSvgAsPng.
+function getCompareLegendItems(scens, mode){
+  const present = new Set();
+  scens.forEach(s => { (s._sortedLegislators || s.legislators || []).forEach(l => present.add(mode === 'family' ? l.family : l.vote)); });
+  if(mode === 'family'){
+    return Object.keys(FAMILY_COLORS).filter(f => present.has(f)).map(f => ({ label: f, color: FAMILY_COLORS[f] }));
+  }
+  const order = ['AFIRMATIVO','NEGATIVO','ABSTENCION','AUSENTE','PRESIDENCIA'];
+  return order.filter(v => present.has(v)).map(v => ({ label: VOTE_LABELS_CSV[v], color: VOTE_COLORS[v] }));
+}
+
+// Compone un SVG con celdas en grilla de `cols` columnas (cada celda: etiqueta
+// de escenario + sub-SVG anidado escalado). Devuelve un <svg> DOM detached para
+// pasar a exportSvgAsPng. Tipografía de etiquetas inline (no depende de CSS).
+function buildCompareCompositeSvg(cells, opts){
+  const NS = 'http://www.w3.org/2000/svg';
+  const cols = opts.cols || 2;
+  const { cellW, cellH, labelH, titleFont, subFont, gap, rowGap } = opts;
+  const rows = Math.ceil(cells.length / cols);
+  const W = cols * cellW + (cols - 1) * gap;
+  const H = rows * (labelH + cellH) + (rows - 1) * (rowGap || 0);
+  const root = document.createElementNS(NS, 'svg');
+  root.setAttribute('xmlns', NS);
+  root.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  cells.forEach((cell, i) => {
+    const col = i % cols, row = Math.floor(i / cols);
+    const x = col * (cellW + gap);
+    const y = row * (labelH + cellH + (rowGap || 0));
+
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', (x + cellW / 2).toFixed(1)); t.setAttribute('y', (y + titleFont).toFixed(1));
+    t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-family', TBL_PNG_FONTS.serifTitle);
+    t.setAttribute('font-size', titleFont); t.setAttribute('font-weight', '700'); t.setAttribute('fill', '#14181f');
+    t.textContent = cell.title;
+    root.appendChild(t);
+
+    if(cell.sub){
+      const st = document.createElementNS(NS, 'text');
+      st.setAttribute('x', (x + cellW / 2).toFixed(1)); st.setAttribute('y', (y + titleFont + subFont + 7).toFixed(1));
+      st.setAttribute('text-anchor', 'middle'); st.setAttribute('font-family', TBL_PNG_FONTS.sans);
+      st.setAttribute('font-size', subFont); st.setAttribute('font-weight', '600'); st.setAttribute('fill', '#6a6a64'); st.setAttribute('letter-spacing', '0.04em');
+      st.textContent = cell.sub;
+      root.appendChild(st);
+    }
+
+    const sub = cell.svg.cloneNode(true);
+    sub.setAttribute('x', x.toFixed(1)); sub.setAttribute('y', (y + labelH).toFixed(1));
+    sub.setAttribute('width', cellW); sub.setAttribute('height', cellH);
+    sub.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    root.appendChild(sub);
+  });
+  return root;
+}
+
+// Dispatcher: kind ∈ 'hemicycles' | 'maps' | 'quad'. Exporta el par seleccionado
+// (B.4/B.5) o la grilla 2×2 según la vista activa (B.10), en el modo de color
+// activo del comparado.
+function exportCompareVizPng(kind){
+  const mode = state.compareColorMode === 'family' ? 'family' : 'vote';
+  const modeES = mode === 'family' ? 'familia' : 'voto';
+  const pair = (state.comparePair && state.comparePair.length === 2) ? state.comparePair : ['aerolineas_diputados', 'ypf_diputados'];
+  const sA = ensureScenarioPrepared(SCENARIOS[pair[0]]);
+  const sB = ensureScenarioPrepared(SCENARIOS[pair[1]]);
+  if(!sA || !sB){ console.error('exportCompareVizPng: par inválido'); return; }
+
+  const cellLabel = (s) => ({ title: `${s.caseName} · ${s.chamberShort}`, sub: `${s.date} · ${s.result}` });
+  let composite, title, subtitle, legendScens, fileParts, reading = '';
+
+  if(kind === 'hemicycles' || kind === 'maps'){
+    const isMap = kind === 'maps';
+    const cells = [
+      { svg: isMap ? buildCompareMapSvg(sA, mode) : buildCompareHemicycleSvg(sA, mode), ...cellLabel(sA) },
+      { svg: isMap ? buildCompareMapSvg(sB, mode, { highlightVs: sA._provinceData }) : buildCompareHemicycleSvg(sB, mode), ...cellLabel(sB) }
+    ];
+    composite = buildCompareCompositeSvg(cells, isMap
+      ? { cols: 2, cellW: 520, cellH: 832, labelH: 50, titleFont: 22, subFont: 14, gap: 80, rowGap: 0 }
+      : { cols: 2, cellW: 1200, cellH: 500, labelH: 76, titleFont: 30, subFont: 19, gap: 100, rowGap: 0 });
+    title = isMap ? 'Mapas comparados' : 'Hemiciclos comparados';
+    subtitle = `${sA.caseName} · ${sA.chamberShort} frente a ${sB.caseName} · ${sB.chamberShort} · color por ${modeES}`;
+    legendScens = [sA, sB];
+    fileParts = ['comparado', isMap ? 'mapas' : 'hemiciclos', sA.id + '_vs_' + sB.id, modeES];
+    if(isMap) reading = 'En el segundo mapa, el borde dorado señala las provincias cuyo voto dominante cambió respecto del primero.';
+  } else if(kind === 'quad'){
+    const isMap = state.quadView === 'map';
+    const cells = QUAD_ORDER.map(id => {
+      const sc = ensureScenarioPrepared(SCENARIOS[id]);
+      return { svg: isMap ? buildCompareMapSvg(sc, mode, { showLabels: false }) : buildCompareHemicycleSvg(sc, mode), ...cellLabel(sc) };
+    });
+    composite = buildCompareCompositeSvg(cells, isMap
+      ? { cols: 2, cellW: 520, cellH: 832, labelH: 50, titleFont: 22, subFont: 14, gap: 80, rowGap: 60 }
+      : { cols: 2, cellW: 1200, cellH: 500, labelH: 76, titleFont: 30, subFont: 19, gap: 100, rowGap: 70 });
+    title = `Grilla panorámica de los cuatro escenarios · ${isMap ? 'mapas' : 'hemiciclos'}`;
+    subtitle = `Aerolíneas Argentinas y YPF, en Diputados y Senado · color por ${modeES}`;
+    legendScens = QUAD_ORDER.map(id => ensureScenarioPrepared(SCENARIOS[id]));
+    fileParts = ['comparado', 'grilla_2x2', isMap ? 'mapas' : 'hemiciclos', modeES];
+  } else {
+    console.error('exportCompareVizPng: kind desconocido →', kind);
+    return;
+  }
+
+  const context = {
+    eyebrow: 'El péndulo del poder · Análisis comparado',
+    title, subtitle,
+    meta: null, // sin grilla de metadatos de un escenario: el alcance va en las etiquetas
+    legend: getCompareLegendItems(legendScens, mode),
+    legendEyebrow: mode === 'family' ? 'Familias políticas' : 'Sentido del voto',
+    reading,
+    source: PNG_COMPARISON_SOURCE,
+    credit: getExportFigureCredit()
+  };
+  exportSvgAsPng(composite, slugifyFilename(fileParts) + '.png', context);
 }
 
 // =====================================================================
@@ -9146,14 +9270,18 @@ function buildStatsIndex(container, label){
 }
 
 // Header de sección dentro de una división
-function _sectionHead(marker, title, bajada, exportKind){
+function _sectionHead(marker, title, bajada, exportKind, customActions){
   // exportKind: clave del bloque exportable (e.g. 'aggregate', 'turnout', 'famcoh', etc.)
   //             Genera dos botones discretos (CSV / PNG) que despachan a handleExportClick.
-  const actions = exportKind ? `
+  // customActions: HTML de acciones a medida (p.ej. el PNG de lámina comparada de
+  //                B.4/B.5/B.10); tiene prioridad sobre exportKind si se pasa.
+  const actions = customActions
+    ? `<div class="stats-section-actions">${customActions}</div>`
+    : (exportKind ? `
     <div class="stats-section-actions">
       <button class="btn-exp" data-export="stats-${exportKind}-csv" title="Descargar esta tabla en CSV">↓ CSV</button>
       <button class="btn-exp" data-export="stats-${exportKind}-png" title="Descargar esta tabla como figura PNG">↓ PNG</button>
-    </div>` : '';
+    </div>` : '');
   return `
     <div class="stats-section-head">
       <div class="stats-section-marker">${esc(marker)}</div>
@@ -9733,7 +9861,8 @@ function renderComparisonPanel(){
   const cmpHemiSection = `
     <section class="stats-section cmp-viz-section">
       ${_sectionHead('B.4', 'Hemiciclos lado a lado',
-        'Los dos escenarios del par, banca por banca, con el mismo criterio cromático. El cruce voto/familia se consulta en el tooltip.', null)}
+        'Los dos escenarios del par, banca por banca, con el mismo criterio cromático. El cruce voto/familia se consulta en el tooltip.', null,
+        '<button class="btn-exp btn-exp-primary" data-export="compare-hemicycles-png" title="Descargar como lámina PNG">↓ PNG lámina</button>')}
       <div class="dual-viz" id="cmpDualHemi"></div>
       <div class="legend cmp-legend" aria-hidden="true">${cmpPairLegend}</div>
     </section>
@@ -9741,7 +9870,8 @@ function renderComparisonPanel(){
   const cmpMapSection = `
     <section class="stats-section cmp-viz-section">
       ${_sectionHead('B.5', 'Mapas lado a lado',
-        'Voto predominante por provincia. En el segundo mapa, las provincias con borde dorado cambiaron de voto dominante respecto del primero.', null)}
+        'Voto predominante por provincia. En el segundo mapa, las provincias con borde dorado cambiaron de voto dominante respecto del primero.', null,
+        '<button class="btn-exp btn-exp-primary" data-export="compare-maps-png" title="Descargar como lámina PNG">↓ PNG lámina</button>')}
       <div class="dual-viz" id="cmpDualMap"></div>
       <div class="legend cmp-legend" aria-hidden="true">${cmpPairLegend}</div>
     </section>
@@ -9765,6 +9895,10 @@ function renderComparisonPanel(){
               <button type="button" data-quad-view="hemicycle" aria-pressed="${state.quadView !== 'map' ? 'true' : 'false'}">Hemiciclos</button>
               <button type="button" data-quad-view="map" aria-pressed="${state.quadView === 'map' ? 'true' : 'false'}">Mapas</button>
             </div>
+          </div>
+          <div class="compare-ctrl">
+            <span class="compare-ctrl-label">Exportar</span>
+            <button class="btn-exp btn-exp-primary" data-export="compare-quad-png" title="Descargar la grilla como lámina PNG">↓ PNG lámina</button>
           </div>
         </div>
         <div class="quad-viz" id="cmpQuad"></div>
@@ -12085,6 +12219,10 @@ function handleExportClick(kind){
     else if(kind === 'stats-png')       exportStatsPng();
     else if(kind === 'comparator-csv')  exportComparatorCsv();
     else if(kind === 'comparator-png')  exportComparatorPng();
+    // Láminas PNG de las visualizaciones comparadas (Fase 4): B.4/B.5/B.10.
+    else if(kind === 'compare-hemicycles-png') exportCompareVizPng('hemicycles');
+    else if(kind === 'compare-maps-png')       exportCompareVizPng('maps');
+    else if(kind === 'compare-quad-png')       exportCompareVizPng('quad');
     // Exports granulares por bloque tabular dentro de Estadísticas (Etapa B3
     // — parseo robusto con regex en vez de slice contando caracteres, soporta
     // kinds con guiones internos como 'stats-comp-table-csv' sin trampearse).
