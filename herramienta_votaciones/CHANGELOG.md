@@ -2,6 +2,10 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Figuras comparadas: sin meta-chips de un solo escenario
+
+En los PNG de **Análisis comparado** (comparador 4 escenarios, comparador wide de familias y de provincias), el header mostraba los chips "CASO · CÁMARA · FECHA · LEY" del escenario activo — engañoso, porque la figura compara los 4 casos (y el caso/cámara/fecha de cada votación ya va en los encabezados de columna). `buildTablePngHeader` acepta `opts.noMetaChips`: se omiten los chips (y el header se acorta) cuando el export es comparado. Se detecta por `spec.noScenarioInName` (granulares wide) y explícito en el comparador. Los PNG de un solo escenario (tablas, fichas, Rice/Rae por escenario, indicadores) conservan los chips. Solo presentación; sin cambios de datos.
+
 ## 2026-06-02 — Fix: textos encimados en los PNG exportables
 
 Los PNG de tabla mostraban encabezados y meta-chips encimados (p. ej. "CÁMARADiputados", "ABSTENCIONES/AUSENTES/%AFIRMATIVO/PROVINCIAS" pisándose). Causa raíz: los anchos de texto se estimaban por conteo de caracteres (sin medir, sin letter-spacing) y las columnas tenían anchos fraccionales fijos demasiado angostos para sus encabezados. Solo presentación de exports; sin cambios de datos.

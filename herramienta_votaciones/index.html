@@ -6308,7 +6308,7 @@ function _measureTextW(text, px, weight, family, letterSpacing){
 // ---------------------------------------------------------------------
 // Header común para PNG de tablas (eyebrow + título + bajada + meta-chips)
 // ---------------------------------------------------------------------
-function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X){
+function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X, opts){
   // Devuelve {elements: [...], headerBottomY: number}
   const ctx = csvScenarioContext(scenario);
   const eyebrowTxt = 'Figura exportada · Herramienta de visualización legislativa';
@@ -6357,44 +6357,50 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X){
   });
   const subBlockBottom = 110 + Math.min(2, subLines.length) * 17;
 
-  // Meta-chips: Caso · Cámara · Fecha · Ley
-  const metaY = subBlockBottom + 14;
-  const chips = [
-    { k: 'CASO',   v: ctx.case },
-    { k: 'CÁMARA', v: ctx.chamber },
-    { k: 'FECHA',  v: ctx.date },
-    { k: 'LEY',    v: ctx.law }
-  ];
-  let cursorX = PAD_X;
-  chips.forEach((c, i) => {
-    if(i > 0){
-      const sep = document.createElementNS(NS, 'text');
-      sep.setAttribute('x', cursorX); sep.setAttribute('y', metaY);
-      sep.setAttribute('font-family', TBL_PNG_FONTS.sans);
-      sep.setAttribute('font-size', '11'); sep.setAttribute('fill', '#9a9588');
-      sep.textContent = '·';
-      elements.push(sep);
-      cursorX += 10;
-    }
-    const k = document.createElementNS(NS, 'text');
-    k.setAttribute('x', cursorX); k.setAttribute('y', metaY);
-    k.setAttribute('font-family', TBL_PNG_FONTS.sans);
-    k.setAttribute('font-size', '9.5'); k.setAttribute('font-weight', '700');
-    k.setAttribute('fill', '#6a6a64'); k.setAttribute('letter-spacing', '1.3');
-    k.textContent = c.k;
-    elements.push(k);
-    cursorX += _measureTextW(c.k, 9.5, '700', TBL_PNG_FONTS.sans, 1.3) + 8;
-    const v = document.createElementNS(NS, 'text');
-    v.setAttribute('x', cursorX); v.setAttribute('y', metaY);
-    v.setAttribute('font-family', TBL_PNG_FONTS.sans);
-    v.setAttribute('font-size', '11'); v.setAttribute('font-weight', '600');
-    v.setAttribute('fill', '#2c3543');
-    v.textContent = c.v;
-    elements.push(v);
-    cursorX += _measureTextW(c.v, 11, '600', TBL_PNG_FONTS.sans, 0) + 14;
-  });
-
-  const headerBottomY = metaY + 14;
+  // Meta-chips: Caso · Cámara · Fecha · Ley. Se OMITEN en figuras comparadas
+  // (multi-escenario), donde la metadata de un solo escenario sería engañosa:
+  // el caso/cámara/fecha de cada escenario ya va en los encabezados de columna.
+  let headerBottomY;
+  if(opts && opts.noMetaChips){
+    headerBottomY = subBlockBottom + 14;
+  } else {
+    const metaY = subBlockBottom + 14;
+    const chips = [
+      { k: 'CASO',   v: ctx.case },
+      { k: 'CÁMARA', v: ctx.chamber },
+      { k: 'FECHA',  v: ctx.date },
+      { k: 'LEY',    v: ctx.law }
+    ];
+    let cursorX = PAD_X;
+    chips.forEach((c, i) => {
+      if(i > 0){
+        const sep = document.createElementNS(NS, 'text');
+        sep.setAttribute('x', cursorX); sep.setAttribute('y', metaY);
+        sep.setAttribute('font-family', TBL_PNG_FONTS.sans);
+        sep.setAttribute('font-size', '11'); sep.setAttribute('fill', '#9a9588');
+        sep.textContent = '·';
+        elements.push(sep);
+        cursorX += 10;
+      }
+      const k = document.createElementNS(NS, 'text');
+      k.setAttribute('x', cursorX); k.setAttribute('y', metaY);
+      k.setAttribute('font-family', TBL_PNG_FONTS.sans);
+      k.setAttribute('font-size', '9.5'); k.setAttribute('font-weight', '700');
+      k.setAttribute('fill', '#6a6a64'); k.setAttribute('letter-spacing', '1.3');
+      k.textContent = c.k;
+      elements.push(k);
+      cursorX += _measureTextW(c.k, 9.5, '700', TBL_PNG_FONTS.sans, 1.3) + 8;
+      const v = document.createElementNS(NS, 'text');
+      v.setAttribute('x', cursorX); v.setAttribute('y', metaY);
+      v.setAttribute('font-family', TBL_PNG_FONTS.sans);
+      v.setAttribute('font-size', '11'); v.setAttribute('font-weight', '600');
+      v.setAttribute('fill', '#2c3543');
+      v.textContent = c.v;
+      elements.push(v);
+      cursorX += _measureTextW(c.v, 11, '600', TBL_PNG_FONTS.sans, 0) + 14;
+    });
+    headerBottomY = metaY + 14;
+  }
   const sep = document.createElementNS(NS, 'line');
   sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', headerBottomY);
   sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', headerBottomY);
@@ -9503,7 +9509,7 @@ function exportStatsSectionPng(kind){
     _simpleColWs = ws;
   }
   const availW = totalW - 2 * PAD_X;
-  const headerOut = buildTablePngHeader(NS, s, spec.title, spec.bajada, totalW, PAD_X);
+  const headerOut = buildTablePngHeader(NS, s, spec.title, spec.bajada, totalW, PAD_X, { noMetaChips: !!spec.noScenarioInName });
   let cursorY = headerOut.headerBottomY + 28;
 
   const wrapper = document.createElementNS(NS, 'svg');
@@ -10440,13 +10446,12 @@ function exportComparatorPng(){
   const PAD_X = 50;
   const totalW = 1300; // un poco más ancho por las 5 columnas (indicador + 4 escenarios)
   const fakeScen = scenarios[0] || { id: 'comparador', caseName: 'Comparador', chamberShort: '—', date: '—', law: '—' };
+  // Figura comparada: sin meta-chips de un escenario (el alcance de cada
+  // votación va en los encabezados de columna).
   const headerOut = buildTablePngHeader(NS, fakeScen,
     'Comparador de votaciones · 4 escenarios',
     'Indicadores agregados comparados entre los tratamientos de las leyes 26.466 (Aerolíneas Argentinas) y 26.741 (YPF) en ambas cámaras.',
-    totalW, PAD_X);
-  // Sobreescribimos meta-chips para que digan "comparador" no un escenario
-  // Los chips ya se dibujaron en headerOut.elements; los dejamos. La línea del meta refleja el primer escenario,
-  // pero el título académico aclara el alcance comparativo.
+    totalW, PAD_X, { noMetaChips: true });
 
   const tableTop = headerOut.headerBottomY + 24;
   const headerH = 30;
