@@ -2,6 +2,23 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Pulido de movimiento (Parte 2, lote 2) + count-up robusto
+
+Continuación del pulido. Fuente: se mantiene el stack de sistema (sin Google Fonts ni fuente embebida). Solo presentación; datos y cálculos intactos. Estado final de toda animación = visible; respeta print y reduced-motion.
+
+- **Count-up de KPIs por delegación:** el listener de tabs pasa a `document` (sobrevive a los re-render de `renderVizCard` que reconstruyen los subtabs). El flag `omCounted` evita doble conteo; los KPIs recién renderizados arrancan de su valor final correcto.
+- **#8 Barras que crecen desde 0:** `omBarGrow` (scaleX 0→1, `transform-origin` izquierda, fill `backwards`). Aplica a `.h-bar-fill` y `.mini-bar` en el panel activo y a `.prov-bar`/`.fam-bar` del sidebar. El estado base/final es scaleX(1) = barra completa: si no corre (o reduced-motion), la barra queda llena. Sin JS, sin riesgo de barra en 0.
+- **#11 Texto adaptativo en heatmaps:** `_heatTextDark(hex,pct)` mezcla el color de celda sobre el papel y mide luminancia; si la celda fuera oscura, el texto pasa a claro (`.is-dark`). Con la escala actual (alpha ≤ .55) ninguna celda llega a oscura, así que la tinta se mantiene (ya con ≥4.8:1); queda como red de seguridad. No cambia datos ni escala.
+- **#15 Crossfade de subpaneles:** `omFade` al activarse el subpanel (termina y base en opacity:1; nunca invisible).
+- **#16 Estado vacío sobrio:** si la tabla nominal no devuelve filas, muestra un mensaje académico centrado (`.dtable-empty`) en vez de un hueco.
+- **#18 Tiempos unificados:** transiciones sueltas de los controles principales (`.seg-btn`, `.nav-seg`, `.subtab`, `.search-input`, `.select-input`) pasan a `--dur-*`/`--ease-*`.
+- **#19 Ritmo:** revisado; el sistema ya usa `--space-*`/`--radius-*` de forma consistente, sin inconsistencias que justifiquen tocar layout (no se modificó).
+- **#20 Print / reduced-motion:** guard de impresión ampliado a `.subpanel` y a las barras (`opacity:1`/`transform:none`); `prefers-reduced-motion` (`*{animation-duration:.001ms}`) neutraliza también `omBarGrow`/`omFade`.
+- **No implementados (por pedido):** #9 crossfade de color de bancas, #14 progreso de scroll.
+
+### QA
+- 11/11 headless: estado vacío + restauración, `omBarGrow` en mini-bar/h-bar-fill/fam-bar, `omFade` en subpanel, `_heatTextDark` correcto (intensa→tinta, real-oscura→claro), transiciones tokenizadas. Render real: todo visible con barras completas. PDF de impresión sin error. Datasets idénticos.
+
 ## 2026-06-02 — Capa de movimiento editorial (Parte 1) + pulido acoplado
 
 Capa de animación y microinteracciones sobre el sistema editorial existente. Solo presentación; reutiliza tokens. Regla respetada: el estado final de toda animación es el estado visible (`animation … backwards` → revierte a opacity:1; si no corre, queda en el valor base visible). Datos y cálculos intactos.
