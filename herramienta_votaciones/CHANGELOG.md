@@ -18,6 +18,9 @@ Nueva sección **B.10 Trayectoria** dentro de Análisis comparado: qué legislad
 - **Migración por familia** (familias con ≥2 repetidos): repiten, mantienen, cambian, % afirmativo A→B con Δ.
 - **Estado vacío** para pares cross-cámara o sin repetidos: mensaje sobrio en caja hundida, sin matriz/tabla rotas.
 
+### Densidad de tablas (refinamiento)
+- Las tablas de B.10 desperdiciaban espacio (filas altas, columnas anchas con huecos y las últimas columnas —Familia/Bloque/Δ— cortadas por overflow). Rediseño: la nominal consolida Voto A / Voto B / Trayectoria en menos columnas (Voto `A → B` en una celda); ambas tablas pasan a `table-layout: fixed` con anchos por `<colgroup>` (caben al 100% sin overflow), padding vertical reducido, headers que envuelven y celdas largas (nombre, familia, bloque) truncadas con ellipsis + `title`. Headers de caso abreviados (Aerolíneas Argentinas → «Aero»). Resultado: ~10 filas visibles donde antes 6, y la columna Δ siempre visible.
+
 ### QA
 - Sintaxis OK; datos idénticos a HEAD. Métricas verificadas: **Diputados Aero→YPF = 64 repiten** (48 mantienen, 16 cambian, 56 familia); **Senado Aero→YPF = 38** (20/18/32). Cross-cámara (Aero Dip→Sen, YPF Dip→Sen) → estado vacío (`sameChamber=false`). Toggle voto/familia no rompe B.10; cambio de par no rompe B.7–B.9; filtro nominal correcto (16 filas en "cambiaron"). Análisis del caso intacto (selección + hemiciclo 257). Print: 58 páginas (sin clipping; la regla print de `.dtable-wrap` libera overflow). Sin Sankey (matriz como visualización de transición); exports de trayectoria → Fase 4.
 

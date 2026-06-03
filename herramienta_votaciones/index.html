@@ -3129,14 +3129,43 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .traj-matrix .traj-tot-row th, .traj-matrix .traj-tot-row td{ background: var(--paper-sunk); font-weight: var(--w-semi); border-top: 2px solid var(--line-strong); }
 .traj-sw{ display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
 
-/* Tabla nominal de trayectoria */
-.traj-table th, .traj-fam-table th{ cursor: default; }
-.traj-table .traj-name{ display: block; font-weight: var(--w-semi); color: var(--ink); }
-.traj-table .traj-prov{ display: block; font-size: var(--t-xs); color: var(--muted); }
-.traj-fam-cell{ font-size: var(--t-xs); color: var(--ink-2); }
-.traj-block-cell{ font-size: var(--t-xs); color: var(--muted); max-width: 240px; }
+/* Tablas de trayectoria — densas y con anchos fijos para usar bien el espacio
+   (antes desperdiciaban alto y las últimas columnas se cortaban por overflow). */
+.traj-table, .traj-fam-table{ table-layout: fixed; width: 100%; }
+.traj-table th, .traj-fam-table th{
+  cursor: default;
+  white-space: normal;       /* permite que el header envuelva en vez de forzar ancho */
+  vertical-align: bottom;
+  line-height: 1.25;
+  padding: var(--space-2) var(--space-3);
+}
+.traj-table td, .traj-fam-table td{
+  padding: 5px var(--space-3);
+  vertical-align: middle;
+}
+/* Reparto de columnas — nominal */
+.traj-table col.c-leg{ width: 23%; }
+.traj-table col.c-voto{ width: 22%; }
+.traj-table col.c-tray{ width: 15%; }
+.traj-table col.c-fam{ width: 24%; }
+.traj-table col.c-bloq{ width: 16%; }
+.traj-leg-cell, .traj-fam-cell, .traj-block-cell{ overflow: hidden; }
+.traj-table .traj-name{ display: block; font-weight: var(--w-semi); color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+.traj-table .traj-prov{ display: block; font-size: var(--t-xs); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.traj-voto-cell{ white-space: nowrap; }
+.traj-voto-cell .vote-badge{ font-size: 10.5px; padding: 1px 7px; }
+.traj-voto-cell .traj-arrow{ margin: 0 5px; }
+.traj-tray-cell .traj-badge{ display: inline-block; margin: 1px 4px 1px 0; }
+.traj-fam-cell{ font-size: var(--t-xs); color: var(--ink-2); white-space: nowrap; text-overflow: ellipsis; }
+.traj-block-cell{ font-size: var(--t-xs); color: var(--muted); white-space: nowrap; text-overflow: ellipsis; }
 .traj-arrow{ color: var(--muted-soft); margin: 0 2px; }
 .traj-table-note{ margin: var(--space-2) 0 0; font-size: var(--t-xs); color: var(--muted); }
+/* Reparto de columnas — migración por familia */
+.traj-fam-table col.c-fname{ width: 24%; }
+.traj-fam-table col.c-n{ width: 11%; }
+.traj-fam-table col.c-pct{ width: 16%; }
+.traj-fam-table col.c-d{ width: 11%; }
+.traj-fam-name{ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* Sellos de estado (mantuvo/cambió) — status, no voto */
 .traj-badge{
@@ -5627,6 +5656,14 @@ function renderTrajectorySection(){
     .map(([k, l]) => `<button type="button" data-traj-filter="${k}" aria-pressed="${filter === k ? 'true' : 'false'}">${esc(l)}</button>`).join('');
   const vb = (v) => `<span class="vote-badge ${VOTE_CLASS[v]}">${esc(VOTE_LABELS[v])}</span>`;
   const dot = (f) => `<span class="family-dot" style="background:${FAMILY_COLORS[f] || '#a09b8c'}"></span>`;
+  const shortCase = (cn) => cn === 'Aerolíneas Argentinas' ? 'Aero' : cn;
+  const cA = shortCase(sA.caseName), cB = shortCase(sB.caseName);
+  const famCell = (r) => r.sameFamily
+    ? `${dot(r.familyA)}${esc(r.familyA)}`
+    : `${dot(r.familyA)}${esc(r.familyA)} <span class="traj-arrow">→</span> ${dot(r.familyB)}${esc(r.familyB)}`;
+  const famTitle = (r) => r.sameFamily ? r.familyA : `${r.familyA} → ${r.familyB}`;
+  const blkTitle = (r) => r.blockA === r.blockB ? r.blockA : `${r.blockA} → ${r.blockB}`;
+  const blkCell = (r) => r.blockA === r.blockB ? esc(r.blockA) : `${esc(r.blockA)} <span class="traj-arrow">→</span> ${esc(r.blockB)}`;
   const tableHtml = `
     <div class="traj-block">
       <div class="traj-table-head">
@@ -5635,22 +5672,21 @@ function renderTrajectorySection(){
       </div>
       <div class="dtable-wrap">
         <table class="dtable traj-table">
+          <colgroup><col class="c-leg"><col class="c-voto"><col class="c-tray"><col class="c-fam"><col class="c-bloq"></colgroup>
           <thead><tr>
             <th>Legislador</th>
-            <th>Voto · ${esc(sA.caseName)}</th>
-            <th>Voto · ${esc(sB.caseName)}</th>
+            <th>Voto · ${esc(cA)} <span class="traj-arrow">→</span> ${esc(cB)}</th>
             <th>Trayectoria</th>
-            <th>Familia (${esc(sA.caseName)} → ${esc(sB.caseName)})</th>
+            <th>Familia · ${esc(cA)} <span class="traj-arrow">→</span> ${esc(cB)}</th>
             <th>Bloque</th>
           </tr></thead>
           <tbody>
             ${rows.map(r => `<tr>
-              <td><span class="traj-name">${esc(r.name)}</span><span class="traj-prov">${esc(r.province)}</span></td>
-              <td>${vb(r.voteA)}</td>
-              <td>${vb(r.voteB)}</td>
-              <td>${r.sameVote ? '<span class="traj-badge kept">Mantuvo</span>' : '<span class="traj-badge changed">Cambió</span>'}${r.sameFamily ? '' : ' <span class="traj-badge fam">Cambió familia</span>'}</td>
-              <td class="traj-fam-cell">${r.sameFamily ? `${dot(r.familyA)}${esc(r.familyA)}` : `${dot(r.familyA)}${esc(r.familyA)} <span class="traj-arrow">→</span> ${dot(r.familyB)}${esc(r.familyB)}`}</td>
-              <td class="traj-block-cell">${r.blockA === r.blockB ? esc(r.blockA) : `${esc(r.blockA)} <span class="traj-arrow">→</span> ${esc(r.blockB)}`}</td>
+              <td class="traj-leg-cell"><span class="traj-name" title="${esc(r.name)}">${esc(r.name)}</span><span class="traj-prov">${esc(r.province)}</span></td>
+              <td class="traj-voto-cell">${vb(r.voteA)}<span class="traj-arrow">→</span>${vb(r.voteB)}</td>
+              <td class="traj-tray-cell">${r.sameVote ? '<span class="traj-badge kept">Mantuvo</span>' : '<span class="traj-badge changed">Cambió</span>'}${r.sameFamily ? '' : '<span class="traj-badge fam">Cambió familia</span>'}</td>
+              <td class="traj-fam-cell" title="${esc(famTitle(r))}">${famCell(r)}</td>
+              <td class="traj-block-cell" title="${esc(blkTitle(r))}">${blkCell(r)}</td>
             </tr>`).join('')}
           </tbody>
         </table>
@@ -5676,10 +5712,11 @@ function renderTrajectorySection(){
       <p class="traj-block-sub">Sobre los legisladores que repiten banca; familias con al menos 2 repetidos. % afirmativo calculado sobre los repetidos de cada familia.</p>
       <div class="dtable-wrap">
         <table class="dtable traj-fam-table">
-          <thead><tr><th>Familia política</th><th class="col-num">Repiten</th><th class="col-num">Mantienen</th><th class="col-num">Cambian</th><th class="col-num">% Afirm. ${esc(sA.caseName)}</th><th class="col-num">% Afirm. ${esc(sB.caseName)}</th><th class="col-num">Δ pp</th></tr></thead>
+          <colgroup><col class="c-fname"><col class="c-n"><col class="c-n"><col class="c-n"><col class="c-pct"><col class="c-pct"><col class="c-d"></colgroup>
+          <thead><tr><th>Familia política</th><th class="col-num">Repiten</th><th class="col-num">Mantienen</th><th class="col-num">Cambian</th><th class="col-num">% Afirm. ${esc(cA)}</th><th class="col-num">% Afirm. ${esc(cB)}</th><th class="col-num">Δ pp</th></tr></thead>
           <tbody>
             ${famRows.map(r => { const pa = r.yesA / r.n * 100, pb = r.yesB / r.n * 100, d = pb - pa; const dcls = Math.abs(d) < 0.05 ? '' : (d > 0 ? 'is-up' : 'is-down'); return `<tr>
-              <td>${dot(r.f)}${esc(r.f)}</td>
+              <td class="traj-fam-name" title="${esc(r.f)}">${dot(r.f)}${esc(r.f)}</td>
               <td class="col-num">${r.n}</td>
               <td class="col-num">${r.kept}</td>
               <td class="col-num">${r.changed}</td>
