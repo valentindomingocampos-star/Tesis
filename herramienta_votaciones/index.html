@@ -92,6 +92,13 @@
   --radius-sm: 6px;
   --radius-xs: 4px;
 
+  /* Movimiento — curvas y duraciones de la capa de pulido editorial.
+     Definidas aquí (junto al resto de tokens) y no en un :root tardío:
+     se usan desde la línea ~280 en adelante. */
+  --ease-out: cubic-bezier(.16,1,.3,1);
+  --ease-soft: cubic-bezier(.4,0,.2,1);
+  --dur-1: .14s; --dur-2: .22s; --dur-3: .34s; --dur-4: .55s;
+
   /* Escala tipográfica (siete tamaños) */
   --t-xs:    11px;   /* metadatos, captions */
   --t-sm:    12px;   /* tipografía secundaria */
@@ -3275,8 +3282,13 @@ table.dtable td.col-block{
 /* Anillo sobrio: azul UI institucional (--accent, deliberadamente distinto
    del verde de voto afirmativo). Visible solo en navegación con teclado.
    Reemplaza al outline default del navegador, garantizando contraste y
-   coherencia editorial. */
-:focus { outline: none; }
+   coherencia editorial.
+   Se acota con :not(:focus-visible) para NO suprimir el indicador en
+   navegadores sin soporte de :focus-visible: ahí el selector entero se
+   invalida y el outline por defecto del navegador sigue visible para quien
+   navega con teclado (accesibilidad preservada). Sólo oculta el outline en
+   foco por puntero, donde :focus-visible no aplica. */
+:focus:not(:focus-visible) { outline: none; }
 
 button:focus-visible,
 a:focus-visible,
@@ -3353,12 +3365,8 @@ a:focus-visible,
 
 /* =====================================================================
    CAPA DE MOVIMIENTO Y PULIDO — "chiches" editoriales
+   (los tokens --ease-* / --dur-* viven en el :root principal, arriba)
    ===================================================================== */
-:root{
-  --ease-out: cubic-bezier(.16,1,.3,1);
-  --ease-soft: cubic-bezier(.4,0,.2,1);
-  --dur-1: .14s; --dur-2: .22s; --dur-3: .34s; --dur-4: .55s;
-}
 
 /* Entrada de página: rise + fade escalonado al cargar */
 @keyframes omRise{ from{ opacity:0; transform: translateY(16px); } to{ opacity:1; transform: translateY(0); } }
@@ -3917,6 +3925,17 @@ function el(tag, attrs, children){
   return node;
 }
 function activeScenario(){ return SCENARIOS[state.scenarioId]; }
+
+// Debounce: agrupa ráfagas de llamadas (p.ej. tecleo en los buscadores) en una
+// sola ejecución tras `ms` de inactividad. Evita el thrashing de re-render por
+// keystroke con 257 legisladores. Declaración hoisteada → disponible global.
+function debounce(fn, ms){
+  let t;
+  return function(...args){
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
 
 // =====================================================================
 // CÁLCULO DE GEOMETRÍA DEL HEMICICLO
@@ -4618,8 +4637,16 @@ function renderHemicycle(){
     class: 'hemicycle',
     viewBox: '0 0 1200 690',
     xmlns: 'http://www.w3.org/2000/svg',
-    'aria-label': `Hemiciclo · ${s.caseName} · ${s.chamber}`
+    role: 'img',
+    'aria-labelledby': 'hemiTitle hemiDesc'
   });
+  // Texto alternativo accesible nativo de SVG (title = nombre, desc =
+  // resumen). Complementa los aria-label por banca: un lector de pantalla
+  // anuncia la figura como conjunto y puede entrar a explorarla banca a banca.
+  const presNote = sum.PRESIDENCIA ? `, ${sum.PRESIDENCIA} en presidencia (no votó)` : '';
+  svg.appendChild(el('title', { id: 'hemiTitle' }, `Hemiciclo legislativo · ${s.caseName} · ${s.chamber}`));
+  svg.appendChild(el('desc', { id: 'hemiDesc' },
+    `Distribución nominal del voto: ${sum.AFIRMATIVO} a favor, ${sum.NEGATIVO} en contra, ${sum.ABSTENCION} abstenciones, ${sum.AUSENTE} ausentes${presNote}, sobre ${s.totalSeats} bancas. Resultado: ${s.result}.`));
 
   // Arcos guía sutiles
   const guides = el('g', { 'class': 'guides' });
@@ -4819,8 +4846,14 @@ function renderMap(){
     class: 'map-svg',
     viewBox: '0 0 500 800',
     xmlns: 'http://www.w3.org/2000/svg',
-    'aria-label': `Mapa provincial · ${s.caseName} · ${s.chamberShort}`
+    role: 'img',
+    'aria-labelledby': 'mapTitle mapDesc'
   });
+  // Texto alternativo accesible nativo de SVG. El detalle provincia por
+  // provincia está disponible en la tabla "Resumen territorial" (pestaña Datos).
+  svg.appendChild(el('title', { id: 'mapTitle' }, `Mapa provincial del voto · ${s.caseName} · ${s.chamberShort}`));
+  svg.appendChild(el('desc', { id: 'mapDesc' },
+    `Provincias argentinas coloreadas según ${state.colorMode === 'family' ? 'la familia política' : 'el voto'} predominante de su delegación; la intensidad del color es proporcional al peso del valor dominante. El detalle numérico por provincia está en la tabla de resumen territorial.`));
 
   // Fondo institucional con marco sutil
   svg.appendChild(el('rect', {
@@ -8107,18 +8140,22 @@ function renderTables(){
   // Eventos de tabla
   const ts = document.getElementById('tableSearch');
   if(ts){
-    ts.addEventListener('input', (e) => {
-      state.tableSearch = e.target.value;
+    // Debounce del re-render: mientras se tipea no se reescribe #tablesPanel
+    // (el input conserva foco y cursor de forma natural); recién tras la pausa
+    // se filtra. Al re-renderizar se recrea el input, así que restauramos foco
+    // y posición del cursor para poder seguir escribiendo de corrido.
+    const debouncedTableRender = debounce(() => {
       renderTables();
-      // renderTables reescribe todo el #tablesPanel y recrea el input, lo que
-      // hacía perder el foco en cada tecla (solo se podía escribir de a una
-      // letra). Restaurar foco y posición del cursor para escribir de corrido.
       const again = document.getElementById('tableSearch');
       if(again){
         again.focus();
         const len = again.value.length;
         again.setSelectionRange(len, len);
       }
+    }, 180);
+    ts.addEventListener('input', (e) => {
+      state.tableSearch = e.target.value;
+      debouncedTableRender();
     });
   }
   host.querySelectorAll('#legislatorsTable th[data-sort]').forEach(th => {
@@ -10951,10 +10988,15 @@ function bindToolbarEvents(){
   });
   const search = document.getElementById('searchInput');
   if(search){
+    // El atenuado de bancas (applyFilters) y el contador aria-live van en vivo
+    // por cada tecla — son baratos (toggles de clase) y dan feedback inmediato.
+    // El re-render de tablas (reescritura de #tablesPanel) es lo costoso, así
+    // que se agrupa con debounce para evitar thrashing al tipear.
+    const debouncedTables = debounce(renderTables, 180);
     search.oninput = (e) => {
       state.search = e.target.value;
       applyFilters();
-      renderTables();
+      debouncedTables();
     };
   }
   const sel = document.getElementById('provinceSelect');

@@ -2,6 +2,26 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Resolución de auditoría experta (críticos + medios seguros)
+
+Resolución de los hallazgos de una auditoría técnica externa. Se atacaron los 2 críticos y los medios de bajo riesgo; los medios estructurales (IIFE/use-strict) se dejaron documentados por riesgo > beneficio (ver abajo). Sin tocar datos, cálculos ni lógica de negocio.
+
+### Críticos
+- **Debounce en los buscadores**: el tecleo en el buscador del hemiciclo (`searchInput`) y en el de la tabla (`tableSearch`) re-renderizaba en cada keystroke (con 257 legisladores → thrashing). Nuevo helper `debounce()`; el atenuado de bancas + contador `aria-live` siguen **en vivo** (baratos, feedback inmediato) y sólo el re-render de tablas se agrupa (180 ms). El buscador de tabla conserva foco/cursor de forma natural mientras se tipea.
+- **Foco accesible**: la regla global `:focus { outline: none; }` suprimía el indicador para TODOS los elementos antes de que `:focus-visible` lo restaurara — en navegadores sin soporte de `:focus-visible` (Edge legacy, algunos WebView) el foco de teclado quedaba invisible. Acotada a `:focus:not(:focus-visible)`: en esos navegadores el selector se invalida y el outline por defecto sigue visible (accesibilidad preservada); en los modernos sólo se oculta el outline por puntero.
+
+### Medios resueltos
+- **`:root` duplicado**: las variables de movimiento (`--ease-*`, `--dur-*`) se definían en un segundo `:root` tardío (línea ~3357) pero se usaban desde la ~280. Movidas al `:root` principal; eliminado el bloque duplicado.
+- **SVG sin texto alternativo**: hemiciclo y mapa pasan a `role="img"` + `aria-labelledby` con `<title>` (nombre) y `<desc>` (resumen: conteos de voto y resultado en el hemiciclo; criterio cromático en el mapa). Complementa los `aria-label` por banca.
+
+### No resueltos (decisión explícita, riesgo > beneficio)
+- **IIFE + `'use strict'` (scope global)**: el JS vive en dos `<script>` separados; envolver cada uno en su IIFE los aislaría y rompería referencias cruzadas, y `'use strict'` sobre ~7,7K líneas en modo sloppy puede convertir un global implícito latente en un throw duro. Es higiene que no afecta la funcionalidad actual; conviene como pase propio con test dedicado.
+- **Escapado de interpolaciones numéricas/de clase en innerHTML**: defensa en profundidad; los datos son hardcodeados (sin input de usuario) → sin XSS real. ~120 sitios; no se tocó para evitar churn.
+- **`aria-describedby` en el tooltip**: no-issue en la práctica — cada banca ya expone un `aria-label` completo (nombre/voto/bloque/familia/provincia), así que el lector de pantalla obtiene el dato del propio elemento enfocable; el tooltip visual es redundante para usuarios sin lector.
+
+### QA
+- Sintaxis JS OK; datos idénticos a HEAD. Test headless: `<title>`/`<desc>`/`role`/`aria-labelledby` presentes en el SVG; tokens de timing resuelven desde el `:root` consolidado; debounce confirmado (atenuado inmediato 251/257, re-render agrupado). Print: 45 páginas (idéntico a HEAD). Render visual sin regresiones.
+
 ## 2026-06-03 — Rediseño "Atlas parlamentario académico" · Etapa 5 (metodología + polish final)
 
 Quinta y última etapa: la pestaña **Metodología** y un repaso de pulido global para barrer los restos de estética "dashboard". Solo presentación; sin tocar datos, cálculos ni lógica.
