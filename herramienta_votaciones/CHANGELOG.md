@@ -2,6 +2,24 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Análisis comparado: consolidación (orden, grilla plegable, print)
+
+Consolidación del Análisis comparado tras la auditoría integral, antes de pasar a exports. Solo orden/presentación/print; sin tocar datos, cálculos, compute*, datasets, votos, familias, exportaciones ni la lógica de comparación.
+
+### Reordenamiento + renumeración secuencial
+- Las visualizaciones nuevas se renderizaban con marcadores fuera de secuencia (B.7→B.10 antes de B.1→B.6). Nuevo orden narrativo **secuencial B.1→B.10** (números → exploración → trayectoria → indicadores finos → panorámica):
+  `B.1 Tabla agregada · B.2 Diferencias · B.3 Rankings · B.4 Hemiciclos lado a lado · B.5 Mapas lado a lado · B.6 Trayectoria · B.7 Heatmap familias · B.8 Heatmap provincias · B.9 Rae · B.10 Grilla panorámica 2×2`.
+- El selector de par + color queda arriba de todo (tras la síntesis). Solo cambió el marcador visible de cada sección y el orden de ensamblado; los `exportKind` de cada bloque NO cambiaron (exports intactos).
+
+### Grilla 2×2 plegada (B.10)
+- La grilla (la más redundante con B.4/B.5) baja al final dentro de un `<details>` colapsado: summary «B.10 · Grilla panorámica 2×2 — Ver síntesis visual de los cuatro escenarios». Sigue disponible, no satura la lectura. `state.quadOpen` persiste el plegado entre re-renders (al togglear par/color/vista no se vuelve a colapsar).
+
+### Print
+- En `@media print` se ocultan las visualizaciones SVG exploratorias (`.cmp-viz-section`: hemiciclos lado a lado, mapas lado a lado, grilla) y el selector. El anexo impreso conserva la sustancia: tabla agregada, diferencias, rankings, **trayectoria**, heatmaps, Rae, metodología/fuentes. Print: **56 → 51 páginas**.
+
+### QA
+- Sintaxis OK; datos idénticos a HEAD. Marcadores verificados secuenciales B.1…B.10. Grilla colapsada por defecto, persistencia del plegado OK. Visualizaciones siguen funcionando en pantalla (2 hemiciclos + 2 mapas + 4 celdas de grilla + 64 filas de trayectoria montadas). Print 51 páginas.
+
 ## 2026-06-03 — Análisis comparado: trayectoria de legisladores (Fase 3)
 
 Nueva sección **B.10 Trayectoria** dentro de Análisis comparado: qué legisladores repiten banca entre las dos votaciones del par y cómo cambia o se mantiene su voto. Alcance acotado: **same-chamber** (cross-cámara queda para una fase futura). Todo aditivo; sin tocar datasets, cálculos, compute* existentes, hemiciclo/mapa principal, análisis del caso ni exports.

@@ -2186,6 +2186,11 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   .ctx-export, .adv-export, .filter-disclosure, .stats-index, .panel-actions,
   .tbl-card-actions, .stats-section-actions, .stats-division-actions,
   .btn-exp, .btn-exp-grid, .exp-card,
+  /* Visualizaciones comparadas exploratorias (hemiciclos/mapas lado a lado y
+     grilla 2×2) y su selector: son ayudas de pantalla. En el anexo impreso se
+     conservan la tabla agregada, diferencias, rankings, trayectoria, heatmaps,
+     Rae y metodología — la sustancia analítica, sin 15 páginas de SVG. */
+  .cmp-viz-section, .compare-controls-bar,
   #tooltip {
     display: none !important;
   }
@@ -3040,7 +3045,39 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   border-top: 1px solid var(--line);
 }
 
-/* --- B.10 Trayectoria de legisladores --- */
+/* Grilla panorámica plegable (B.10) — apéndice visual colapsado por defecto */
+.cmp-quad-details{ padding: 0; }
+.cmp-quad-summary{
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+}
+.cmp-quad-summary::-webkit-details-marker{ display: none; }
+.cmp-quad-summary .stats-section-marker{ padding-top: 0; }
+.cmp-quad-summary-text{
+  font-family: var(--font-serif);
+  font-size: var(--t-md);
+  font-weight: var(--w-bold);
+  color: var(--ink);
+  letter-spacing: -0.012em;
+}
+.cmp-quad-summary-cta{
+  margin-left: auto;
+  font-size: var(--t-xs);
+  color: var(--accent-gold-text);
+  font-weight: var(--w-semi);
+  letter-spacing: .01em;
+}
+.cmp-quad-summary-cta::after{ content: ' ▾'; }
+.cmp-quad-details[open] .cmp-quad-summary-cta::after{ content: ' ▴'; }
+.cmp-quad-details[open] .cmp-quad-summary{ border-bottom: 1px solid var(--line); }
+.cmp-quad-summary:hover .cmp-quad-summary-text{ color: var(--accent-gold-text); }
+.cmp-quad-body{ padding: var(--space-5) var(--space-6); }
+
+/* --- Trayectoria de legisladores (B.6) --- */
 .traj-empty{
   padding: var(--space-5);
   background: var(--paper-sunk);
@@ -4103,7 +4140,8 @@ const state = {
   comparePair: ['aerolineas_diputados', 'ypf_diputados'], // par de escenarios a comparar
   compareColorMode: 'vote',   // 'vote' | 'family' — color de las viz comparadas (independiente del caso)
   quadView: 'hemicycle',      // 'hemicycle' | 'map' — tipo de viz en la grilla panorámica 2×2
-  trajFilter: 'all'           // 'all' | 'changed' | 'kept' — filtro de la tabla nominal de trayectoria (B.10)
+  quadOpen: false,            // grilla panorámica B.10 desplegada (persiste el <details> entre re-renders)
+  trajFilter: 'all'           // 'all' | 'changed' | 'kept' — filtro de la tabla nominal de trayectoria (B.6)
 };
 
 // Presets del selector de par (mismas cámaras = comparación con sentido).
@@ -5522,6 +5560,10 @@ function mountCompareVisuals(){
         : buildCompareHemicycleSvg(sc, mode);
       quadMount.appendChild(cmpVizCell(sc, svg, true));
     });
+    // Sincroniza el plegado manual del <details> con el estado, para que persista
+    // entre re-renders (p.ej. al cambiar par/color) sin volver a colapsarse.
+    const det = quadMount.closest('.cmp-quad-details');
+    if(det) det.addEventListener('toggle', () => { state.quadOpen = det.open; });
   }
 }
 
@@ -5593,7 +5635,7 @@ function renderTrajectorySection(){
   const traj = computeTrajectory(cp);
   const sA = traj.scenA, sB = traj.scenB;
   const fmt1 = (n) => Number.isFinite(n) ? (Math.round(n * 10) / 10).toFixed(1) : '—';
-  const head = _sectionHead('B.10', 'Trayectoria de legisladores',
+  const head = _sectionHead('B.6', 'Trayectoria de legisladores',
     'Legisladores que repiten banca entre las dos votaciones del par y cómo cambia o se mantiene su voto. Match por nombre exacto (normalizado); se usa el voto efectivo (quien presidió y votó cuenta por su voto).', null);
 
   if(!traj.sameChamber || traj.metrics.nMatched === 0){
@@ -9485,48 +9527,63 @@ function renderComparisonPanel(){
     </div>
   `;
 
-  // --- Visualizaciones comparadas (B.7–B.9): selector de par + color, hemiciclos
-  // y mapas lado a lado, grilla 2×2. Los SVG se montan tras inyectar el HTML
-  // (mountCompareVisuals); aquí van los placeholders + controles + leyendas. ---
-  const compareVisualsHtml = (() => {
-    const cmpMode = state.compareColorMode === 'family' ? 'family' : 'vote';
-    const cp = (state.comparePair && state.comparePair.length === 2) ? state.comparePair : ['aerolineas_diputados', 'ypf_diputados'];
-    const pairScens = [ensureScenarioPrepared(SCENARIOS[cp[0]]), ensureScenarioPrepared(SCENARIOS[cp[1]])];
-    const pairLegend = buildCompareLegendHtml(pairScens, cmpMode);
-    const quadLegend = buildCompareLegendHtml(QUAD_ORDER.map(id => ensureScenarioPrepared(SCENARIOS[id])), cmpMode);
-    const presetBtns = COMPARE_PRESETS.map(p => {
-      const on = cp[0] === p.ids[0] && cp[1] === p.ids[1];
-      return `<button type="button" data-compare-pair="${p.ids.join(',')}" aria-pressed="${on ? 'true' : 'false'}">${esc(p.label)}</button>`;
-    }).join('');
-    return `
-      <div class="compare-controls-bar">
-        <div class="compare-ctrl">
-          <span class="compare-ctrl-label">Par de escenarios</span>
-          <div class="metric-toggle compare-pair-toggle" role="group" aria-label="Par de escenarios a comparar">${presetBtns}</div>
-        </div>
-        <div class="compare-ctrl">
-          <span class="compare-ctrl-label">Color</span>
-          <div class="metric-toggle" role="group" aria-label="Modo de color del comparado">
-            <button type="button" data-compare-colormode="vote" aria-pressed="${cmpMode === 'vote' ? 'true' : 'false'}">Voto</button>
-            <button type="button" data-compare-colormode="family" aria-pressed="${cmpMode === 'family' ? 'true' : 'false'}">Familia</button>
-          </div>
+  // --- Visualizaciones comparadas: barra de control (par + color) y las secciones
+  // B.4 hemiciclos / B.5 mapas (lado a lado) y B.10 grilla 2×2 (plegada). Los SVG
+  // se montan tras inyectar el HTML (mountCompareVisuals). El ensamblado y el orden
+  // viven en el `return` de abajo (narrativa: números → exploración → trayectoria
+  // → indicadores finos → grilla panorámica al final). ---
+  const cmpMode = state.compareColorMode === 'family' ? 'family' : 'vote';
+  const cmpPair = (state.comparePair && state.comparePair.length === 2) ? state.comparePair : ['aerolineas_diputados', 'ypf_diputados'];
+  const cmpPairScens = [ensureScenarioPrepared(SCENARIOS[cmpPair[0]]), ensureScenarioPrepared(SCENARIOS[cmpPair[1]])];
+  const cmpPairLegend = buildCompareLegendHtml(cmpPairScens, cmpMode);
+  const cmpQuadLegend = buildCompareLegendHtml(QUAD_ORDER.map(id => ensureScenarioPrepared(SCENARIOS[id])), cmpMode);
+  const cmpPresetBtns = COMPARE_PRESETS.map(p => {
+    const on = cmpPair[0] === p.ids[0] && cmpPair[1] === p.ids[1];
+    return `<button type="button" data-compare-pair="${p.ids.join(',')}" aria-pressed="${on ? 'true' : 'false'}">${esc(p.label)}</button>`;
+  }).join('');
+  const cmpControlsHtml = `
+    <div class="compare-controls-bar">
+      <div class="compare-ctrl">
+        <span class="compare-ctrl-label">Par de escenarios</span>
+        <div class="metric-toggle compare-pair-toggle" role="group" aria-label="Par de escenarios a comparar">${cmpPresetBtns}</div>
+      </div>
+      <div class="compare-ctrl">
+        <span class="compare-ctrl-label">Color</span>
+        <div class="metric-toggle" role="group" aria-label="Modo de color del comparado">
+          <button type="button" data-compare-colormode="vote" aria-pressed="${cmpMode === 'vote' ? 'true' : 'false'}">Voto</button>
+          <button type="button" data-compare-colormode="family" aria-pressed="${cmpMode === 'family' ? 'true' : 'false'}">Familia</button>
         </div>
       </div>
-      <section class="stats-section">
-        ${_sectionHead('B.7', 'Hemiciclos lado a lado',
-          'Los dos escenarios del par, banca por banca, con el mismo criterio cromático. El cruce voto/familia se consulta en el tooltip.', null)}
-        <div class="dual-viz" id="cmpDualHemi"></div>
-        <div class="legend cmp-legend" aria-hidden="true">${pairLegend}</div>
-      </section>
-      <section class="stats-section">
-        ${_sectionHead('B.8', 'Mapas lado a lado',
-          'Voto predominante por provincia. En el segundo mapa, las provincias con borde dorado cambiaron de voto dominante respecto del primero.', null)}
-        <div class="dual-viz" id="cmpDualMap"></div>
-        <div class="legend cmp-legend" aria-hidden="true">${pairLegend}</div>
-      </section>
-      <section class="stats-section">
-        ${_sectionHead('B.9', 'Grilla panorámica · los cuatro escenarios',
-          'Vista de conjunto del corpus completo, en hemiciclos o mapas.', null)}
+    </div>
+  `;
+  const cmpHemiSection = `
+    <section class="stats-section cmp-viz-section">
+      ${_sectionHead('B.4', 'Hemiciclos lado a lado',
+        'Los dos escenarios del par, banca por banca, con el mismo criterio cromático. El cruce voto/familia se consulta en el tooltip.', null)}
+      <div class="dual-viz" id="cmpDualHemi"></div>
+      <div class="legend cmp-legend" aria-hidden="true">${cmpPairLegend}</div>
+    </section>
+  `;
+  const cmpMapSection = `
+    <section class="stats-section cmp-viz-section">
+      ${_sectionHead('B.5', 'Mapas lado a lado',
+        'Voto predominante por provincia. En el segundo mapa, las provincias con borde dorado cambiaron de voto dominante respecto del primero.', null)}
+      <div class="dual-viz" id="cmpDualMap"></div>
+      <div class="legend cmp-legend" aria-hidden="true">${cmpPairLegend}</div>
+    </section>
+  `;
+  // B.10 — Grilla panorámica, plegada en <details> (apéndice visual; la más
+  // redundante con B.4/B.5). cmp-viz-section la marca como exploratoria (oculta
+  // en print junto con hemiciclos y mapas).
+  const cmpQuadDetails = `
+    <details class="stats-section cmp-viz-section cmp-quad-details"${state.quadOpen ? ' open' : ''}>
+      <summary class="cmp-quad-summary">
+        <span class="stats-section-marker">B.10</span>
+        <span class="cmp-quad-summary-text">Grilla panorámica 2×2</span>
+        <span class="cmp-quad-summary-cta">Ver síntesis visual de los cuatro escenarios</span>
+      </summary>
+      <div class="cmp-quad-body">
+        <p class="stats-section-bajada">Vista de conjunto del corpus completo, en hemiciclos o mapas. Las primeras dos celdas repiten el par seleccionado arriba.</p>
         <div class="compare-controls-bar compare-controls-inset">
           <div class="compare-ctrl">
             <span class="compare-ctrl-label">Vista</span>
@@ -9537,11 +9594,10 @@ function renderComparisonPanel(){
           </div>
         </div>
         <div class="quad-viz" id="cmpQuad"></div>
-        <div class="legend cmp-legend" aria-hidden="true">${quadLegend}</div>
-      </section>
-      ${renderTrajectorySection()}
-    `;
-  })();
+        <div class="legend cmp-legend" aria-hidden="true">${cmpQuadLegend}</div>
+      </div>
+    </details>
+  `;
 
   return `
     <div class="stats-division">
@@ -9569,7 +9625,7 @@ function renderComparisonPanel(){
         ` : '';
       })()}
       <div class="stats-division-body">
-        ${compareVisualsHtml}
+        ${cmpControlsHtml}
         <section class="stats-section">
           ${_sectionHead('B.1', 'Tabla comparativa agregada',
             'Indicadores cuantitativos agrupados en bloques temáticos: composición, resultado, participación, veredicto.',
@@ -9588,14 +9644,17 @@ function renderComparisonPanel(){
             'comp-rank')}
           ${rankingsHtml}
         </section>
+        ${cmpHemiSection}
+        ${cmpMapSection}
+        ${renderTrajectorySection()}
         <section class="stats-section">
-          ${_sectionHead('B.4', 'Familias políticas · % afirmativo por escenario',
+          ${_sectionHead('B.7', 'Familias políticas · % afirmativo por escenario',
             'Heatmap con intensidad proporcional al apoyo afirmativo de cada familia en cada escenario.',
             'comp-fam')}
           ${famCompHtml}
         </section>
         <section class="stats-section">
-          ${_sectionHead('B.5', 'Provincias · voto predominante por escenario',
+          ${_sectionHead('B.8', 'Provincias · voto predominante por escenario',
             'Heatmap con intensidad proporcional al voto dominante (verde si afirmativo, burdeos si negativo). La columna final identifica el patrón cross-escenario.',
             'comp-prov')}
           ${provCompHtml}
@@ -9612,7 +9671,7 @@ function renderComparisonPanel(){
           const fm2 = (n) => Number.isFinite(n) ? n.toFixed(3) : '—';
           return `
           <section class="stats-section">
-            ${_sectionHead('B.6', 'Fragmentación del voto · índice de Rae comparado',
+            ${_sectionHead('B.9', 'Fragmentación del voto · índice de Rae comparado',
               'Rae = 1 − Σpᵢ² sobre afirmativo, negativo y abstención. Cercano a 0 = voto concentrado; valores más altos = voto repartido entre las 3 categorías.',
               'comp-rae')}
             <div class="ranking-list">
@@ -9626,6 +9685,7 @@ function renderComparisonPanel(){
             </div>
           </section>`;
         })()}
+        ${cmpQuadDetails}
       </div>
     </div>
   `;
@@ -11664,7 +11724,7 @@ function bindExportEvents(){
     const cm = e.target.closest('[data-compare-colormode]');
     if(cm){ state.compareColorMode = cm.dataset.compareColormode; renderStatsTab(); return; }
     const qv = e.target.closest('[data-quad-view]');
-    if(qv){ state.quadView = qv.dataset.quadView; renderStatsTab(); return; }
+    if(qv){ state.quadView = qv.dataset.quadView; state.quadOpen = true; renderStatsTab(); return; }
     const tf = e.target.closest('[data-traj-filter]');
     if(tf){ state.trajFilter = tf.dataset.trajFilter; renderStatsTab(); return; }
   });
