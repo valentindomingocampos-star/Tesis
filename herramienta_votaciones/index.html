@@ -2986,27 +2986,47 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 }
 .mode-bajada strong{ color: var(--ink); font-weight: var(--w-semi); }
 
-/* Bloque del selector comparativo (par + color) ubicado antes de B.4: separa el
-   ancla agregada (B.1–B.3) del bloque que el selector gobierna (B.4–B.6, B.10). */
-.cmp-selector-block{
-  margin-top: var(--space-6);
-  border-top: 2px solid var(--line-strong);
+/* Movimientos del análisis comparado (A.1.2): el comparado se lee como un
+   argumento en tres actos — I. Síntesis agregada, II. Exploración por par,
+   III. Profundización estructural. Cada uno abre con filete de tinta + numeral
+   romano dorado, dando estructura al scroll en vez de una lista plana de bloques. */
+.cmp-movement{
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-6) var(--space-4);
+  margin-top: var(--space-8);
+  border-top: 2px solid var(--rule-ink);
 }
-.cmp-selector-title{
-  margin: var(--space-5) var(--space-6) var(--space-1);
+.cmp-movement-first{ margin-top: 0; }
+.cmp-movement-num{
+  flex-shrink: 0;
   font-family: var(--font-serif);
-  font-size: var(--t-lg);
+  font-size: var(--t-2xl);
+  font-weight: var(--w-bold);
+  color: var(--accent-gold-text);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.cmp-movement-text{ min-width: 0; }
+.cmp-movement-title{
+  margin: 0 0 var(--space-1);
+  font-family: var(--font-serif);
+  font-size: var(--t-xl);
   font-weight: var(--w-bold);
   color: var(--ink);
-  letter-spacing: -0.015em;
+  letter-spacing: -0.018em;
+  line-height: 1.15;
 }
-.cmp-selector-bajada{
-  margin: 0 var(--space-6) 0;
+.cmp-movement-sub{
+  margin: 0;
   font-size: var(--t-sm);
   color: var(--ink-2);
   line-height: 1.55;
   max-width: 760px;
 }
+/* Índice de recorrido del comparado — reusa el lenguaje visual de .stats-index. */
+.cmp-index{ margin-bottom: 0; }
 
 /* =====================================================================
    VISUALIZACIONES COMPARADAS (B.7–B.9) — hemiciclos/mapas lado a lado + grilla
@@ -9706,6 +9726,23 @@ function renderComparisonPanel(){
         ` : '';
       })()}
       <div class="stats-division-body">
+        <nav class="stats-index cmp-index" aria-label="Recorrido del análisis comparado">
+          <span class="stats-index-label">Recorrido</span>
+          <span class="stats-index-links">
+            <a class="stats-index-link" href="#cmp-mov-1">I · Síntesis agregada</a>
+            <span class="stats-index-sep">·</span>
+            <a class="stats-index-link" href="#cmp-mov-2">II · Exploración por par</a>
+            <span class="stats-index-sep">·</span>
+            <a class="stats-index-link" href="#cmp-mov-3">III · Profundización estructural</a>
+          </span>
+        </nav>
+        <div class="cmp-movement cmp-movement-first" id="cmp-mov-1">
+          <span class="cmp-movement-num">I</span>
+          <div class="cmp-movement-text">
+            <h3 class="cmp-movement-title">Síntesis agregada</h3>
+            <p class="cmp-movement-sub">Los cuatro escenarios en perspectiva: magnitudes, diferencias y rankings. Es el ancla general del comparado — no depende del par seleccionado más abajo.</p>
+          </div>
+        </div>
         <section class="stats-section">
           ${_sectionHead('B.1', 'Tabla comparativa agregada',
             'Indicadores cuantitativos agrupados en bloques temáticos: composición, resultado, participación, veredicto.',
@@ -9724,14 +9761,24 @@ function renderComparisonPanel(){
             'comp-rank')}
           ${rankingsHtml}
         </section>
-        <div class="cmp-selector-block">
-          <h3 class="cmp-selector-title">Exploración por par de escenarios</h3>
-          <p class="cmp-selector-bajada">Seleccioná dos votaciones para comparar hemiciclos, mapas y trayectorias nominales. Las secciones B.1–B.3 son el ancla agregada de los cuatro escenarios y no dependen de esta selección.</p>
-          ${cmpControlsHtml}
+        <div class="cmp-movement" id="cmp-mov-2">
+          <span class="cmp-movement-num">II</span>
+          <div class="cmp-movement-text">
+            <h3 class="cmp-movement-title">Exploración por par de escenarios</h3>
+            <p class="cmp-movement-sub">Seleccioná dos votaciones para comparar hemiciclos, mapas y trayectorias nominales. Las secciones B.1–B.3 (arriba) son el ancla agregada de los cuatro escenarios y no dependen de esta selección.</p>
+          </div>
         </div>
+        ${cmpControlsHtml}
         ${cmpHemiSection}
         ${cmpMapSection}
         ${renderTrajectorySection()}
+        <div class="cmp-movement" id="cmp-mov-3">
+          <span class="cmp-movement-num">III</span>
+          <div class="cmp-movement-text">
+            <h3 class="cmp-movement-title">Profundización estructural</h3>
+            <p class="cmp-movement-sub">Cohesión y alineamiento por familia política, patrón territorial del voto y fragmentación, en los cuatro escenarios.</p>
+          </div>
+        </div>
         <section class="stats-section">
           ${_sectionHead('B.7', 'Familias políticas · % afirmativo por escenario',
             'Heatmap con intensidad proporcional al apoyo afirmativo de cada familia en cada escenario.',

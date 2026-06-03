@@ -12,6 +12,14 @@ Ajustes de terminación tras la rearquitectura, para que la herramienta pase de 
 - **Footer "Caso visualizado…":** scopeado a Caso y Datos (era residuo del caso en Comparado/Metodología).
 - Scoping en `@media screen` (print intacto). Verificado por `getComputedStyle`: meta-bar solo en Caso; footer en Caso+Datos; grilla de figura removida en pantalla; export con 6 metadatos.
 
+### A.1.2 — Análisis comparado en tres movimientos
+- El comparado se lee como un argumento en **tres actos**, no como lista plana de bloques:
+  - **I · Síntesis agregada** (B.1 tabla agregada, B.2 diferencias, B.3 rankings) — ancla general de los cuatro escenarios.
+  - **II · Exploración por par de escenarios** (selector par+color, B.4 hemiciclos, B.5 mapas, B.6 trayectoria) — depende del par.
+  - **III · Profundización estructural** (B.7 heatmap familias, B.8 heatmap provincias, B.9 Rae, B.10 grilla plegada).
+- Cada movimiento abre con cabecera editorial: numeral romano dorado (serif) + título serif + bajada, sobre filete de tinta (`--rule-ink`). Da respiración y estructura al scroll.
+- **Índice de recorrido** al inicio del cuerpo (reusa el lenguaje de `.stats-index`) con saltos a los tres movimientos (`#cmp-mov-1/2/3`, anchors verificados). El selector comparativo quedó integrado como apertura del Movimiento II. Solo markup/CSS; markers B.1–B.10 y export-keys intactos; visualizaciones siguen montadas (2+2+4).
+
 ## 2026-06-03 — Rearquitectura de navegación · Fase A (scoping de controles por modo)
 
 Reorganización de la experiencia para que la arquitectura refleje la lógica de la tesis: cada modo de análisis muestra solo los controles que gobierna. La herramienta deja de sentirse "primero elegí un caso, después entrá a cualquier tab" y pasa a "elegí qué tipo de análisis querés hacer". Camino A de bajo riesgo: **no se movió el selector de caso/cámara del DOM ni se tocó su handler directo**; se muestra/oculta según la tab activa. Sin tocar datos, cálculos, compute*, votos, familias, métricas, trayectoria, B.1–B.10 funcionalmente ni exports.
