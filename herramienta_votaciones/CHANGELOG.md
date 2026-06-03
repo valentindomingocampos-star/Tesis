@@ -2,6 +2,24 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-02 — Scroll independiente del sidebar (desktop)
+
+UX de scroll del sidebar derecho. Solo CSS (sin JS). En desktop/notebook el sidebar queda sticky con scroll interno propio, independiente de la columna izquierda; debajo de 1100px vuelve al comportamiento normal en flujo.
+
+### `.sidebar` (≥1101px, vía base + reset <1100)
+- `position: sticky; top: 50px` (despeja el ancla de contexto sticky al scrollear).
+- `max-height: calc(100vh - 66px)` + `overflow-y: auto` → scroll interno independiente.
+- `overscroll-behavior: contain` (no arrastra la página al llegar al final), `scrollbar-gutter: stable` (sin salto de layout).
+- Scrollbar discreto editorial: `scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent` + pseudo-elementos webkit (thumb `--line-strong` redondeado, inset 2px).
+- `@media (min-width: 1101px) .sidebar .member-list{ max-height: none; overflow: visible }`: el sidebar es el **único** contenedor con scroll → sin doble scroll. Debajo de 1100px la `.member-list` conserva su cap de 340px (comportamiento previo).
+- `@media (max-width: 1100px) .sidebar{ position: static; max-height: none; overflow: visible }`.
+
+### Impresión
+- `@media print .sidebar{ position: static; max-height: none; overflow: visible }`: la ficha/resumen activos no se recortan al imprimir.
+
+### QA
+- Estilos computados verificados: 1440/1280 → sticky + overflow-y:auto + max-height + member-list:none; 1024 → static + visible + member-list 340px. Render real (Buenos Aires, 70 legisladores): scroll interno del sidebar independiente del de la izquierda, top despeja el ancla. PDF de impresión sin recorte. Sin cambios de datos, cálculos ni estructura de tabs.
+
 ## 2026-06-02 — Pulido de movimiento (Parte 2, lote 2) + count-up robusto
 
 Continuación del pulido. Fuente: se mantiene el stack de sistema (sin Google Fonts ni fuente embebida). Solo presentación; datos y cálculos intactos. Estado final de toda animación = visible; respeta print y reduced-motion.

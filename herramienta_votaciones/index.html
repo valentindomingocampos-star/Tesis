@@ -1126,10 +1126,30 @@ svg.map-svg{
   display: grid;
   gap: var(--space-5);
   position: sticky;
-  top: var(--space-4);
+  top: 50px;                       /* despeja el ancla de contexto sticky al scrollear */
+  max-height: calc(100vh - 66px);  /* alto disponible: top (50) + margen inferior (16) */
+  overflow-y: auto;                /* scroll interno, independiente del de la columna izquierda */
+  overscroll-behavior: contain;    /* no arrastra el scroll de la página al llegar al final */
+  scrollbar-gutter: stable;        /* evita el salto de layout al aparecer la scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
 }
+.sidebar::-webkit-scrollbar{ width: 8px; }
+.sidebar::-webkit-scrollbar-track{ background: transparent; }
+.sidebar::-webkit-scrollbar-thumb{
+  background: var(--line-strong);
+  border-radius: 999px;
+  border: 2px solid transparent;   /* inset sutil: scrollbar discreto, editorial */
+  background-clip: padding-box;
+}
+/* Debajo de 1100px: comportamiento normal (sidebar en flujo, sin scroll interno). */
 @media (max-width: 1100px){
-  .sidebar{ position: static; }
+  .sidebar{ position: static; max-height: none; overflow: visible; }
+}
+/* En desktop el sidebar es el único contenedor con scroll: la lista de miembros
+   se expande para no generar doble scroll incómodo dentro del sidebar. */
+@media (min-width: 1101px){
+  .sidebar .member-list{ max-height: none; overflow: visible; }
 }
 
 /* Card anexa: paneles del sidebar. Sombra suave para no competir con el
@@ -2091,6 +2111,9 @@ table.terr-table tr.terr-nor td{ background: rgba(91,33,182,.12); font-style: it
   /* Filas de tabla: permitir cortes de página limpios en tablas largas. */
   .dtable tr, .dtable thead{ break-inside: avoid; }
   .dtable thead th{ position: static !important; }
+  /* Sidebar: en impresión nunca se recorta — sin sticky, sin max-height ni
+     overflow, para que no clipee la ficha/resumen activos. */
+  .sidebar{ position: static !important; max-height: none !important; overflow: visible !important; }
   /* Sidebar: NO ocultar en bloque. Imprimir paneles con contenido activo
      (detalle de legislador seleccionado, resumen provincial o nacional)
      y omitir solo el panel vacío "Seleccioná una banca…". */
