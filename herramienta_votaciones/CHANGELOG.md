@@ -2,6 +2,32 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Rediseño "Atlas parlamentario académico" · Etapa 1 (identidad base)
+
+Primera etapa del rediseño editorial (dirección: convención académica llevada a su versión más refinada — "serio por convención, hermoso por diseño"). Solo presentación; sin tocar datos, cálculos ni lógica. Alcance acotado: tokens, montaje de papel, sombras, filetes, masthead, selector Caso×Cámara, meta-bar, tabs, doctrina del dorado. NO se tocaron aún hemiciclo, sidebar, tablas, comparado, exports ni metodología.
+
+### Tokens
+- Tres capas de papel: `--paper-mount` (#ece4d1, fondo/paspartú), `--paper-sunk` (#f1ece0, hundidos), sobre el `--card` existente. Filetes: `--gold-rule` (#b89243), `--rule-ink` (#1f2329).
+- `body` pasa a `--paper-mount`: las láminas "se montan" sobre el paspartú en vez de flotar.
+
+### Masthead (portada de tesis)
+- Nueva jerarquía: eyebrow «El péndulo del poder · Herramienta de visualización legislativa» → H1 «Reestatizaciones de YPF y Aerolíneas Argentinas» (serif 31px) → subtítulo «Análisis legislativo comparado de las leyes 26.466 y 26.741 en Diputados y Senado.» → marco institucional (leyes + BO). Tracking del eyebrow bajado (.22→.14em); filete tinta+oro de archivo al pie.
+
+### Selector Caso × Cámara
+- De segmento con relleno en tinta (app) a control plano refinado: registro sobre papel, segmentos separados por hairline, activo marcado por filete dorado de 2px (sin relleno).
+
+### Meta-bar
+- Ficha institucional: sin sombra, radio chico, filete dorado lateral (marca de registro), borde `--line-strong`.
+
+### Tabs
+- Navegación de informe: subrayado dorado estático e inset (no deslizante de dashboard).
+
+### Doctrina del dorado / sombras
+- Dorado sólo como acento de archivo (filetes, subrayado activo, marca de registro), no como relleno. Sombras retiradas de los componentes tocados (la elevación la dan montaje + borde + filete).
+
+### QA
+- Sintaxis JS OK; datos idénticos. Render verificado a 1440 y 1280px. Print: el montaje pasa a blanco, filetes y meta-bar (expandida) se conservan. Markup tocado: solo el texto del masthead (eyebrow/h1/lede); ids/handlers intactos.
+
 ## 2026-06-02 — Figuras comparadas: fuente general en el footer
 
 En los PNG comparados, el footer mostraba la FUENTE (y fuente territorial) del escenario activo — engañoso en una figura de 4 escenarios. `buildTablePngFooter` acepta `opts.generalSource`: cuando se pasa, imprime una sola FUENTE general y omite la fuente territorial de un solo escenario. Texto: «Elaboración propia sobre los cuatro datasets validados de votaciones nominales HCDN/HSN — leyes 26.466 y 26.741.» Aplicado a los granulares comparados (`fam-comp-wide`, `prov-comp-wide`, `comp-rae`) vía `spec.noScenarioInName`. El `comparator-png` ya tenía su propio footer general (se conserva). Los PNG de un solo escenario (tablas, fichas, Rice/Rae por escenario, indicadores) conservan su fuente específica. Solo presentación; sin cambios de datos.

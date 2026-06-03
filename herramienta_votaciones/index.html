@@ -45,6 +45,15 @@
      —para eso queda --accent-gold. Garantiza contraste sobre --bg / --card. */
   --accent-gold-text: #7c6020;
 
+  /* Atlas parlamentario académico — Etapa 1. Tres capas de papel para que las
+     láminas se "monten" sobre un paspartú (en vez de flotar con sombra), y un
+     sistema de filetes finos de archivo. El oro pasa a acento mínimo: numera,
+     filetea y subraya; nunca rellena. */
+  --paper-mount: #ece4d1;   /* fondo de la app — montaje/paspartú bajo las láminas */
+  --paper-sunk:  #f1ece0;   /* hundidos — registros, metadatos, segmento activo */
+  --gold-rule:   #b89243;   /* filete dorado fino (marca de archivo) */
+  --rule-ink:    #1f2329;   /* filete corto fuerte de títulos */
+
   /* Votos: paleta institucional desaturada — verde hunter, burgundy,
      ocre mostaza, piedra cálida. Pensada para imprenta y proyección.
      Verde para afirmativo deja el azul libre para familias (FPV-PJ,
@@ -118,7 +127,7 @@
 html, body { margin: 0; padding: 0; }
 body{
   font-family: var(--font-sans);
-  background: var(--bg);
+  background: var(--paper-mount);
   color: var(--ink);
   font-size: var(--t-base);
   line-height: 1.55;
@@ -154,7 +163,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   position: absolute;
   bottom: -1px;
   left: 0;
-  width: 60px;
+  width: 54px;
   height: 2px;
   background: var(--ink);
 }
@@ -162,27 +171,27 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   content: '';
   position: absolute;
   bottom: -1px;
-  left: 64px;
-  width: 16px;
+  left: 58px;
+  width: 22px;
   height: 2px;
-  background: var(--accent-gold);
+  background: var(--gold-rule);
 }
 .masthead .eyebrow{
   font-size: var(--t-xs);
-  letter-spacing: .22em;
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--muted);
   font-weight: var(--w-semi);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-3);
   font-feature-settings: "smcp", "c2sc", "kern";
 }
 .masthead h1{
-  margin: 0 0 var(--space-4);
+  margin: 0 0 var(--space-3);
   font-family: var(--font-serif);
-  font-size: var(--t-2xl);
+  font-size: 31px;
   font-weight: var(--w-bold);
-  letter-spacing: -0.022em;
-  line-height: 1.1;
+  letter-spacing: -0.018em;
+  line-height: 1.12;
   color: var(--ink);
   font-feature-settings: "kern", "liga", "dlig";
 }
@@ -191,9 +200,9 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   max-width: 720px;
   color: var(--ink-2);
   font-size: var(--t-md);
-  line-height: 1.65;
+  line-height: 1.6;
   font-weight: var(--w-regular);
-  letter-spacing: -0.005em;
+  letter-spacing: -0.003em;
 }
 .masthead .laws{
   display: flex;
@@ -237,19 +246,22 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 }
 .nav-axis-label{
   font-size: var(--t-xs);
-  letter-spacing: .2em;
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--muted);
   font-weight: var(--w-semi);
   font-feature-settings: "smcp", "c2sc", "kern";
 }
+/* Control segmentado refinado: registro plano sobre papel, segmentos separados
+   por hairline; el activo se marca con un filete dorado (no con relleno). */
 .nav-seg-group{
   display: inline-flex;
-  background: var(--bg-soft);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 3px;
-  gap: 2px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
 }
 .nav-seg{
   appearance: none;
@@ -258,23 +270,28 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   font-family: inherit;
   font-size: var(--t-sm);
   font-weight: var(--w-medium);
-  color: var(--ink-2);
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-xs);
+  color: var(--muted);
+  padding: 7px var(--space-4) 6px;
+  border-radius: 0;
   cursor: pointer;
-  letter-spacing: -0.006em;
+  letter-spacing: -0.004em;
   white-space: nowrap;
-  transition: background var(--dur-2) var(--ease-soft), color var(--dur-2) var(--ease-soft), box-shadow var(--dur-2) var(--ease-soft);
+  position: relative;
+  transition: background var(--dur-2) var(--ease-soft), color var(--dur-2) var(--ease-soft);
 }
-.nav-seg:hover{
-  color: var(--ink);
-  background: var(--card);
-}
+.nav-seg + .nav-seg{ border-left: 1px solid var(--line); }
+.nav-seg:hover{ color: var(--ink-2); background: var(--paper-sunk); }
 .nav-seg[aria-pressed="true"]{
-  background: var(--ink);
-  color: var(--bg);
+  background: var(--paper-sunk);
+  color: var(--ink);
   font-weight: var(--w-semi);
-  box-shadow: var(--shadow-xs);
+}
+.nav-seg[aria-pressed="true"]::after{
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: var(--gold-rule);
 }
 /* Indicador discreto de dataset bajo revisión territorial. Preserva la señal
    que antes vivía marcada por-tab, sin volver a saturar la navegación. */
@@ -337,11 +354,12 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
    no debe competir con la visualización por peso visual). */
 .meta-bar{
   background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border: 1px solid var(--line-strong);
+  border-left: 2px solid var(--gold-rule);   /* filete de registro de archivo */
+  border-radius: var(--radius-xs);
   overflow: hidden;
-  margin-bottom: var(--space-5);
-  box-shadow: var(--shadow-xs);
+  margin-bottom: var(--space-6);
+  box-shadow: none;
 }
 
 /* Línea resumen visible siempre: Ley · Cámara · Fecha · Resultado · Tally */
@@ -3277,14 +3295,16 @@ a:focus-visible,
 .hemicycle.is-blooming .guide-arc{ animation: omArcDraw .5s ease backwards; }
 .hemicycle.is-blooming .center-panel-group{ animation: omFade .55s ease .34s backwards; }
 
-/* Subtabs: subrayado dorado que se desliza desde el centro */
+/* Subtabs: navegación de informe — subrayado dorado estático y sobrio, inset
+   bajo la etiqueta (no de borde a borde, no deslizante). */
 .subtab::after{
-  content: ''; position: absolute; left: 50%; right: 50%; bottom: -1px;
-  height: 2px; background: var(--accent-gold);
-  transition: left var(--dur-3) var(--ease-out), right var(--dur-3) var(--ease-out);
+  content: ''; position: absolute; left: var(--space-4); right: var(--space-4); bottom: -1px;
+  height: 2px; background: var(--gold-rule);
+  opacity: 0;
+  transition: opacity var(--dur-1) var(--ease-soft);
 }
 .subtab.is-on{ border-bottom-color: transparent; }
-.subtab.is-on::after{ left: 0; right: 0; }
+.subtab.is-on::after{ opacity: 1; }
 
 /* Micro-interacciones de hover (consistencia) */
 .vote-pill, .btn-exp, .stats-index-link, .btn-text{
@@ -3379,9 +3399,9 @@ a:focus-visible,
        MASTHEAD
        ==================================================== -->
   <header class="masthead">
-    <div class="eyebrow">Tesis · Economía política comparada · Empresas estratégicas</div>
-    <h1>Votaciones legislativas sobre la reestatización de YPF y Aerolíneas Argentinas</h1>
-    <p class="lede">Análisis comparado de las cuatro votaciones nominales con las que el Congreso de la Nación trató los proyectos de reestatización. La herramienta permite leer la composición del voto por banca, bloque y provincia, en cuatro escenarios institucionales.</p>
+    <div class="eyebrow">El péndulo del poder · Herramienta de visualización legislativa</div>
+    <h1>Reestatizaciones de YPF y Aerolíneas Argentinas</h1>
+    <p class="lede">Análisis legislativo comparado de las leyes 26.466 y 26.741 en Diputados y Senado.</p>
     <div class="laws">
       <span><strong>Ley 26.466</strong> · Aerolíneas Argentinas · BO 24/12/2008</span>
       <span><strong>Ley 26.741</strong> · YPF · BO 07/05/2012</span>
