@@ -3028,6 +3028,16 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 /* Índice de recorrido del comparado — reusa el lenguaje visual de .stats-index. */
 .cmp-index{ margin-bottom: 0; }
 
+/* A.1.3 — ancho de lectura para los bloques tipográficos simples del comparado
+   (tabla agregada, diferencias pareadas, rankings). A ancho completo se estiraban
+   con columnas muy separadas. Las visualizaciones SVG, la trayectoria y los
+   heatmaps SÍ aprovechan el ancho completo y no se tocan. Scopeado a #comparePanel
+   para no afectar el ranking-list del Análisis del caso. Solo aplica cuando el
+   contenedor supera el cap (en Caso, 2 columnas, nunca se dispara). */
+#comparePanel .comp-table,
+#comparePanel .diff-grid,
+#comparePanel .ranking-list{ max-width: 1080px; }
+
 /* =====================================================================
    VISUALIZACIONES COMPARADAS (B.7–B.9) — hemiciclos/mapas lado a lado + grilla
    ===================================================================== */

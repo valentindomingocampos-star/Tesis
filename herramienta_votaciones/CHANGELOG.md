@@ -20,6 +20,9 @@ Ajustes de terminación tras la rearquitectura, para que la herramienta pase de 
 - Cada movimiento abre con cabecera editorial: numeral romano dorado (serif) + título serif + bajada, sobre filete de tinta (`--rule-ink`). Da respiración y estructura al scroll.
 - **Índice de recorrido** al inicio del cuerpo (reusa el lenguaje de `.stats-index`) con saltos a los tres movimientos (`#cmp-mov-1/2/3`, anchors verificados). El selector comparativo quedó integrado como apertura del Movimiento II. Solo markup/CSS; markers B.1–B.10 y export-keys intactos; visualizaciones siguen montadas (2+2+4).
 
+### A.1.3 — Ancho de lectura para bloques tipográficos
+- En el comparado a ancho completo, los bloques simples (tabla agregada, diferencias, rankings) se estiraban con columnas muy separadas. Cap de lectura a **1080px** (scopeado a `#comparePanel`, left-aligned). Las visualizaciones SVG (dual-viz), la trayectoria (`.traj-table`/matriz) y los heatmaps **conservan el ancho completo** (1280px) donde aporta. Verificado por anchos reales: comp-table/diff-grid/ranking = 1080; heatmap/traj/dual-viz = 1280; ranking del Análisis del caso intacto (900). Solo CSS.
+
 ## 2026-06-03 — Rearquitectura de navegación · Fase A (scoping de controles por modo)
 
 Reorganización de la experiencia para que la arquitectura refleje la lógica de la tesis: cada modo de análisis muestra solo los controles que gobierna. La herramienta deja de sentirse "primero elegí un caso, después entrá a cualquier tab" y pasa a "elegí qué tipo de análisis querés hacer". Camino A de bajo riesgo: **no se movió el selector de caso/cámara del DOM ni se tocó su handler directo**; se muestra/oculta según la tab activa. Sin tocar datos, cálculos, compute*, votos, familias, métricas, trayectoria, B.1–B.10 funcionalmente ni exports.
