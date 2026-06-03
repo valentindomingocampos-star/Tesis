@@ -2,6 +2,16 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Pulido post-Fase A · A.1 (lectura visual) + A.3 (metodología)
+
+Ajustes de terminación tras la rearquitectura, para que la herramienta pase de "funciona muy bien" a "pieza académica terminada". Solo presentación/markup/microcopy; sin tocar datos, cálculos, compute*, normalización, métricas, trayectoria validada ni exports.
+
+### A.1.1 — Metadatos canónicos por modo
+- **Datos:** se oculta la meta-bar (la ficha "Resumen institucional de la votación" ya es la fuente canónica del contexto institucional en ese modo) → fin de la duplicación meta-bar ↔ ficha.
+- **Caso:** se quita la grilla de metadatos de la figura **en pantalla** (`showMetaCompact:false` en `renderFigureBlocks`); el contexto institucional queda canónico en la meta-bar (resumen + ficha expandible). **El export no se afecta**: `buildFigureContext` arma su contexto vía `getFigureMetaCompact` (intacta, 6 campos) → el PNG conserva los metadatos.
+- **Footer "Caso visualizado…":** scopeado a Caso y Datos (era residuo del caso en Comparado/Metodología).
+- Scoping en `@media screen` (print intacto). Verificado por `getComputedStyle`: meta-bar solo en Caso; footer en Caso+Datos; grilla de figura removida en pantalla; export con 6 metadatos.
+
 ## 2026-06-03 — Rearquitectura de navegación · Fase A (scoping de controles por modo)
 
 Reorganización de la experiencia para que la arquitectura refleje la lógica de la tesis: cada modo de análisis muestra solo los controles que gobierna. La herramienta deja de sentirse "primero elegí un caso, después entrá a cualquier tab" y pasa a "elegí qué tipo de análisis querés hacer". Camino A de bajo riesgo: **no se movió el selector de caso/cámara del DOM ni se tocó su handler directo**; se muestra/oculta según la tab activa. Sin tocar datos, cálculos, compute*, votos, familias, métricas, trayectoria, B.1–B.10 funcionalmente ni exports.

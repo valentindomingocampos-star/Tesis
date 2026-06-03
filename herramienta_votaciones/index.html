@@ -569,17 +569,22 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
    - Sidebar: visible solo en Caso. Comparado/Datos/Metodología → ancho completo.
    ===================================================================== */
 @media screen{
+  /* Selector de caso/cámara + ancla de contexto flotante: visibles en Caso y
+     Datos (ambos dependen del escenario activo). */
   body.mode-compare .scenario-nav, body.mode-method .scenario-nav,
-  body.mode-compare .meta-bar,     body.mode-method .meta-bar,
   body.mode-compare .context-anchor, body.mode-method .context-anchor{
     display: none !important;
   }
-  body.mode-compare .sidebar,
-  body.mode-data .sidebar,
-  body.mode-method .sidebar{ display: none !important; }
-  body.mode-compare .workspace,
-  body.mode-data .workspace,
-  body.mode-method .workspace{ grid-template-columns: minmax(0, 1fr); }
+  /* Meta-bar (ficha institucional resumida): canónica solo en Caso. En Datos la
+     ficha "Resumen institucional de la votación" ya cumple ese rol → se evita
+     la duplicación de metadatos (A.1.1). */
+  body.mode-compare .meta-bar, body.mode-data .meta-bar, body.mode-method .meta-bar{ display: none !important; }
+  /* Footer "Caso visualizado…": es contexto del caso activo → Caso y Datos;
+     residuo en Comparado/Metodología. */
+  body.mode-compare .footer, body.mode-method .footer{ display: none !important; }
+  /* Sidebar: solo Caso → Comparado/Datos/Metodología a ancho completo. */
+  body.mode-compare .sidebar, body.mode-data .sidebar, body.mode-method .sidebar{ display: none !important; }
+  body.mode-compare .workspace, body.mode-data .workspace, body.mode-method .workspace{ grid-template-columns: minmax(0, 1fr); }
 }
 
 /* Lámina principal — la pieza central como figura de tesis: sin sombra, borde
@@ -4959,7 +4964,11 @@ function renderFigureBlocks(){
   const figType = state.view === 'map' ? 'map' : 'hemicycle';
   const header = document.getElementById('figureHeader');
   const footer = document.getElementById('figureFooter');
-  if(header) header.innerHTML = renderFigureHeader(s, figType, { showMetaCompact: true });
+  // showMetaCompact:false en pantalla (A.1.1): la grilla de metadatos de la
+  // figura duplicaba la meta-bar (fuente canónica del contexto institucional, con
+  // su ficha expandible). El export NO se afecta — buildFigureContext arma su
+  // propio contexto vía getFigureMetaCompact, así que el PNG conserva los metadatos.
+  if(header) header.innerHTML = renderFigureHeader(s, figType, { showMetaCompact: false });
   if(footer) footer.innerHTML = renderFigureFooter(s, figType, { colorMode: state.colorMode });
   // Microcopy de lectura junto a la figura — orienta sobre interacción y modo
   // de color (complementa, sin repetir, la nota de lectura del pie de figura).
