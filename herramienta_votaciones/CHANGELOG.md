@@ -2,6 +2,25 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Rediseño "Atlas parlamentario académico" · Etapa 4 (capa analítica)
+
+Cuarta etapa, amplia: toda la **capa analítica** pasa a un mismo sistema editorial (lámina académica · anexo técnico · matriz analítica · aparato comparado), para que ninguna parte parezca "dashboard". Solo presentación; sin tocar datos, cálculos, índices Rice/Rae, votos, nombres, bloques, provincias, familias, exportaciones (funcionalmente) ni handlers. Hecho en orden controlado y verificado bloque por bloque.
+
+### 1 · Estadísticas del caso
+- `.stats-division` → lámina plana (sin sombra, borde firme, radio chico); cabecera de división como **banda hundida** (`--paper-sunk`) con filete de archivo tinta+oro (antes gradiente). Índice de secciones hundido. KPI hero / data-grid / rankings / h-bars: tracking de rótulos unificado a .14em; track de barras editorial (hundido + filete interno).
+
+### 2 · Análisis comparado (División B)
+- Síntesis interpretativa: gradiente → banda hundida. Tabla comparativa y heatmaps como **matrices** (encabezados y filas-grupo hundidas, bordes firmes, radio chico). Tags de patrón territorial → sellos con borde. **Selector de métrica** del heatmap convertido al control plano del sistema (registro plano, hairlines, filete dorado en el activo — antes pill con relleno tinta).
+
+### 3 · Datos / tablas
+- `.tbl-card` y `.ficha-card` → láminas planas; cabecera compartida como banda hundida con filete tinta+oro. Encabezados de tabla (`th`) hundidos, wrappers con borde firme, hover de header cálido (antes gris frío `#e8eaee`). **Sellos de voto** en tablas con borde (presidencia deja el gris azulado frío `#e2e8f0`). Mini-bars territoriales editoriales (hundido + filete). Ficha institucional con tick de sección en oro del sistema; anexo técnico de exportaciones como contenedor plano firme.
+
+### 4 · Ajuste de consistencia
+- Foco de campos de formulario (buscadores + select) pasa de **anillo azul UI** (`--accent` / rgba azul) a **foco editorial cálido** (oro). Verde frío `#eef4ee` del panel de validación → token cálido. Notas analíticas (`methodology-note` / `align-note`) → hundido del sistema. Trackings dispares (.22/.18em) unificados a .14em. Los focos de **navegación por teclado** (`:focus-visible`, azul de alto contraste) se conservan por accesibilidad.
+
+### QA
+- Sintaxis JS OK; datos idénticos a HEAD (conteos y arrays). Render verificado a 1440px en los tres tabs (Análisis del caso, Análisis comparado, Datos) con selección activa. Print: 45 páginas (idéntico a HEAD, sin clipping). Builders SVG/PNG de exportación no tocados → exports intactos. ids/handlers preservados; sin cambios de markup.
+
 ## 2026-06-03 — Rediseño "Atlas parlamentario académico" · Etapa 3 (ficha lateral)
 
 Tercera etapa: el sidebar pasa a leerse como una **ficha analítica de archivo legislativo**. Solo presentación; sin tocar datos, cálculos, conteos ni lógica de selección. Alcance acotado al sidebar — no se tocaron tablas, comparado, exports ni metodología (esas son Etapas 4–5).
