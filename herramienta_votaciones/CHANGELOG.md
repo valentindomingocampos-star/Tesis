@@ -17,6 +17,10 @@ El selector de caso/cámara y la meta-bar dejan de ser controles globales superi
 ### QA
 - Selector funciona en Caso y en Datos; cambia escenario y actualiza hemiciclo (257), sidebar y tabla nominal; no aparece en Comparado/Metodología; sin ids duplicados (las 2 instancias son una por subpanel, solo una visible); aria-pressed correcto; cambiar escenario desde Datos se queda en Datos; meta-bar solo en Caso y populada; foco resuelto (subpaneles ocultos = display:none, no tabulables); print 53 (selector oculto en impresión); exports del caso y comparado intactos (60 botones); datos idénticos; consola sin errores.
 
+### Integración visual (2ª pasada de 5.1 — selector + meta-bar)
+- **Selector como barra de control de una fila:** se quitaron los rótulos por eje (CASO/CÁMARA, redundantes — los botones «Aerolíneas Argentinas | YPF» y «Diputados | Senado» son autoevidentes) y el caption «Votación en análisis» pasó a ser una etiqueta inline; el selector deja de apilar tres niveles y se lee como un control bar prolijo. `align-items: center`, gaps ajustados.
+- **Meta-bar deja de duplicar el selector:** se removió la cámara del resumen colapsado (estaba en el selector y en el título de la figura). La meta-bar queda como **registro de la ley**: «Ley 26.466 · BO · fecha · Resultado · 153–84 · Ver ficha institucional». Verificado: el resumen ya no contiene «Diputados/Senado».
+
 ### Integración visual (terminación de 5.1)
 - El selector dejó de verse como un bloque trasladado y pasó a ser una **cabecera funcional de sección**: ritmo compacto (gap/margin/padding reducidos), filete inferior de separación, rótulo «Votación en análisis» pegado a los controles. Se quitó la animación `omRise` propia del selector (su entrada + `overflow:hidden` del viz-card recortaba el rótulo).
 - **Caso:** preámbulo aligerado (selector → meta-bar → bajada concisa → figura); la bajada se acortó y dejó de decir «seleccioná… arriba».

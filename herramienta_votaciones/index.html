@@ -243,12 +243,13 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 .scenario-nav{
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--space-2) var(--space-6);
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
   margin: 0 0 var(--space-4);
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--line);
 }
+.scenario-nav .nav-seg-group{ margin-right: var(--space-2); }
 .nav-axis{
   display: flex;
   flex-direction: column;
@@ -2963,13 +2964,12 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 /* Etiqueta general del selector de caso/cámara — enmarca los ejes Caso/Cámara
    como "la votación en análisis". Ocupa fila completa arriba de los ejes. */
 .nav-caption{
-  flex-basis: 100%;
   font-size: var(--t-xs);
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--accent-gold-text);
   font-weight: var(--w-semi);
-  margin: 0;
+  margin: 0 var(--space-2) 0 0;
 }
 
 /* Bajada introductoria de cada modo (Caso, Datos) — orienta sin competir con
@@ -4768,19 +4768,13 @@ function renderScenarioSelector(){
   return `
     <nav class="scenario-nav" aria-label="Votación en análisis: selección de caso y cámara">
       <span class="nav-caption">Votación en análisis</span>
-      <div class="nav-axis">
-        <span class="nav-axis-label">Caso</span>
-        <div class="nav-seg-group" role="group" aria-label="Caso">
-          ${seg('case', 'aerolineas', 'Aerolíneas Argentinas', curCase)}
-          ${seg('case', 'ypf', 'YPF', curCase)}
-        </div>
+      <div class="nav-seg-group" role="group" aria-label="Caso">
+        ${seg('case', 'aerolineas', 'Aerolíneas Argentinas', curCase)}
+        ${seg('case', 'ypf', 'YPF', curCase)}
       </div>
-      <div class="nav-axis">
-        <span class="nav-axis-label">Cámara</span>
-        <div class="nav-seg-group" role="group" aria-label="Cámara">
-          ${seg('chamber', 'diputados', 'Diputados', curChamber)}
-          ${seg('chamber', 'senado', 'Senado', curChamber)}
-        </div>
+      <div class="nav-seg-group" role="group" aria-label="Cámara">
+        ${seg('chamber', 'diputados', 'Diputados', curChamber)}
+        ${seg('chamber', 'senado', 'Senado', curChamber)}
       </div>
       <span class="nav-review"${review ? '' : ' hidden'} title="La distribución de provincias no coincide con la composición institucional esperada.">${review ? 'Dataset bajo revisión territorial' : ''}</span>
     </nav>
@@ -4889,8 +4883,6 @@ function renderMetaBar(){
   bar.innerHTML = `
     <summary class="meta-summary">
       <span class="meta-summary-law">${esc(formatMetaValue(s.law, 'Ley no consignada'))}${s.lawBO ? ` <span class="meta-summary-bo">${esc(s.lawBO)}</span>` : ''}</span>
-      <span class="meta-summary-sep">·</span>
-      <span>${esc(s.chamberShort || s.chamber)}</span>
       <span class="meta-summary-sep">·</span>
       <span>${esc(s.date)}</span>
       <span class="meta-summary-sep">·</span>
