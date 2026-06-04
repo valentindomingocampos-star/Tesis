@@ -2,6 +2,16 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-04 — Datos como sistema editorial + ritmo de secciones (Fase 1C, sin tocar datos/exports)
+
+Foco en la pestaña Datos (tabla nominal como pieza editorial) y en el ritmo entre secciones. Solo CSS/markup en pantalla; print y exports aislados/intactos.
+
+- **Datos como sistema (ficha + tablas)**: la tabla nominal recibió un `<colgroup>` con proporciones de columna (30/14/24/18/14 %) y `table-layout: fixed` **scopeado a `#legislatorsTable`** → columnas proporcionadas, densas, sin sprawl, sin truncar nombres (la única columna de texto largo, Bloque, ya tenía ellipsis + tooltip). Además, `#tablesPanel` (ficha institucional + las tres tablas) comparte un **ancho editorial común de 1280px** → ficha y tablas quedan **alineadas** (mismo borde) y leen como una columna de datos compuesta, no como tablas estiradas a todo el ancho.
+- **Aislamiento de print (clave)**: el ajuste de pantalla se desactiva en `@media print` (`table-layout: auto`, bloque con texto completo, `#tablesPanel` sin tope) para que el **anexo PDF conserve todo el dato sin truncar**. Print vuelve a **54 páginas** (sin el `fixed` daba 51 por truncado).
+- **Ritmo de secciones**: más respiro vertical entre A.1…A.6 y B.1…B.10 (`.stats-section` padding-top 20→32px; head margin 16→20px) → cada sección lee como un capítulo con entrada clara, junto con los markers en acento de la Fase 1B.
+
+QA: 4 pestañas; tabla nominal `table-layout: fixed` en pantalla, `auto` (dato completo) en print; ficha y tablas alineadas a 1280; B.5 sin highlight; intra 64/38; cross 9; metodología 10; **PNG (tabla y mapas), CSV y print 54** OK; consola limpia; IBM Plex 4 caras; `_getPlexFontCss()` 4 `@font-face`; reduced-motion respetado; datos idénticos a `origin/main`. Sin push.
+
 ## 2026-06-04 — Dirección editorial premium más visible (Fase 1B, sin tocar datos/exports)
 
 Pasada de diseño más jugada (visible) tras la Fase 1, manteniendo la línea editorial sobria. Solo CSS/markup/microcopy en pantalla; sin tocar datos, cálculos ni exports.

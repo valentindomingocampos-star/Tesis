@@ -2383,15 +2383,15 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 
 /* Sección dentro de una división — paper layout con regla fina arriba */
 .stats-section{
-  padding: var(--space-5) var(--space-6) var(--space-5);
+  padding: var(--space-8) var(--space-6) var(--space-6);
   border-top: 1px solid var(--line);
 }
-.stats-section:first-child{ border-top: none; }
+.stats-section:first-child{ border-top: none; padding-top: var(--space-6); }
 .stats-section-head{
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
 }
 .stats-section-actions{
   margin-left: auto;
@@ -3781,12 +3781,33 @@ table.dtable .col-num{ text-align: right; font-variant-numeric: tabular-nums; }
 
 /* Columna Bloque en la tabla de legisladores: ellipsis con tooltip nativo */
 table.dtable td.col-block{
-  max-width: 240px;
   font-size: var(--t-sm);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--ink-2);
+}
+/* Tabla nominal: proporciones de columna fijas para densidad editorial sin
+   sprawl. Los nombres entran holgados en 30% (no se truncan); la única columna
+   de texto largo (Bloque) usa ellipsis + tooltip nativo. Scopeada a esta tabla:
+   las demás (provincia/familia/validación) siguen en layout automático. */
+#legislatorsTable{ table-layout: fixed; }
+#legislatorsTable col.cl-name{ width: 30%; }
+#legislatorsTable col.cl-prov{ width: 14%; }
+#legislatorsTable col.cl-block{ width: 24%; }
+#legislatorsTable col.cl-fam{ width: 18%; }
+#legislatorsTable col.cl-vote{ width: 14%; }
+/* Datos como sistema: ficha institucional + tablas comparten una columna
+   editorial (no se estiran a todo el ancho). Ficha y tabla quedan alineadas y
+   más densas. */
+#tablesPanel{ max-width: 1280px; }
+/* En print, el ajuste de pantalla (columnas fijas + ellipsis de bloque) se
+   desactiva: la tabla usa layout automático y el bloque se muestra COMPLETO
+   (sin truncar ni tooltip), para que el anexo PDF conserve todo el dato. */
+@media print{
+  #tablesPanel{ max-width: none; }
+  #legislatorsTable{ table-layout: auto; }
+  #legislatorsTable td.col-block{ white-space: normal; overflow: visible; text-overflow: clip; }
 }
 
 /* Responsive — bloque defensivo, NO rediseño mobile (desktop-first).
@@ -9541,6 +9562,7 @@ function renderTables(){
         </div>
         <div class="dtable-wrap">
           <table class="dtable" id="legislatorsTable">
+            <colgroup><col class="cl-name"><col class="cl-prov"><col class="cl-block"><col class="cl-fam"><col class="cl-vote"></colgroup>
             <thead><tr>${headLeg}</tr></thead>
             <tbody>${bodyLeg}</tbody>
           </table>
