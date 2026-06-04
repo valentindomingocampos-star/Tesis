@@ -2,6 +2,17 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Fase 5.5 · Limpieza responsive (desktop-first, bloque defensivo)
+
+Auditoría de los 9 bloques `@media`. **No había CSS muerto:** todos los selectores responsive apuntan a clases vivas. Los breakpoints de escritorio (`max-width:1366px/min-1101px` → sidebar 360→320px; `max-width:1100px` ×3 → apilado a 1 columna; `min-width:1101px`/`min-width:900px` → mejoras; `@media screen` scoping de modos; `@media print`; `prefers-reduced-motion`) quedan **intactos y razonables**.
+
+El único bloque de mobile profundo era `@media (max-width:720px)` (~17 reglas, todas vivas pero de teléfono). Por decisión explícita se **adelgazó a sólo reglas defensivas** (anti-desborde), sin sostener una experiencia mobile:
+- **Conservadas (3):** `.nav-seg-group{ flex-wrap: wrap }` (selector caso/cámara: la base es `inline-flex` sin wrap → previene desborde); `.subtabs{ overflow-x:auto }` (las 4 tabs hacen scroll en vez de cortarse; base `flex` sin wrap); `.btn-exp-grid{ grid-template-columns:1fr }` (botonera de export apila para no apretar/cortar botones).
+- **Eliminadas (14):** reflows cosméticos de teléfono — `.shell` padding, `.masthead h1` font-size, `.scenario-nav` gap, `.nav-review` margin, `.toolbar-row` gap/padding (la base ya tiene `flex-wrap:wrap`), `.summary-strip`→2col + sus 2 bordes, `.meta-row-header`/`.meta-headline-result`/`.meta-headline-law` (rediseño mobile de la meta-bar), `.meta-row-grid`→2col + borde, `.meta-row-sources`→1col. **Justificación:** todas esas grillas base usan `repeat(auto-fit/auto-fill, minmax(...))` y ya colapsan solas sin desbordar, así que los overrides eran redundantes.
+
+### QA
+- Overflow horizontal medido (`scrollWidth − clientWidth`) **= 0 en los 4 modos a 720px** (Caso/Comparado/Datos/Metodología). Capturas a 1440/1024/720: tabs accesibles, selector entero (envuelve si hace falta), botones no cortados, meta-bar legible en su forma normal, tablas sin romper. Comparado/Datos/Metodología/Caso intactos. Consola limpia. **Print 54** (sin regresión). Exports intactos (CSS no toca la maquinaria SVG/CSV). Datos y conteos de voto **idénticos a HEAD**. Sin push.
+
 ## 2026-06-03 — Fase 5.3 · Diferencia territorial mejorada (B.5), sin tercer mapa
 
 B.5 sigue siendo **dos mapas** (escenario A y escenario B; el borde dorado en el segundo señala las provincias cuyo voto dominante cambió). Se agrega debajo un **resumen territorial compacto** que lee ese cambio de forma agregada, sin un tercer mapa ni un mapa de diferencia.

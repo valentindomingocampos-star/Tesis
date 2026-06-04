@@ -3841,25 +3841,18 @@ table.dtable td.col-block{
   background: var(--bg-soft);
 }
 
-/* Responsive */
+/* Responsive — bloque defensivo, NO rediseño mobile (desktop-first).
+   La herramienta es un anexo de escritorio/impresión; no se sostiene una
+   experiencia de teléfono. Acá quedan solo las reglas que evitan desborde,
+   scroll horizontal o controles cortados cuando la ventana se achica por
+   debajo de ~720px. Los reflows cosméticos de teléfono (apilado de meta-bar,
+   summary-strip a 2 columnas, ajustes de tipografía/padding) se quitaron en
+   Fase 5.5: las grillas base usan repeat(auto-fit/auto-fill, minmax(...)) y ya
+   colapsan solas sin desbordar, así que esos overrides eran redundantes. */
 @media (max-width: 720px){
-  .shell{ padding: 16px 12px 40px; }
-  .masthead h1{ font-size: 22px; }
-  .scenario-nav{ gap: var(--space-4); }
-  .nav-seg-group{ flex-wrap: wrap; }
-  .nav-review{ margin-left: 0; }
-  .toolbar-row{ gap: 8px; padding: 10px 12px; }
-  .summary-strip{ grid-template-columns: repeat(2, 1fr); }
-  .summary-cell:nth-child(2n){ border-right: none; }
-  .summary-cell:nth-child(-n+2){ border-bottom: 1px solid var(--line); }
-  .meta-row-header{ flex-direction: column; align-items: flex-start; gap: var(--space-3); }
-  .meta-headline-result{ padding-left: 0; border-left: 0; align-items: flex-start; }
-  .meta-headline-law{ font-size: var(--t-lg); }
-  .meta-row-grid{ grid-template-columns: 1fr 1fr; }
-  .meta-row-grid .meta-item{ border-bottom: 1px solid var(--line); }
-  .meta-row-sources{ grid-template-columns: 1fr; }
-  .subtabs{ overflow-x:auto; }
-  .btn-exp-grid{ grid-template-columns:1fr; }
+  .nav-seg-group{ flex-wrap: wrap; }            /* selector caso/cámara: envuelve (base es inline-flex sin wrap) */
+  .subtabs{ overflow-x: auto; }                 /* tabs: scroll horizontal en vez de cortarse (base es flex sin wrap) */
+  .btn-exp-grid{ grid-template-columns: 1fr; }  /* botonera de export: apila para no apretar/cortar botones */
 }
 
 /* =====================================================================
