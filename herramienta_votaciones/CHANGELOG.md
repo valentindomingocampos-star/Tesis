@@ -2,6 +2,18 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-04 — Integración de reskin tipográfico (IBM Plex Sans · estilo Datawrapper)
+
+Se reemplazó `index.html` por una versión nueva provista por el autor: **reskin tipográfico y de cabecera** sobre el estado de la Fase 5. Cambios respecto del HEAD anterior (`origin/main`):
+- Tokens `--font-sans` / `--font-serif` / `--font-display` repuntados a **"IBM Plex Sans"** (el alias serif legado ahora apunta a Plex, sin romper sus ~28 usos); paleta de tinta levemente más fría (#1e2530 / #6b7077). Los estilos de export SVG (láminas PNG) también usan IBM Plex Sans.
+- Masthead rediseñado (rótulo "· V1.0", chips de ley 26.466/26.741 a la derecha).
+- Dos helpers nuevos: `_getPlexFontCss()` (lee reglas `@font-face` de IBM Plex Sans del documento para inyectarlas en los SVG exportados) y `assignCompareSectionIds()`.
+- **No revierte la Fase 5**: siguen ausentes el highlight dorado de B.5, `methodology-note`, `nav-axis`, `exp-card`, `getColorByVote`, `highlightVs`. Mismas 4 pestañas y 40 botones de export.
+
+**Datos/cálculos idénticos** a `origin/main` (nombres, votos, familias, bloques, provincias, totales por escenario). Smoke test 11/11 (Caso, Datos+tab, Comparado, B.5 sin highlight, intra 64/38, cross 9, PNG, CSV, print 54, consola limpia).
+
+> ⚠ **Caveat documentado (no resuelto):** pese al comentario «Tipografía UI embebida (base64, offline)», la fuente **no está embebida** — 0 reglas `@font-face`, 0 payloads `woff/ttf/otf`, archivo solo +7.230 bytes (un Plex embebido pesaría 50–150 KB+). En máquinas sin IBM Plex Sans instalado, la herramienta y los PNG exportados caen al fallback `ui-sans-serif / system-ui / Helvetica Neue`. `_getPlexFontCss()` devuelve vacío (no halla `@font-face`). A resolver antes de considerar la entrega final si se busca tipografía portable/offline. Commit local; sin push.
+
 ## 2026-06-03 — Fase 5.6 · Optimización segura (limpieza de deuda técnica)
 
 Limpieza final sin refactor agresivo: solo se quitó **código muerto confirmado** (CSS de clases que no se aplican en ningún lado y una función no usada). No se tocó arquitectura, `render()`, exports, datasets, cálculos, trayectoria, Rice/Rae ni normalización.

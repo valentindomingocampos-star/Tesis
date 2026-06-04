@@ -13,9 +13,11 @@
 <meta name="version" content="1.0">
 <meta name="author" content="Valentín Domingo Campos">
 <meta name="description" content="Visualización legislativa de las votaciones nominales de las leyes 26.466 (Aerolíneas Argentinas) y 26.741 (YPF) en ambas cámaras del Congreso de la Nación Argentina.">
-<!-- Favicon SVG inline para evitar 404 sin agregar archivos externos. Tinta y dorado de la paleta editorial. -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23fffdf8'/><rect x='4' y='6' width='24' height='2' fill='%2314181f'/><rect x='4' y='12' width='6' height='2' fill='%239c7a2c'/><circle cx='10' cy='22' r='4' fill='%233f6e44'/><circle cx='22' cy='22' r='4' fill='%23a32a2a'/></svg>">
+<!-- Favicon SVG inline para evitar 404 sin agregar archivos externos. Tinta navy y azul acero del sistema. -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23faf9f7'/><rect x='5' y='8' width='22' height='2.2' rx='1' fill='%231e2530'/><rect x='5' y='14' width='15' height='2.2' rx='1' fill='%23cfccc6'/><rect x='5' y='20' width='18' height='2.2' rx='1' fill='%23cfccc6'/><circle cx='8.6' cy='26' r='2.3' fill='%232f6f9f'/></svg>">
 <title>Reestatizaciones · Análisis legislativo</title>
+<!-- Tipografía UI embebida (base64, offline). IBM Plex Sans — sobria, legible, data-publication. -->
+<link rel="stylesheet" href="assets/plex.css">
 <style>
 /* =====================================================================
    TOKENS DE DISEÑO
@@ -25,34 +27,42 @@
      tinta más profunda que negro plano para evocar publicación impresa
      (NYT, FT, Le Monde, Cuadernos del Plata). Cada color institucional,
      ninguno SaaS, ninguno chillón. */
-  --bg: #f3f0e8;
-  --bg-soft: #f8f5ec;
-  --card: #fffdf8;
-  --line: #d9d3c4;
-  --line-strong: #b7af9d;
-  --ink: #14181f;
-  --ink-2: #2c3543;
-  --muted: #6a6a64;
-  --muted-soft: #9a9588;
+  --bg: #faf9f7;
+  --bg-soft: #f3f2ef;
+  --card: #ffffff;
+  --line: #e7e5e1;
+  --line-strong: #cfccc6;
+  --ink: #1e2530;
+  --ink-2: #4a4f57;
+  --muted: #6b7077;
+  --muted-soft: #9aa0a6;
 
   /* Acento dorado/ocre sobrio — uso parsimonioso: reglas, subrayados,
      activos secundarios, detalles jerárquicos. Reemplaza al ink solido
      como marca de jerarquía en estados activos. */
-  --accent-gold: #9c7a2c;
-  --accent-gold-soft: #e9deba;
+  --accent-gold: #2f6f9f;
+  --accent-gold-soft: #e3edf4;
   /* Dorado tipográfico — variante más oscura para texto chico (eyebrows,
      labels, rankings, notas). No usar en bordes, líneas, dots ni decoración
      —para eso queda --accent-gold. Garantiza contraste sobre --bg / --card. */
-  --accent-gold-text: #7c6020;
+  --accent-gold-text: #4a4f57;
 
-  /* Atlas parlamentario académico — Etapa 1. Tres capas de papel para que las
-     láminas se "monten" sobre un paspartú (en vez de flotar con sombra), y un
-     sistema de filetes finos de archivo. El oro pasa a acento mínimo: numera,
-     filetea y subraya; nunca rellena. */
-  --paper-mount: #ece4d1;   /* fondo de la app — montaje/paspartú bajo las láminas */
-  --paper-sunk:  #f1ece0;   /* hundidos — registros, metadatos, segmento activo */
-  --gold-rule:   #b89243;   /* filete dorado fino (marca de archivo) */
-  --rule-ink:    #1f2329;   /* filete corto fuerte de títulos */
+  /* Sistema Datawrapper — fondo claro, hairlines, color en los datos (no en el
+     chrome). El acento azul acero es funcional: estado activo, foco, links,
+     subrayados discretos. Nunca rellena bloques grandes ni compite con el dato. */
+  --paper-mount: #f1f0ed;   /* fondo de la app, apenas distinto de las cards */
+  --paper-sunk:  #f5f4f1;   /* hundidos — headers de tabla, metadatos */
+  --gold-rule:   var(--line-strong);   /* filetes decorativos de card → neutros (sin marca) */
+  --rule-accent: #2f6f9f;              /* subrayado activo funcional (azul acero) */
+  --rule-ink:    #1e2530;   /* filete fuerte de títulos */
+
+  /* Acento azul acero — funcional y mínimo. Activos, foco, links, subrayados.
+     Los colores de marca fuertes quedan prohibidos: el color pertenece al dato
+     (voto / familia / heatmap / trayectoria), no al chrome. */
+  --acid: #2f6f9f;
+  --acid-bright: #3a82b8;
+  --acid-soft: #e3edf4;
+  --on-acid: #ffffff;
 
   /* Votos: paleta institucional desaturada — verde hunter, burgundy,
      ocre mostaza, piedra cálida. Pensada para imprenta y proyección.
@@ -60,7 +70,7 @@
      Centroizquierda, Concertación) sin colisionar con el sentido del voto. */
   --vote-yes: #3f6e44;      /* verde hunter — voto afirmativo */
   --vote-yes-soft: #e0eadc;
-  --accent: #2655b6;        /* azul UI (hover, focus) deliberadamente distinto del voto */
+  --accent: #2f6f9f;        /* azul UI (hover, focus) — alineado al acento funcional */
   --vote-no: #a32a2a;       /* rojo burgundy — voto negativo */
   --vote-no-soft: #f4dada;
   --vote-abst: #a87523;     /* ocre mostaza — abstención */
@@ -84,10 +94,7 @@
   --fam-otros:  #57534e;   /* piedra neutra cálida */
 
   /* Sombras layered — más sutiles, multi-capa para profundidad editorial */
-  --shadow-xs: 0 1px 0 rgba(15,23,42,.02), 0 0 0 1px rgba(15,23,42,.025);
-  --shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 0 0 1px rgba(15,23,42,.025);
-  --shadow-md: 0 8px 24px -8px rgba(15,23,42,.08), 0 2px 6px -2px rgba(15,23,42,.04), 0 0 0 1px rgba(15,23,42,.02);
-  --shadow-lg: 0 24px 48px -12px rgba(15,23,42,.16), 0 4px 12px -4px rgba(15,23,42,.06);
+  --shadow-xs: 0 1px 0 rgba(15,23,42,.02), 0 0 0 1px rgba(15,23,42,.025); /* única en uso (context-anchor) */
   --radius: 10px;
   --radius-sm: 6px;
   --radius-xs: 4px;
@@ -124,10 +131,14 @@
   --space-8: 32px;
   --space-10: 40px;
 
-  /* Tipografía con stack institucional (sin font-family Inter externa) */
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  /* Tipografía Datawrapper-like — IBM Plex Sans embebida para todo (títulos +
+     cuerpo + tablas): legibilidad y escaneabilidad por sobre personalidad. */
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "IBM Plex Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* alias legado: ahora apunta a Plex (no romper ~28 usos) */
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  /* Cara de despliegue — ahora IBM Plex Sans (misma familia que el cuerpo). La
+     jerarquía la dan peso y tamaño, no una familia con personalidad de póster. */
+  --font-display: "IBM Plex Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -159,77 +170,153 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 }
 
 /* Header editorial — masthead con jerarquía tipográfica clásica */
+/* =====================================================================
+   SISTEMA DE ENTRADA — revelado escalonado, científico-editorial. Gateado por
+   prefers-reduced-motion: en print y reduced-motion el contenido es visible
+   sin animación (no se oculta). Reutilizable en todo el documento.
+   ===================================================================== */
+@media (prefers-reduced-motion: no-preference){
+  [data-reveal]{
+    animation: reveal-rise var(--dur-4) var(--ease-out) both;
+    animation-delay: var(--reveal-delay, 0s);
+  }
+  @keyframes reveal-rise{
+    from{ opacity: 0; transform: translateY(15px); }
+    to  { opacity: 1; transform: none; }
+  }
+  /* filete que se traza */
+  [data-draw]{
+    transform-origin: left center;
+    animation: reveal-draw var(--dur-4) var(--ease-out) both;
+    animation-delay: var(--reveal-delay, 0s);
+  }
+  @keyframes reveal-draw{ from{ transform: scaleX(0); } to{ transform: scaleX(1); } }
+}
+
+/* =====================================================================
+   MASTHEAD — portada editorial científica. Filete maestro + folio en
+   versalitas + título Didone dominante + ficha de leyes estructurada.
+   ===================================================================== */
 .masthead{
-  border-bottom: 1px solid var(--line);
-  padding-bottom: var(--space-8);
-  margin-bottom: var(--space-8);
   position: relative;
+  margin-bottom: var(--space-10);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--rule-ink);
 }
-.masthead::before{
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 54px;
-  height: 2px;
-  background: var(--ink);
+/* Sin tick de color: el masthead introduce, no decora (Datawrapper). */
+/* Folio: kicker institucional a la izquierda, metadatos a la derecha */
+.masthead-folio{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-6);
+  flex-wrap: wrap;
+  padding-bottom: var(--space-8);
 }
-.masthead::after{
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 58px;
-  width: 22px;
-  height: 2px;
-  background: var(--gold-rule);
-}
-.masthead .eyebrow{
+/* Folio: kicker a la izquierda, metadatos a la derecha. Texto sobrio, sin marca. */
+.folio-mark{
   font-size: var(--t-xs);
-  letter-spacing: .14em;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-weight: var(--w-semi);
+  color: var(--ink-2);
+}
+.folio-meta{
+  font-size: var(--t-xs);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: var(--w-medium);
+  font-variant-numeric: tabular-nums;
+}
+/* Cuerpo: título + ficha en dos columnas a partir de ~1024px */
+.masthead-body{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, auto);
+  gap: var(--space-10);
+  align-items: end;
+}
+.masthead-eyebrow{
+  margin: 0 0 var(--space-3);
+  font-size: var(--t-xs);
+  letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--muted);
   font-weight: var(--w-semi);
-  margin-bottom: var(--space-3);
-  font-feature-settings: "smcp", "c2sc", "kern";
 }
-.masthead h1{
-  margin: 0 0 var(--space-3);
-  font-family: var(--font-serif);
-  font-size: 31px;
-  font-weight: var(--w-bold);
-  letter-spacing: -0.018em;
+.masthead-title{
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(25px, 3vw, 33px);
   line-height: 1.12;
+  letter-spacing: -0.015em;
   color: var(--ink);
-  font-feature-settings: "kern", "liga", "dlig";
+  text-wrap: balance;
+}
+.masthead-title .mh-sub{
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(15px, 1.6vw, 19px);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  color: var(--muted);
+  margin-top: .35em;
 }
 .masthead .lede{
-  margin: 0 0 var(--space-5);
-  max-width: 720px;
+  margin: var(--space-6) 0 0;
+  max-width: 58ch;
   color: var(--ink-2);
   font-size: var(--t-md);
-  line-height: 1.6;
+  line-height: 1.62;
   font-weight: var(--w-regular);
   letter-spacing: -0.003em;
+  text-wrap: pretty;
 }
-.masthead .laws{
+/* Ficha de leyes — dos registros con número Didone */
+.masthead-laws{
+  margin: 0;
   display: flex;
-  gap: var(--space-6);
-  flex-wrap: wrap;
-  font-size: var(--t-sm);
-  color: var(--muted);
-  border-top: 1px solid var(--line);
-  padding-top: var(--space-4);
+  flex-direction: column;
+  gap: var(--space-5);
+  border-left: 1px solid var(--line-strong);
+  padding-left: var(--space-6);
+}
+.law-entry{ display: grid; gap: 3px; }
+.law-num{
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  font-variant-numeric: lining-nums tabular-nums;
+  line-height: 1.1;
+}
+.law-name{
+  font-size: var(--t-base);
+  font-weight: var(--w-semi);
+  color: var(--ink-2);
   letter-spacing: -0.005em;
 }
-.masthead .laws span{
-  display: inline-flex;
-  align-items: baseline;
-  gap: var(--space-2);
-}
-.masthead .laws strong{
-  color: var(--ink);
-  font-weight: var(--w-semi);
+.law-bo{
+  font-size: var(--t-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: var(--w-medium);
   font-variant-numeric: tabular-nums;
+}
+@media (max-width: 1024px){
+  .masthead-body{ grid-template-columns: 1fr; gap: var(--space-6); }
+  .masthead-laws{
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-left: none;
+    border-top: 1px solid var(--line-strong);
+    padding-left: 0;
+    padding-top: var(--space-5);
+    gap: var(--space-10);
+  }
 }
 
 /* Navegación por dos ejes — Caso × Cámara.
@@ -246,7 +333,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   align-items: center;
   gap: var(--space-2) var(--space-4);
   margin: 0 0 var(--space-4);
-  padding-bottom: var(--space-4);
+  padding: 0 var(--space-5) var(--space-4);
   border-bottom: 1px solid var(--line);
 }
 .scenario-nav .nav-seg-group{ margin-right: var(--space-2); }
@@ -289,7 +376,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   position: absolute;
   left: 0; right: 0; bottom: 0;
   height: 2px;
-  background: var(--gold-rule);
+  background: var(--rule-accent);
 }
 /* Indicador discreto de dataset bajo revisión territorial. Preserva la señal
    que antes vivía marcada por-tab, sin volver a saturar la navegación. */
@@ -353,10 +440,9 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 .meta-bar{
   background: var(--card);
   border: 1px solid var(--line-strong);
-  border-left: 2px solid var(--gold-rule);   /* filete de registro de archivo */
   border-radius: var(--radius-xs);
   overflow: hidden;
-  margin-bottom: var(--space-6);
+  margin: 0 var(--space-5) var(--space-6);
   box-shadow: none;
 }
 
@@ -540,7 +626,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 .workspace{
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
-  gap: var(--space-5);
+  gap: var(--space-6);
   align-items: start;
 }
 @media (max-width: 1366px) and (min-width: 1101px){
@@ -585,12 +671,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   position: relative;
 }
 .viz-card::before{
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 56px; height: 2px;
-  background: var(--gold-rule);
-  z-index: 2;
+  content: none;
 }
 
 /* Toolbar — barra de controles del escenario */
@@ -647,7 +728,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   position: absolute;
   left: 0; right: 0; bottom: 0;
   height: 2px;
-  background: var(--gold-rule);
+  background: var(--rule-accent);
 }
 
 .toolbar label{
@@ -675,7 +756,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 }
 .search-input:focus{
   outline: none;
-  border-color: var(--accent-gold-text);
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-gold-soft);
 }
 .search-input::placeholder{ color: var(--muted-soft); }
@@ -692,7 +773,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   cursor: pointer;
   transition: border-color var(--dur-1) var(--ease-soft);
 }
-.select-input:focus{ outline: none; border-color: var(--accent-gold-text); box-shadow: 0 0 0 3px var(--accent-gold-soft); }
+.select-input:focus{ outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-gold-soft); }
 
 .btn-text{
   appearance: none;
@@ -785,19 +866,18 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   gap: var(--space-3);
   align-items: flex-start;
   padding: var(--space-3) var(--space-5);
-  background: var(--accent-gold-soft);
+  background: var(--paper-sunk);
   border-bottom: 1px solid var(--line);
-  border-left: 3px solid var(--accent-gold);
+  border-left: 3px solid var(--line-strong);
   font-size: var(--t-sm);
   line-height: 1.5;
   color: var(--ink-2);
 }
 .color-notice .cn-icon{
-  color: var(--accent-gold-text);
-  font-weight: var(--w-bold);
-  font-size: var(--t-md);
-  line-height: 1.2;
+  width: 9px; height: 9px;
+  background: var(--acid);
   flex-shrink: 0;
+  margin-top: 4px;
 }
 .color-notice strong{ color: var(--ink); font-weight: var(--w-semi); }
 
@@ -920,7 +1000,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 .stats-index-label{
   font-size: var(--t-xs);
   text-transform: uppercase;
-  letter-spacing: .12em;
+  letter-spacing: .06em;
   color: var(--muted);
   font-weight: var(--w-semi);
 }
@@ -928,7 +1008,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 .stats-index-link{
   font-size: var(--t-xs);
   font-weight: var(--w-semi);
-  color: var(--accent-gold-text);
+  color: var(--accent);
   text-decoration: none;
   font-variant-numeric: tabular-nums;
   letter-spacing: .02em;
@@ -953,7 +1033,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
    HEMICICLO
    ===================================================================== */
 .viz-stage{
-  padding: var(--space-4) var(--space-3) var(--space-2);
+  padding: var(--space-6) var(--space-4) var(--space-4);
   background: var(--card);
 }
 svg.hemicycle{ width: 100%; height: auto; display: block; }
@@ -970,7 +1050,7 @@ svg.hemicycle{ width: 100%; height: auto; display: block; }
 .center-title{
   font-size: 10.5px;
   font-weight: 600;
-  letter-spacing: .22em;
+  letter-spacing: .12em;
   text-transform: uppercase;
   fill: var(--muted);
   text-anchor: middle;
@@ -981,7 +1061,7 @@ svg.hemicycle{ width: 100%; height: auto; display: block; }
   letter-spacing: -0.035em;
   text-anchor: middle;
   fill: var(--ink);
-  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  font-family: var(--font-display);
 }
 .center-result.result-yes{ fill: var(--vote-yes); }
 .center-result.result-no{ fill: var(--vote-no); }
@@ -1188,6 +1268,10 @@ svg.map-svg{
   scrollbar-width: thin;
   scrollbar-color: var(--line-strong) transparent;
 }
+/* L3 — microinteracción: el contenido del sidebar aparece con fade suave al
+   seleccionar legislador/provincia (se recrea en cada selección). Gateado por
+   el bloque global de reduced-motion. */
+.sidebar .panel{ animation: omFade var(--dur-3) var(--ease-out); }
 .sidebar::-webkit-scrollbar{ width: 8px; }
 .sidebar::-webkit-scrollbar-track{ background: transparent; }
 .sidebar::-webkit-scrollbar-thumb{
@@ -1215,23 +1299,14 @@ svg.map-svg{
   background: var(--card);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-xs);
-  padding: var(--space-5) var(--space-5) var(--space-5);
+  padding: var(--space-5);
   box-shadow: none;
   position: relative;
 }
-.panel::before{
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 48px;
-  height: 2px;
-  background: var(--gold-rule);
-  z-index: 2;
-}
+/* Sin tick decorativo: el panel es una card plana (Datawrapper). */
 .panel-h{
   font-size: var(--t-xs);
-  letter-spacing: .14em;
+  letter-spacing: .05em;
   text-transform: uppercase;
   color: var(--muted);
   font-weight: var(--w-semi);
@@ -1239,15 +1314,6 @@ svg.map-svg{
   padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--line);
   position: relative;
-}
-.panel-h::after{
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 32px;
-  height: 1.5px;
-  background: var(--accent-gold);
 }
 
 /* Detalle de legislador — jerarquía analítica de ficha de archivo */
@@ -1334,7 +1400,7 @@ svg.map-svg{
   grid-template-columns: 90px 1fr;
   gap: var(--space-3);
   padding: var(--space-2) 0;
-  border-bottom: 1px dashed var(--line);
+  border-bottom: 1px solid var(--line);
   align-items: baseline;
 }
 .kv-row:last-child{ border-bottom: none; }
@@ -1528,7 +1594,7 @@ svg.map-svg{
   transition: opacity .12s;
   z-index: 100;
   max-width: 300px;
-  box-shadow: 0 12px 32px rgba(0,0,0,.32), 0 0 0 1px rgba(156,122,44,.18);
+  box-shadow: 0 12px 32px rgba(0,0,0,.32), 0 0 0 1px rgba(20,24,31,.16);
   border-left: 2px solid var(--accent-gold);
 }
 .tt strong{
@@ -1568,7 +1634,7 @@ svg.map-svg{
 .tt-badge.no   { background: rgba(163,42,42,.28); color: #e0a8a8; }
 .tt-badge.abs  { background: rgba(160,155,140,.25); color: #d6d0c4; }
 .tt-badge.abst { background: rgba(168,117,35,.28); color: #e6c585; }
-.tt-badge.pres { background: rgba(156,122,44,.25); color: #d3b87f; }
+.tt-badge.pres { background: rgba(255,255,255,.16); color: #cfccc6; }
 .tt-prov{
   font-size: var(--t-sm);
   color: rgba(255,255,255,.85);
@@ -1609,35 +1675,56 @@ svg.map-svg{
    PANELES NUEVOS: validación, tablas, exportaciones
    ===================================================================== */
 
-/* Sub-tabs (Visualización / Tablas / Exportar) — pestañas limpias bajo línea */
+/* Modos de análisis — navegación de informe. Numerados (01–04), título a mayor
+   cuerpo, subrayado dorado que se traza al activarse. Una sola definición:
+   el override tardío de .subtab se eliminó (consolidación). */
+.mode-nav{
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--line-strong);
+  margin: var(--space-8) 0 var(--space-6);
+}
+/* (mode-desc eliminado en L7: la microdescripción del nav se quitó por confusa;
+   la orientación la da el tab activo + la bajada de cada modo.) */
 .subtabs{
   display: flex;
-  gap: var(--space-2);
-  border-bottom: 1px solid var(--line);
-  margin: var(--space-6) 0 var(--space-5);
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 0;
   padding: 0;
 }
 .subtab{
-  padding: var(--space-3) var(--space-5);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-3) var(--space-4) calc(var(--space-3) + 1px);
+  font-family: inherit;
   font-size: var(--t-base);
   font-weight: var(--w-medium);
   color: var(--muted);
   cursor: pointer;
   border: none;
   background: transparent;
-  border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   letter-spacing: -0.005em;
-  transition: color var(--dur-2) var(--ease-soft), border-color var(--dur-2) var(--ease-soft);
-  font-family: inherit;
-  position: relative;
+  transition: color var(--dur-2) var(--ease-soft);
+}
+.subtab::after{
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 2px;
+  background: var(--rule-accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur-2) var(--ease-out);
 }
 .subtab:hover{ color: var(--ink-2); }
-.subtab.is-on{
-  color: var(--ink);
-  border-bottom-color: var(--accent-gold);
-  font-weight: var(--w-semi);
-}
+.subtab.is-on{ color: var(--ink); font-weight: var(--w-semi); }
+.subtab.is-on::after{ transform: scaleX(1); }
 .subpanel{ display: none; }
 .subpanel.is-on{ display: block; }
 
@@ -1655,15 +1742,15 @@ svg.map-svg{
 }
 .validation.is-ok{
   border-left-color: #3f6e44;
-  background: linear-gradient(to right, var(--vote-yes-soft) 0%, var(--card) 8%);
+  background: var(--card);
 }
 .validation.is-warn{
   border-left-color: var(--vote-abst);
-  background: linear-gradient(to right, var(--vote-abst-soft) 0%, var(--card) 8%);
+  background: var(--card);
 }
 .validation.is-crit{
   border-left-color: var(--vote-no);
-  background: linear-gradient(to right, var(--vote-no-soft) 0%, var(--card) 8%);
+  background: var(--card);
 }
 .validation h4{
   font-size: var(--t-sm);
@@ -1761,14 +1848,14 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .terr-extra{ margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid currentColor; }
 
 
-/* Botones de export — secundarios, no compiten con el contenido */
+/* Botones de export — discretos, integrados, no compiten con los datos (DW). */
 .btn-exp{
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  padding: 5px var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
   background: var(--card);
   font-size: var(--t-sm);
   font-weight: var(--w-medium);
@@ -1776,23 +1863,21 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   cursor: pointer;
   font-family: inherit;
   transition: background .12s, color .12s, border-color .12s;
-  letter-spacing: -0.005em;
+  letter-spacing: -0.003em;
 }
 .btn-exp:hover{
-  background: var(--ink);
-  color: var(--bg-soft);
-  border-color: var(--ink);
+  background: var(--paper-sunk);
+  color: var(--ink);
+  border-color: var(--muted-soft);
 }
 .btn-exp-primary{
-  background: var(--ink);
-  color: var(--bg-soft);
-  border-color: var(--ink);
-  box-shadow: inset 0 -2px 0 var(--accent-gold);
+  color: var(--ink);
+  font-weight: var(--w-semi);
+  border-color: var(--ink-2);
 }
 .btn-exp-primary:hover{
-  background: var(--ink-2);
-  color: var(--bg-soft);
-  border-color: var(--ink-2);
+  background: var(--paper-sunk);
+  border-color: var(--ink);
 }
 .btn-exp-grid{
   display: grid;
@@ -1807,10 +1892,10 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .fig-num{
   padding: var(--space-4) var(--space-5) 0;
   font-size: var(--t-xs);
-  letter-spacing: .14em;
+  letter-spacing: .1em;
   text-transform: uppercase;
-  color: var(--accent-gold-text);
-  font-weight: var(--w-bold);
+  color: var(--muted);
+  font-weight: var(--w-semi);
   font-variant-numeric: tabular-nums;
 }
 /* La figura principal (no el sidebar): título con más presencia, pegado al número. */
@@ -1826,9 +1911,9 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   margin: 0 0 var(--space-2);
   font-family: var(--font-serif);
   font-size: var(--t-lg);
-  font-weight: var(--w-bold);
-  letter-spacing: -0.015em;
-  line-height: 1.25;
+  font-weight: var(--w-semi);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
   color: var(--ink);
 }
 .fig-subtitle{
@@ -1845,7 +1930,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   gap: var(--space-4);
   margin-top: var(--space-4);
   padding-top: var(--space-3);
-  border-top: 1px dashed var(--line);
+  border-top: 1px solid var(--line);
 }
 .fig-meta-item{
   display: flex;
@@ -1936,30 +2021,20 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   position: relative;
 }
 .tbl-card-head::before{
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 54px;
-  height: 2px;
-  background: var(--ink);
+  content: none;
 }
 .tbl-card-head::after{
-  content: '';
-  position: absolute;
-  top: 0; left: 58px;
-  width: 22px;
-  height: 2px;
-  background: var(--gold-rule);
+  content: none;
 }
 .tbl-card-headline{ min-width: 0; }
 .tbl-card-title{
   margin: 0 0 var(--space-2);
   font-family: var(--font-serif);
-  font-size: var(--t-xl);
-  font-weight: var(--w-bold);
+  font-size: var(--t-lg);
+  font-weight: var(--w-semi);
   color: var(--ink);
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
 }
 .tbl-card-bajada{
   margin: 0 0 var(--space-3);
@@ -2031,18 +2106,21 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   font-size: var(--t-sm);
 }
 .tbl-card table.dtable th{
-  background: var(--paper-sunk);
-  font-size: 10.5px;
-  letter-spacing: .14em;
+  background: var(--card);
+  font-size: 11px;
+  letter-spacing: .04em;
+  text-transform: none;
+  color: var(--muted);
+  font-weight: var(--w-semi);
   padding: var(--space-3) var(--space-4);
-  border-bottom: 2px solid var(--line-strong);
+  border-bottom: 1.5px solid var(--line-strong);
 }
 .tbl-card table.dtable td{
   padding: var(--space-3) var(--space-4);
   line-height: 1.4;
 }
-.tbl-card table.dtable tr:nth-child(odd) td{
-  background: rgba(248,245,236,.45); /* zebra muy suave sobre cream */
+.tbl-card table.dtable tr:nth-child(even) td{
+  background: rgba(30,37,48,.022); /* zebra neutra muy suave (escaneo de filas) */
 }
 .tbl-card table.dtable tr:hover td{
   background: var(--bg-soft);
@@ -2119,7 +2197,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 @page{ margin: 1.5cm; }
 @media print{
   body{ background: #fff; color: #14181f; }
-  .toolbar, .scenario-nav, .context-anchor, .subtabs,
+  .toolbar, .scenario-nav, .context-anchor, .mode-nav, .subtabs,
   .fig-controls, .viz-figmeta, .meta-summary-toggle,
   .ctx-export, .adv-export, .filter-disclosure, .stats-index, .panel-actions,
   .tbl-card-actions, .stats-section-actions, .stats-division-actions,
@@ -2254,11 +2332,11 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 }
 .stats-division-title{
   margin: 0 0 var(--space-2);
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-size: var(--t-xl);
-  font-weight: var(--w-bold);
+  font-weight: var(--w-semi);
   color: var(--ink);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
   line-height: 1.15;
 }
 .stats-division-bajada{
@@ -2284,7 +2362,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .stats-section:first-child{ border-top: none; }
 .stats-section-head{
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--space-3);
   margin-bottom: var(--space-4);
 }
@@ -2301,30 +2379,30 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   letter-spacing: .04em;
 }
 .stats-section-marker{
-  font-size: 11px;
-  font-weight: var(--w-bold);
-  color: var(--accent-gold-text);
-  letter-spacing: .12em;
+  font-family: var(--font-sans);
+  font-size: var(--t-sm);
+  font-weight: var(--w-semi);
+  color: var(--muted);
+  letter-spacing: .02em;
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
-  padding-top: 2px;
 }
 .stats-section-title{
   margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--t-md);
-  font-weight: var(--w-bold);
+  font-family: var(--font-display);
+  font-size: var(--t-lg);
+  font-weight: var(--w-semi);
   color: var(--ink);
-  letter-spacing: -0.015em;
+  letter-spacing: -0.01em;
   line-height: 1.25;
 }
 .stats-section-bajada{
   margin: 0 0 var(--space-4) 0;
   font-size: var(--t-sm);
-  color: var(--ink-2);
+  color: var(--muted);
   line-height: 1.55;
   max-width: 720px;
-  font-style: italic;
+  font-style: normal;
 }
 /* Sección secundaria (5.1): indicador sin datos / no calculable. Peso visual
    reducido — etiqueta chica en vez de título de sección, para no competir con
@@ -2362,7 +2440,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .kpi-hero-cell:last-child{ border-right: none; }
 .kpi-hero-label{
   font-size: 10px;
-  letter-spacing: .14em;
+  letter-spacing: .05em;
   text-transform: uppercase;
   color: var(--muted);
   font-weight: var(--w-semi);
@@ -2370,11 +2448,11 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 }
 .kpi-hero-value{
   font-family: var(--font-serif);
-  font-size: 38px;
-  font-weight: var(--w-bold);
+  font-size: 30px;
+  font-weight: var(--w-semi);
   color: var(--ink);
-  letter-spacing: -0.03em;
-  line-height: 1;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
   margin: 0 0 var(--space-2);
   font-variant-numeric: tabular-nums;
 }
@@ -2402,7 +2480,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .data-grid-cell:last-child{ border-right: none; }
 .data-grid-label{
   font-size: 10px;
-  letter-spacing: .14em;
+  letter-spacing: .05em;
   text-transform: uppercase;
   color: var(--muted);
   font-weight: var(--w-semi);
@@ -2410,10 +2488,10 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 }
 .data-grid-value{
   font-size: var(--t-lg);
-  font-weight: var(--w-bold);
+  font-weight: var(--w-semi);
   color: var(--ink);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.01em;
   line-height: 1.15;
 }
 .data-grid-value.is-yes{ color: var(--vote-yes); }
@@ -2515,7 +2593,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .ranking-item:last-child{ border-right: none; }
 .ranking-label{
   font-size: 10px;
-  letter-spacing: .14em;
+  letter-spacing: .05em;
   text-transform: uppercase;
   color: var(--accent-gold-text);
   font-weight: var(--w-semi);
@@ -2524,9 +2602,9 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .ranking-winner{
   font-family: var(--font-serif);
   font-size: var(--t-md);
-  font-weight: var(--w-bold);
+  font-weight: var(--w-semi);
   color: var(--ink);
-  letter-spacing: -0.015em;
+  letter-spacing: -0.01em;
   line-height: 1.2;
   margin-bottom: 2px;
 }
@@ -2602,19 +2680,19 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
    (coherente con los sellos de voto de la ficha lateral). */
 .heatmap-tag{
   font-size: 9.5px;
-  letter-spacing: .08em;
+  letter-spacing: .04em;
   text-transform: uppercase;
   font-weight: var(--w-semi);
   padding: 2px var(--space-2);
   border-radius: var(--radius-xs);
   display: inline-block;
   white-space: nowrap;
-  border: 1px solid;
+  border: none;
 }
-.heatmap-tag.is-always-yes{ background: var(--vote-yes-soft); border-color: var(--vote-yes); color: var(--vote-yes); }
-.heatmap-tag.is-always-no{  background: var(--vote-no-soft);  border-color: var(--vote-no);  color: var(--vote-no); }
-.heatmap-tag.is-changes{    background: var(--vote-abst-soft); border-color: var(--vote-abst); color: var(--vote-abst); }
-.heatmap-tag.is-consistent{ background: var(--vote-abs-soft);  border-color: var(--line-strong); color: var(--ink-2); }
+.heatmap-tag.is-always-yes{ background: var(--vote-yes-soft); color: #2f5a37; }
+.heatmap-tag.is-always-no{  background: var(--vote-no-soft);  color: #8a2424; }
+.heatmap-tag.is-changes{    background: var(--vote-abst-soft); color: #74571a; }
+.heatmap-tag.is-consistent{ background: var(--vote-abs-soft);  color: var(--ink-2); }
 
 /* Tabla comparativa con filas agrupadas en bloques temáticos */
 .comp-table{
@@ -2721,7 +2799,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   font-size: var(--t-sm);
   align-items: baseline;
   padding: 4px 0;
-  border-bottom: 1px dashed var(--line);
+  border-bottom: 1px solid var(--line);
 }
 .diff-row:last-child{ border-bottom: none; }
 .diff-row-label{
@@ -2771,7 +2849,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   line-height: 1.65;
   letter-spacing: -0.003em;
   position: relative;
-  border-bottom: 1px dashed var(--line);
+  border-bottom: 1px solid var(--line);
 }
 .insights-list li:last-child{ border-bottom: none; }
 .insights-list li::before{
@@ -2866,14 +2944,14 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   position: absolute;
   left: 0; right: 0; bottom: 0;
   height: 2px;
-  background: var(--gold-rule);
+  background: var(--rule-accent);
 }
 
 /* Etiqueta general del selector de caso/cámara — enmarca los ejes Caso/Cámara
    como "la votación en análisis". Ocupa fila completa arriba de los ejes. */
 .nav-caption{
   font-size: var(--t-xs);
-  letter-spacing: .14em;
+  letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--accent-gold-text);
   font-weight: var(--w-semi);
@@ -2884,6 +2962,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
    los encabezados de sección. */
 .mode-bajada{
   margin: 0 0 var(--space-4);
+  padding: 0 var(--space-5);
   font-size: var(--t-sm);
   color: var(--ink-2);
   line-height: 1.55;
@@ -2899,30 +2978,31 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .cmp-movement{
   display: flex;
   align-items: baseline;
-  gap: var(--space-4);
+  gap: var(--space-3);
   padding: var(--space-6) var(--space-6) var(--space-4);
-  margin-top: var(--space-8);
-  border-top: 2px solid var(--rule-ink);
+  margin-top: var(--space-10);
+  border-top: 1px solid var(--line-strong);
 }
 .cmp-movement-first{ margin-top: 0; }
 .cmp-movement-num{
   flex-shrink: 0;
-  font-family: var(--font-serif);
-  font-size: var(--t-2xl);
-  font-weight: var(--w-bold);
-  color: var(--accent-gold-text);
-  line-height: 1;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: var(--w-semi);
+  color: var(--muted);
+  line-height: 1.3;
+  letter-spacing: 0;
   font-variant-numeric: tabular-nums;
 }
 .cmp-movement-text{ min-width: 0; }
 .cmp-movement-title{
   margin: 0 0 var(--space-1);
-  font-family: var(--font-serif);
-  font-size: var(--t-xl);
-  font-weight: var(--w-bold);
+  font-family: var(--font-display);
+  font-size: var(--t-lg);
+  font-weight: var(--w-semi);
   color: var(--ink);
-  letter-spacing: -0.018em;
-  line-height: 1.15;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 .cmp-movement-sub{
   margin: 0;
@@ -2933,6 +3013,20 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 }
 /* Índice de recorrido del comparado — reusa el lenguaje visual de .stats-index. */
 .cmp-index{ margin-bottom: 0; }
+.cmp-index .stats-index-links{ gap: var(--space-2) var(--space-3); }
+.cmp-index .stats-index-link{ font-variant-numeric: tabular-nums; }
+.cmp-index-mov{ font-weight: var(--w-semi); color: var(--ink); }
+.cmp-index-mov:hover{ color: var(--accent); }
+/* Salto de índice con aire (no quedan pegados al borde superior). */
+.stats-section, .cmp-movement, .method-section{ scroll-margin-top: var(--space-5); }
+/* L5 — resalte "estás aquí" al saltar desde un índice (puro :target, sin JS).
+   Gateado: la transición sólo corre con movimiento permitido. */
+@media (prefers-reduced-motion: no-preference){
+  .stats-section, .method-section{ transition: background var(--dur-4) var(--ease-soft); }
+}
+.stats-section:target, .method-section:target{ background: var(--paper-sunk); }
+/* Datos — refuerzo sutil del header de la columna ordenada. */
+.tbl-card table.dtable th.is-sorted{ background: var(--paper-sunk); }
 
 /* A.1.3 — ancho de lectura para los bloques tipográficos simples del comparado
    (tabla agregada, diferencias pareadas, rankings). A ancho completo se estiraban
@@ -2955,18 +3049,18 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   align-items: flex-end;
   padding: var(--space-4) var(--space-6);
   border-bottom: 1px solid var(--line);
-  background: var(--paper-sunk);
+  background: var(--card);
 }
 .compare-controls-inset{
   border: 1px solid var(--line);
   border-radius: var(--radius-xs);
-  background: var(--paper-sunk);
+  background: var(--card);
   margin-bottom: var(--space-4);
 }
 .compare-ctrl{ display: flex; flex-direction: column; gap: var(--space-2); }
 .compare-ctrl-label{
   font-size: 10px;
-  letter-spacing: .14em;
+  letter-spacing: .05em;
   text-transform: uppercase;
   color: var(--muted);
   font-weight: var(--w-semi);
@@ -2999,12 +3093,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   position: relative;
 }
 .cmp-cell::before{
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 40px; height: 2px;
-  background: var(--gold-rule);
-  z-index: 2;
+  content: none;
 }
 .cmp-cell-label{
   display: flex;
@@ -3073,8 +3162,8 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .terr-count{
   font-family: var(--font-serif);
   font-size: var(--t-xl);
-  font-weight: var(--w-bold);
-  color: var(--accent-gold-text);
+  font-weight: var(--w-semi);
+  color: var(--ink);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -3124,9 +3213,9 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .cmp-quad-summary-text{
   font-family: var(--font-serif);
   font-size: var(--t-md);
-  font-weight: var(--w-bold);
+  font-weight: var(--w-semi);
   color: var(--ink);
-  letter-spacing: -0.012em;
+  letter-spacing: -0.01em;
 }
 .cmp-quad-summary-cta{
   margin-left: auto;
@@ -3349,26 +3438,27 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .method-section:first-of-type{ border-top: none; }
 .method-section-head{
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--space-3);
   margin-bottom: var(--space-3);
 }
 .method-section-num{
   flex-shrink: 0;
-  font-family: var(--font-serif);
-  font-size: var(--t-lg);
-  font-weight: var(--w-bold);
-  color: var(--accent-gold-text);
+  min-width: 26px;
+  font-family: var(--font-display);
+  font-size: var(--t-md);
+  font-weight: var(--w-semi);
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 .method-section-title{
   margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--t-md);
-  font-weight: var(--w-bold);
+  font-family: var(--font-display);
+  font-size: var(--t-lg);
+  font-weight: var(--w-semi);
   color: var(--ink);
-  letter-spacing: -0.012em;
+  letter-spacing: -0.01em;
   line-height: 1.2;
 }
 .method-section-body p{
@@ -3468,7 +3558,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   flex-direction: column;
   gap: 4px;
   padding: var(--space-2) 0;
-  border-bottom: 1px dashed var(--line);
+  border-bottom: 1px solid var(--line);
 }
 .ficha-item:last-child{ border-bottom: none; }
 .ficha-item-k{
@@ -3509,11 +3599,11 @@ table.dtable th{
   padding: var(--space-3) var(--space-4);
   text-align: left;
   font-weight: var(--w-semi);
-  font-size: var(--t-xs);
-  text-transform: uppercase;
-  letter-spacing: .14em;
+  font-size: 11px;
+  text-transform: none;
+  letter-spacing: .02em;
   color: var(--muted);
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1.5px solid var(--line-strong);
   position: sticky;
   top: 0;
   cursor: pointer;
@@ -3524,8 +3614,8 @@ table.dtable th{
 }
 table.dtable th:hover{ background: var(--paper-mount); color: var(--ink-2); }
 table.dtable th .sort-ar{ font-size: 9px; margin-left: var(--space-1); opacity: .35; }
-table.dtable th.is-sorted{ color: var(--ink); }
-table.dtable th.is-sorted .sort-ar{ opacity: 1; color: var(--ink); }
+table.dtable th.is-sorted{ color: var(--ink); box-shadow: inset 0 -2px 0 var(--acid); }
+table.dtable th.is-sorted .sort-ar{ opacity: 1; color: var(--acid); }
 table.dtable td{
   padding: var(--space-2) var(--space-4);
   border-bottom: 1px solid var(--line);
@@ -3549,7 +3639,7 @@ table.dtable .col-num{ text-align: right; font-variant-numeric: tabular-nums; }
 }
 .search-table:focus{
   outline: none;
-  border-color: var(--accent-gold-text);
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-gold-soft);
 }
 .search-table::placeholder{ color: var(--muted-soft); }
@@ -3565,23 +3655,30 @@ table.dtable .col-num{ text-align: right; font-variant-numeric: tabular-nums; }
    lenguaje que los sellos de la ficha lateral). Presidencia también es sello
    cálido, no el gris frío anterior. */
 .vote-badge{
-  display: inline-block;
-  padding: 2px var(--space-3);
-  border-radius: var(--radius-xs);
-  font-size: 11.5px;
-  font-weight: var(--w-semi);
-  letter-spacing: .02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: var(--t-sm);
+  font-weight: var(--w-medium);
+  letter-spacing: -0.002em;
+  color: var(--ink-2);
   white-space: nowrap;
-  border: 1px solid;
 }
-.vote-badge.yes{ background: var(--vote-yes-soft); border-color: var(--vote-yes); color: var(--vote-yes); }
-.vote-badge.no{ background: var(--vote-no-soft); border-color: var(--vote-no); color: var(--vote-no); }
-.vote-badge.abs{ background: var(--vote-abs-soft); border-color: var(--line-strong); color: var(--ink-2); }
-/* Texto del badge de abstención en ocre tipográfico oscuro (--accent-gold-text)
-   para pasar AA sobre el fondo soft (el ocre --vote-abst daba ~3.95:1). No
-   cambia el color de voto en hemiciclo/mapa, solo el texto del badge. */
-.vote-badge.abst{ background: var(--vote-abst-soft); border-color: var(--vote-abst); color: var(--accent-gold-text); }
-.vote-badge.pres{ background: var(--paper-sunk); border-color: var(--vote-pres); color: var(--vote-pres); }
+.vote-badge::before{
+  content: '';
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--muted-soft);
+}
+.vote-badge.yes::before{  background: var(--vote-yes); }
+.vote-badge.no::before{   background: var(--vote-no); }
+.vote-badge.abs::before{  background: var(--vote-abs); }
+.vote-badge.abst::before{ background: var(--vote-abst); }
+.vote-badge.pres::before{ background: var(--vote-pres); }
 
 /* Family dot — indicador estructural (forma/tamaño en CSS; el background
    dinámico viene inline desde JS porque depende del dato de cada familia). */
@@ -3770,10 +3867,9 @@ a:focus-visible,
 /* Entrada de página: rise + fade escalonado al cargar */
 @keyframes omRise{ from{ opacity:0; transform: translateY(16px); } to{ opacity:1; transform: translateY(0); } }
 @keyframes omFade{ from{ opacity:0; } to{ opacity:1; } }
-.masthead .eyebrow{ animation: omRise var(--dur-4) var(--ease-out) backwards; }
-.masthead h1{      animation: omRise var(--dur-4) var(--ease-out) .06s backwards; }
-.masthead .lede{   animation: omRise var(--dur-4) var(--ease-out) .12s backwards; }
-.masthead .laws{   animation: omRise var(--dur-4) var(--ease-out) .18s backwards; }
+/* El masthead anima vía el sistema data-reveal (ver arriba). Las reglas viejas
+   .masthead h1 / .lede / .eyebrow / .laws con omRise se eliminaron: chocaban con
+   data-reveal y dejaban el título y la bajada en opacity:0. */
 .workspace{        animation: omRise var(--dur-4) var(--ease-out) .30s backwards; }
 /* El selector ya no tiene animación propia (Fase 5.1): vive dentro de un
    subpanel que ya anima al activarse; su omRise + overflow:hidden del viz-card
@@ -3799,16 +3895,8 @@ a:focus-visible,
 .hemicycle.is-blooming .guide-arc{ animation: omArcDraw .5s ease backwards; }
 .hemicycle.is-blooming .center-panel-group{ animation: omFade .55s ease .34s backwards; }
 
-/* Subtabs: navegación de informe — subrayado dorado estático y sobrio, inset
-   bajo la etiqueta (no de borde a borde, no deslizante). */
-.subtab::after{
-  content: ''; position: absolute; left: var(--space-4); right: var(--space-4); bottom: -1px;
-  height: 2px; background: var(--gold-rule);
-  opacity: 0;
-  transition: opacity var(--dur-1) var(--ease-soft);
-}
-.subtab.is-on{ border-bottom-color: transparent; }
-.subtab.is-on::after{ opacity: 1; }
+/* Subtabs: el subrayado dorado (animado) se define junto a .subtab — una sola
+   fuente de verdad. Se eliminó el override tardío para evitar deriva de estilos. */
 
 /* Micro-interacciones de hover (consistencia) */
 .vote-pill, .btn-exp, .stats-index-link, .btn-text{
@@ -3816,11 +3904,10 @@ a:focus-visible,
               border-color var(--dur-1) var(--ease-soft), transform var(--dur-1) var(--ease-soft),
               box-shadow var(--dur-1) var(--ease-soft);
 }
-.vote-pill:hover, .stats-index-link:hover{ transform: translateY(-1px); }
-.btn-exp:hover{ transform: translateY(-1px); box-shadow: var(--shadow-sm); }
-.vote-pill:active, .btn-exp:active, .stats-index-link:active{ transform: translateY(0); }
-.member-row{ transition: border-color var(--dur-1) var(--ease-soft), background var(--dur-1) var(--ease-soft), transform var(--dur-1) var(--ease-soft); }
-.member-row:hover{ transform: translateX(3px); }
+.vote-pill:hover, .stats-index-link:hover{ background: var(--paper-sunk); }
+.btn-exp:hover{ }
+.member-row{ transition: border-color var(--dur-1) var(--ease-soft), background var(--dur-1) var(--ease-soft); }
+.member-row:hover{ background: var(--paper-sunk); }
 .heatmap-cell{ transition: box-shadow var(--dur-1) var(--ease-soft), filter var(--dur-1) var(--ease-soft); }
 .heatmap-cell:hover{ box-shadow: inset 0 0 0 2px var(--ink); filter: saturate(1.12); position: relative; z-index: 2; }
 
@@ -3855,9 +3942,48 @@ a:focus-visible,
 .heatmap-cell.is-dark .heatmap-cell-value{ color: #fff; }
 .heatmap-cell.is-dark .heatmap-cell-sub{ color: rgba(255,255,255,.82); }
 
-/* #15 — crossfade sutil del subpanel entrante al cambiar de tab. omFade termina
+/* #15 — crossfade del subpanel entrante al cambiar de modo. omFade termina
    en opacity:1 y la base es opacity:1: nunca queda invisible. */
-.subpanel.is-on{ animation: omFade var(--dur-2) var(--ease-out); }
+.subpanel.is-on{ animation: omFade var(--dur-3) var(--ease-out); }
+
+/* =====================================================================
+   L1 — CAPA DE EXPERIENCIA: movimiento sutil + microinteracciones.
+   Gateado por prefers-reduced-motion (el bloque `reduce` las apaga) y por print
+   (estado final). La animación explica el cambio de estado, no se luce: sin
+   lifts, sin rebotes, sin delays largos.
+   ===================================================================== */
+/* Scroll suave en saltos de índice internos (Comparado / Metodología). */
+@media (prefers-reduced-motion: no-preference){
+  html{ scroll-behavior: smooth; }
+}
+/* Foco visible elegante: anillo azul acero + halo suave. */
+button:focus-visible, a:focus-visible, summary:focus-visible,
+[role="tab"]:focus-visible, [role="button"]:focus-visible, [tabindex]:focus-visible,
+.search-input:focus-visible, .search-table:focus-visible, .select-input:focus-visible{
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--acid-soft);
+}
+/* Revelado fluido del contenido de details al abrir (expand suave, sin salto). */
+@media (prefers-reduced-motion: no-preference){
+  details[open] > *:not(summary){
+    animation: omDetailsOpen var(--dur-2) var(--ease-out) both;
+  }
+  @keyframes omDetailsOpen{ from{ opacity: 0; transform: translateY(-4px); } to{ opacity: 1; transform: none; } }
+}
+/* Microinteracciones de control: transición de color/fondo + feedback de :active
+   (presión mínima de 0.5px, sin lift). */
+.btn-exp, .btn-text, .vote-pill, .seg-btn, .nav-seg, .metric-toggle button,
+.stats-index-link, .adv-export-summary, .meta-summary, .cmp-quad-summary,
+.filter-summary{
+  transition: background var(--dur-2) var(--ease-soft), color var(--dur-2) var(--ease-soft),
+              border-color var(--dur-2) var(--ease-soft), box-shadow var(--dur-2) var(--ease-soft);
+}
+.btn-exp:active, .vote-pill:active, .seg-btn:active, .nav-seg:active,
+.metric-toggle button:active, .stats-index-link:active{ transform: translateY(0.5px); }
+.member-row, table.dtable tbody tr{
+  transition: background var(--dur-2) var(--ease-soft);
+}
 
 /* #16 — estado vacío sobrio (sin huecos raros). */
 .dtable-empty{
@@ -3871,6 +3997,7 @@ a:focus-visible,
 
 /* Guards de impresión: nada queda oculto por animaciones no completadas */
 @media print{
+  [data-reveal], [data-draw], details[open] > *,
   .masthead .eyebrow, .masthead h1, .masthead .lede, .masthead .laws,
   .scenario-nav, .workspace, .hemicycle .seat, .hemicycle .guide-arc,
   .hemicycle .center-panel-group,
@@ -3903,12 +4030,28 @@ a:focus-visible,
        MASTHEAD
        ==================================================== -->
   <header class="masthead">
-    <div class="eyebrow">El péndulo del poder · Herramienta de visualización legislativa</div>
-    <h1>Reestatizaciones de YPF y Aerolíneas Argentinas</h1>
-    <p class="lede">Análisis legislativo comparado de las leyes 26.466 y 26.741 en Diputados y Senado.</p>
-    <div class="laws">
-      <span><strong>Ley 26.466</strong> · Aerolíneas Argentinas · BO 24/12/2008</span>
-      <span><strong>Ley 26.741</strong> · YPF · BO 07/05/2012</span>
+    <div class="masthead-folio" data-reveal>
+      <span class="folio-mark">El péndulo del poder</span>
+      <span class="folio-meta">Herramienta de análisis legislativo comparado · v1.0</span>
+    </div>
+    <div class="masthead-body">
+      <div class="masthead-headline">
+        <p class="masthead-eyebrow" data-reveal style="--reveal-delay:.06s">Votaciones nominales · Análisis comparado</p>
+        <h1 class="masthead-title" data-reveal style="--reveal-delay:.12s">Reestatizaciones<span class="mh-sub">de YPF y Aerolíneas Argentinas</span></h1>
+        <p class="lede" data-reveal style="--reveal-delay:.2s">Análisis legislativo comparado de las leyes 26.466 y 26.741 en Diputados y Senado: composición, distribución territorial, cohesión y trayectoria de cada votación.</p>
+      </div>
+      <dl class="masthead-laws" data-reveal style="--reveal-delay:.28s">
+        <div class="law-entry">
+          <dt class="law-num">26.466</dt>
+          <dd class="law-name">Aerolíneas Argentinas</dd>
+          <dd class="law-bo">B.O. 24/12/2008</dd>
+        </div>
+        <div class="law-entry">
+          <dt class="law-num">26.741</dt>
+          <dd class="law-name">YPF</dd>
+          <dd class="law-bo">B.O. 07/05/2012</dd>
+        </div>
+      </dl>
     </div>
   </header>
 
@@ -4872,11 +5015,13 @@ function renderVizCard(){
   const anyFilter = state.voteFilter !== 'TODOS' || !!state.provinceFilter || !!state.search.trim();
 
   card.innerHTML = `
-    <div class="subtabs" role="tablist" aria-label="Secciones del análisis">
-      <button class="subtab is-on" data-subtab="case">Análisis del caso</button>
-      <button class="subtab" data-subtab="compare">Análisis comparado</button>
-      <button class="subtab" data-subtab="data">Datos</button>
-      <button class="subtab" data-subtab="method">Metodología</button>
+    <div class="mode-nav">
+      <div class="subtabs" role="tablist" aria-label="Modos de análisis">
+        <button class="subtab is-on" data-subtab="case">Análisis del caso</button>
+        <button class="subtab" data-subtab="compare">Análisis comparado</button>
+        <button class="subtab" data-subtab="data">Datos</button>
+        <button class="subtab" data-subtab="method">Metodología</button>
+      </div>
     </div>
 
     <!-- ===== ANÁLISIS DEL CASO: ver + interpretar el escenario activo ===== -->
@@ -4916,7 +5061,7 @@ function renderVizCard(){
       </details>
       ${state.colorMode === 'family' ? `
       <div class="color-notice" role="note" aria-label="Aviso metodológico del modo de color">
-        <span class="cn-icon" aria-hidden="true">⚠</span>
+        <span class="cn-icon" aria-hidden="true"></span>
         <span class="cn-text"><strong>Modo familia política.</strong> El color identifica la familia o bloque político, <strong>no el sentido del voto</strong>. El voto de cada legislador se lee en el tooltip, el panel lateral y la tabla nominal.</span>
       </div>` : ''}
       <div class="legend" id="legend"></div>
@@ -6964,44 +7109,44 @@ function slugifyFilename(parts){
 // Fuentes: se fuerzan sans-serif estándar para que el rasterizador resuelva sin
 // depender de fonts del sistema que pueden faltar.
 const SVG_EXPORT_STYLES = `
-  text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+  text { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; }
   .guide-arc { fill: none; stroke: rgba(20,24,31,.05); stroke-width: 0.8; }
   .center-panel-shadow { fill: rgba(20,24,31,0.04); }
-  .center-panel { fill: #fffdf8; stroke: rgba(20,24,31,0.08); stroke-width: 1; }
-  .center-title { font-size: 10.5px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; fill: #6a6a64; text-anchor: middle; }
-  .center-result { font-size: 44px; font-weight: 700; letter-spacing: -0.035em; text-anchor: middle; fill: #14181f; font-family: 'Palatino', Georgia, serif; }
+  .center-panel { fill: #ffffff; stroke: rgba(20,24,31,0.08); stroke-width: 1; }
+  .center-title { font-size: 10.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; fill: #6b7077; text-anchor: middle; }
+  .center-result { font-size: 44px; font-weight: 700; letter-spacing: -0.035em; text-anchor: middle; fill: #1e2530; font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; }
   .center-result.result-yes { fill: #3f6e44; }
   .center-result.result-no { fill: #a32a2a; }
-  .center-sub { font-size: 13px; font-weight: 600; fill: #2c3543; text-anchor: middle; }
-  .center-tally { font-size: 10.5px; font-weight: 500; fill: #6a6a64; text-anchor: middle; letter-spacing: .04em; }
+  .center-sub { font-size: 13px; font-weight: 600; fill: #4a4f57; text-anchor: middle; }
+  .center-tally { font-size: 10.5px; font-weight: 500; fill: #6b7077; text-anchor: middle; letter-spacing: .04em; }
   .seat-halo { display: none; }
   .seat.is-dim { opacity: 0.22; }
-  .map-bg { fill: #fbfaf5; }
+  .map-bg { fill: #fbfcfd; }
   .province-path { stroke-linejoin: round; stroke-linecap: round; stroke-opacity: 0.85; }
-  .province-label { font-size: 9.5px; font-weight: 600; fill: #14181f; text-anchor: middle; paint-order: stroke; stroke: rgba(255,253,248,0.95); stroke-width: 2.8; stroke-linejoin: round; }
+  .province-label { font-size: 9.5px; font-weight: 600; fill: #1e2530; text-anchor: middle; paint-order: stroke; stroke: rgba(255,255,255,0.95); stroke-width: 2.8; stroke-linejoin: round; }
   .province-label.is-small { font-size: 8.5px; stroke-width: 2.4; }
-  .malvinas-label { font-size: 8.5px; font-style: italic; fill: #2c3543; font-weight: 600; text-anchor: middle; letter-spacing: .02em; paint-order: stroke; stroke: rgba(255,253,248,0.95); stroke-width: 2.4; stroke-linejoin: round; }
-  .caba-callout-line { fill: none; stroke: #6a6a64; stroke-width: 0.8; stroke-linecap: round; }
-  .caba-callout-label { font-size: 10.5px; font-weight: 700; fill: #14181f; text-anchor: start; paint-order: stroke; stroke: rgba(255,253,248,0.95); stroke-width: 2.4; }
-  .caba-callout-sub { font-size: 8.5px; font-weight: 500; fill: #6a6a64; text-anchor: start; paint-order: stroke; stroke: rgba(255,253,248,0.95); stroke-width: 2; }
+  .malvinas-label { font-size: 8.5px; font-style: italic; fill: #4a4f57; font-weight: 600; text-anchor: middle; letter-spacing: .02em; paint-order: stroke; stroke: rgba(255,255,255,0.95); stroke-width: 2.4; stroke-linejoin: round; }
+  .caba-callout-line { fill: none; stroke: #9aa0a6; stroke-width: 0.8; stroke-linecap: round; }
+  .caba-callout-label { font-size: 10.5px; font-weight: 700; fill: #1e2530; text-anchor: start; paint-order: stroke; stroke: rgba(255,255,255,0.95); stroke-width: 2.4; }
+  .caba-callout-sub { font-size: 8.5px; font-weight: 500; fill: #6b7077; text-anchor: start; paint-order: stroke; stroke: rgba(255,255,255,0.95); stroke-width: 2; }
 `;
 
 // Estilos adicionales para el wrapper con contexto académico (header + footer).
 const SVG_FIGURE_STYLES = `
-  .fig-bg { fill: #fffdf8; }
-  .fig-rule { stroke: #14181f; stroke-width: 2; }
-  .fig-rule-soft { stroke: #d9d3c4; stroke-width: 1; }
-  .fig-rule-gold { stroke: #9c7a2c; stroke-width: 1.2; }
-  .fig-eyebrow { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9.5px; font-weight: 700; fill: #9c7a2c; letter-spacing: 2.2px; text-transform: uppercase; }
-  .fig-title-txt { font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif; font-size: 22px; font-weight: 700; fill: #14181f; letter-spacing: -0.5px; }
-  .fig-sub-txt { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; fill: #2c3543; }
-  .fig-meta-txt { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 600; fill: #2c3543; }
-  .fig-meta-key { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9.5px; font-weight: 600; fill: #6a6a64; letter-spacing: 1.4px; text-transform: uppercase; }
-  .fig-foot-txt { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11.5px; fill: #2c3543; }
-  .fig-foot-k { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9.5px; fill: #6a6a64; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; }
-  .fig-credit { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; fill: #9a9588; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600; }
-  .fig-legend-eyebrow { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9.5px; font-weight: 700; fill: #6a6a64; letter-spacing: 1.6px; text-transform: uppercase; }
-  .fig-legend-txt { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 600; fill: #2c3543; letter-spacing: -0.005em; }
+  .fig-bg { fill: #ffffff; }
+  .fig-rule { stroke: #1e2530; stroke-width: 1; }
+  .fig-rule-soft { stroke: #e7e5e1; stroke-width: 1; }
+  .fig-rule-gold { stroke: #2f6f9f; stroke-width: 1; }
+  .fig-eyebrow { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9.5px; font-weight: 600; fill: #6b7077; letter-spacing: 0.6px; text-transform: uppercase; }
+  .fig-title-txt { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; fill: #1e2530; letter-spacing: -0.3px; }
+  .fig-sub-txt { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; fill: #6b7077; }
+  .fig-meta-txt { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 600; fill: #1e2530; }
+  .fig-meta-key { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; font-weight: 600; fill: #9aa0a6; letter-spacing: 0.6px; text-transform: uppercase; }
+  .fig-foot-txt { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; fill: #4a4f57; }
+  .fig-foot-k { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; fill: #9aa0a6; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; }
+  .fig-credit { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; fill: #9aa0a6; letter-spacing: 0.6px; text-transform: uppercase; font-weight: 600; }
+  .fig-legend-eyebrow { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; font-weight: 600; fill: #9aa0a6; letter-spacing: 0.6px; text-transform: uppercase; }
+  .fig-legend-txt { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 600; fill: #4a4f57; letter-spacing: -0.005em; }
 `;
 
 // Envuelve líneas en text-spans manuales (SVG no tiene word-wrap automático).
@@ -7065,16 +7210,16 @@ function exportSvgAsPng(svgElement, filename, context){
     // hacen wrap según el ancho disponible. Cuando hay eyebrow, el título
     // baja para hacerle espacio.
     const RULE_Y = 30;
-    const EYEBROW_Y = 50;
+    const EYEBROW_Y = 34;
     const hasEyebrow = !!context.eyebrow;
-    const TITLE_FIRST_BASELINE = hasEyebrow ? 82 : 64;
-    const TITLE_LINE_H = 28;        // 22px font + interlínea
-    const SUB_GAP = 28;             // distancia entre última línea del título y primera del subtítulo
+    const TITLE_FIRST_BASELINE = hasEyebrow ? 58 : 44;
+    const TITLE_LINE_H = 23;        // 18px font + interlínea
+    const SUB_GAP = 22;             // distancia entre última línea del título y primera del subtítulo
     const SUB_LINE_H = 17;
-    const HEADER_BOTTOM_PAD = 21;
+    const HEADER_BOTTOM_PAD = 20;
     const CREDIT_H = context.credit ? 26 : 0;
-    // ~12 px por carácter a 22px serif weight 700; ~6.8 px a 13px Helvetica.
-    const maxTitleChars = Math.max(20, Math.floor(availW / 12));
+    // ~10 px por carácter a 18px/600 Helvetica; ~6.8 px a 13px Helvetica.
+    const maxTitleChars = Math.max(24, Math.floor(availW / 10));
     const maxSubChars   = Math.max(30, Math.floor(availW / 6.8));
     const titleLines    = context.title    ? wrapSvgText(context.title,    maxTitleChars) : [];
     const subtitleLines = context.subtitle ? wrapSvgText(context.subtitle, maxSubChars)   : [];
@@ -7181,18 +7326,7 @@ function exportSvgAsPng(svgElement, filename, context){
     bg.setAttribute('width', totalW); bg.setAttribute('height', totalH);
     wrapper.appendChild(bg);
 
-    // Header — barra de marca (ink + tick dorado) + eyebrow + título + subtítulo
-    const rule = document.createElementNS(NS, 'line');
-    rule.setAttribute('class', 'fig-rule');
-    rule.setAttribute('x1', PAD_X); rule.setAttribute('y1', RULE_Y);
-    rule.setAttribute('x2', PAD_X + 56); rule.setAttribute('y2', RULE_Y);
-    wrapper.appendChild(rule);
-    const ruleGold = document.createElementNS(NS, 'line');
-    ruleGold.setAttribute('class', 'fig-rule-gold');
-    ruleGold.setAttribute('x1', PAD_X + 60); ruleGold.setAttribute('y1', RULE_Y);
-    ruleGold.setAttribute('x2', PAD_X + 76); ruleGold.setAttribute('y2', RULE_Y);
-    wrapper.appendChild(ruleGold);
-
+    // Header DW: sin banda/tick superior. Eyebrow chico + título semibold + subtítulo gris.
     if(hasEyebrow){
       const e = document.createElementNS(NS, 'text');
       e.setAttribute('class', 'fig-eyebrow');
@@ -7351,26 +7485,56 @@ function afterRender(fn){
 
 // Rasteriza un string SVG a PNG y dispara la descarga.
 // Compartido por export de hemiciclo/mapa y export de tablas.
+// Fuente embebida (IBM Plex Sans) de la interfaz, leída una vez de la hoja de
+// estilos cargada, para inyectarla en cada SVG exportado: así el PNG usa la
+// MISMA tipografía que la pantalla y no un fallback del sistema.
+let _plexFontCss = null;
+function _getPlexFontCss(){
+  if(_plexFontCss !== null) return _plexFontCss;
+  let css = '';
+  try{
+    for(const sheet of document.styleSheets){
+      let rules; try{ rules = sheet.cssRules; }catch(e){ continue; }
+      if(!rules) continue;
+      for(const r of rules){
+        if(r.type === CSSRule.FONT_FACE_RULE && /IBM Plex Sans/i.test(r.cssText)){
+          css += r.cssText + '\n';
+        }
+      }
+    }
+  }catch(e){ /* sin acceso → fallback Helvetica */ }
+  _plexFontCss = css;
+  return css;
+}
 function rasterizeSvgToPng(svgStr, totalW, totalH, filename){
   const scale = 2.5;
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(totalW * scale);
   canvas.height = Math.round(totalH * scale);
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#fffdf8';
+  ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const img = new Image();
-  img.onload = () => {
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    const a = document.createElement('a');
-    a.download = filename;
-    a.href = canvas.toDataURL('image/png');
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const fontCss = _getPlexFontCss();
+  if(fontCss){
+    svgStr = svgStr.replace(/(<svg[^>]*>)/, '$1<style>' + fontCss + '</style>');
+  }
+  const draw = () => {
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const a = document.createElement('a');
+      a.download = filename;
+      a.href = canvas.toDataURL('image/png');
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+    img.onerror = (e) => console.error('Error al rasterizar SVG:', e);
+    img.src = 'data:image/svg+xml;charset=utf-8;base64,' + btoa(unescape(encodeURIComponent(svgStr)));
   };
-  img.onerror = (e) => console.error('Error al rasterizar SVG:', e);
-  img.src = 'data:image/svg+xml;charset=utf-8;base64,' + btoa(unescape(encodeURIComponent(svgStr)));
+  // Esperar a que las fuentes del documento estén listas antes de rasterizar.
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(draw).catch(draw); }
+  else { draw(); }
 }
 
 // Construye el objeto context para la exportación con contexto académico.
@@ -7432,7 +7596,7 @@ function buildCompareCompositeSvg(cells, opts){
     const t = document.createElementNS(NS, 'text');
     t.setAttribute('x', (x + cellW / 2).toFixed(1)); t.setAttribute('y', (y + titleFont).toFixed(1));
     t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-family', TBL_PNG_FONTS.serifTitle);
-    t.setAttribute('font-size', titleFont); t.setAttribute('font-weight', '700'); t.setAttribute('fill', '#14181f');
+    t.setAttribute('font-size', titleFont); t.setAttribute('font-weight', '600'); t.setAttribute('fill', '#1e2530');
     t.textContent = cell.title;
     root.appendChild(t);
 
@@ -7440,7 +7604,7 @@ function buildCompareCompositeSvg(cells, opts){
       const st = document.createElementNS(NS, 'text');
       st.setAttribute('x', (x + cellW / 2).toFixed(1)); st.setAttribute('y', (y + titleFont + subFont + 7).toFixed(1));
       st.setAttribute('text-anchor', 'middle'); st.setAttribute('font-family', TBL_PNG_FONTS.sans);
-      st.setAttribute('font-size', subFont); st.setAttribute('font-weight', '600'); st.setAttribute('fill', '#6a6a64'); st.setAttribute('letter-spacing', '0.04em');
+      st.setAttribute('font-size', subFont); st.setAttribute('font-weight', '600'); st.setAttribute('fill', '#6b7077'); st.setAttribute('letter-spacing', '0.04em');
       st.textContent = cell.sub;
       root.appendChild(st);
     }
@@ -7475,8 +7639,8 @@ function exportCompareVizPng(kind){
       { svg: isMap ? buildCompareMapSvg(sB, mode) : buildCompareHemicycleSvg(sB, mode), ...cellLabel(sB) }
     ];
     composite = buildCompareCompositeSvg(cells, isMap
-      ? { cols: 2, cellW: 520, cellH: 832, labelH: 50, titleFont: 22, subFont: 14, gap: 80, rowGap: 0 }
-      : { cols: 2, cellW: 1200, cellH: 500, labelH: 76, titleFont: 30, subFont: 19, gap: 100, rowGap: 0 });
+      ? { cols: 2, cellW: 520, cellH: 832, labelH: 50, titleFont: 18, subFont: 13, gap: 80, rowGap: 0 }
+      : { cols: 2, cellW: 1200, cellH: 500, labelH: 76, titleFont: 21, subFont: 14, gap: 100, rowGap: 0 });
     title = isMap ? 'Mapas comparados' : 'Hemiciclos comparados';
     subtitle = `${sA.caseName} · ${sA.chamberShort} frente a ${sB.caseName} · ${sB.chamberShort} · color por ${modeES}`;
     legendScens = [sA, sB];
@@ -7497,8 +7661,8 @@ function exportCompareVizPng(kind){
       return { svg: isMap ? buildCompareMapSvg(sc, mode, { showLabels: false }) : buildCompareHemicycleSvg(sc, mode), ...cellLabel(sc) };
     });
     composite = buildCompareCompositeSvg(cells, isMap
-      ? { cols: 2, cellW: 520, cellH: 832, labelH: 50, titleFont: 22, subFont: 14, gap: 80, rowGap: 60 }
-      : { cols: 2, cellW: 1200, cellH: 500, labelH: 76, titleFont: 30, subFont: 19, gap: 100, rowGap: 70 });
+      ? { cols: 2, cellW: 520, cellH: 832, labelH: 50, titleFont: 18, subFont: 13, gap: 80, rowGap: 60 }
+      : { cols: 2, cellW: 1200, cellH: 500, labelH: 76, titleFont: 21, subFont: 14, gap: 100, rowGap: 70 });
     title = `Grilla panorámica de los cuatro escenarios · ${isMap ? 'mapas' : 'hemiciclos'}`;
     subtitle = `Aerolíneas Argentinas y YPF, en Diputados y Senado · color por ${modeES}`;
     legendScens = QUAD_ORDER.map(id => ensureScenarioPrepared(SCENARIOS[id]));
@@ -7531,9 +7695,9 @@ function exportCompareVizPng(kind){
 const PNG_TRAJECTORY_SOURCE = 'Elaboración propia sobre legisladores repetidos entre las dos votaciones nominales comparadas. Match exacto normalizado de nombres; trayectoria same-chamber.';
 
 // Paleta hex de voto para PNG (espeja los tokens; el canvas no resuelve var()).
-const _TRAJ_VOTE_HEX  = { AFIRMATIVO:'#3f6e44', NEGATIVO:'#a32a2a', ABSTENCION:'#7c6020', AUSENTE:'#6a6a64', PRESIDENCIA:'#14181f' };
-const _TRAJ_VOTE_SOFT = { AFIRMATIVO:'#e7efe6', NEGATIVO:'#f3e3e1', ABSTENCION:'#f1e7d3', AUSENTE:'#ecebe4', PRESIDENCIA:'#ece4d1' };
-const _TRAJ_VOTE_BORD = { AFIRMATIVO:'#3f6e44', NEGATIVO:'#a32a2a', ABSTENCION:'#a87523', AUSENTE:'#b7af9d', PRESIDENCIA:'#14181f' };
+const _TRAJ_VOTE_HEX  = { AFIRMATIVO:'#3f6e44', NEGATIVO:'#a32a2a', ABSTENCION:'#a87523', AUSENTE:'#a09b8c', PRESIDENCIA:'#14181f' };
+const _TRAJ_VOTE_SOFT = { AFIRMATIVO:'#e0eadc', NEGATIVO:'#f4dada', ABSTENCION:'#f3e8c9', AUSENTE:'#ede9dd', PRESIDENCIA:'#e7e5e1' };
+const _TRAJ_VOTE_BORD = { AFIRMATIVO:'#3f6e44', NEGATIVO:'#a32a2a', ABSTENCION:'#a87523', AUSENTE:'#a09b8c', PRESIDENCIA:'#14181f' };
 
 function _svgText(NS, x, y, str, opts){
   const t = document.createElementNS(NS, 'text');
@@ -7554,10 +7718,10 @@ function _trajVoteBadgePng(NS, x, yc, vote, els){
   const w = Math.ceil(_measureTextW(label, fs, '600', TBL_PNG_FONTS.sans, 0)) + padX * 2;
   const r = document.createElementNS(NS, 'rect');
   r.setAttribute('x', x); r.setAttribute('y', yc - h / 2); r.setAttribute('width', w); r.setAttribute('height', h);
-  r.setAttribute('rx', 3); r.setAttribute('fill', _TRAJ_VOTE_SOFT[vote] || '#f1ece0');
-  r.setAttribute('stroke', _TRAJ_VOTE_BORD[vote] || '#b7af9d'); r.setAttribute('stroke-width', '1');
+  r.setAttribute('rx', 3); r.setAttribute('fill', _TRAJ_VOTE_SOFT[vote] || '#f5f4f1');
+  r.setAttribute('stroke', _TRAJ_VOTE_BORD[vote] || '#cfccc6'); r.setAttribute('stroke-width', '1');
   els.push(r);
-  els.push(_svgText(NS, x + w / 2, yc + 4, label, { size: fs, weight: '600', fill: _TRAJ_VOTE_HEX[vote] || '#6a6a64', anchor: 'middle' }));
+  els.push(_svgText(NS, x + w / 2, yc + 4, label, { size: fs, weight: '600', fill: _TRAJ_VOTE_HEX[vote] || '#6b7077', anchor: 'middle' }));
   return w;
 }
 // Cierra una lámina de tabla: bg + estilos + elementos → rasteriza.
@@ -7568,7 +7732,7 @@ function _finalizeTrajPng(elements, totalW, totalH, filename){
   wrapper.setAttribute('width', totalW); wrapper.setAttribute('height', totalH);
   const style = document.createElementNS(NS, 'style'); style.textContent = SVG_FIGURE_STYLES; wrapper.appendChild(style);
   const bg = document.createElementNS(NS, 'rect');
-  bg.setAttribute('x', 0); bg.setAttribute('y', 0); bg.setAttribute('width', totalW); bg.setAttribute('height', totalH); bg.setAttribute('fill', '#fffdf8');
+  bg.setAttribute('x', 0); bg.setAttribute('y', 0); bg.setAttribute('width', totalW); bg.setAttribute('height', totalH); bg.setAttribute('fill', '#ffffff');
   wrapper.appendChild(bg);
   elements.forEach(e => wrapper.appendChild(e));
   rasterizeSvgToPng(new XMLSerializer().serializeToString(wrapper), totalW, totalH, filename);
@@ -7601,8 +7765,8 @@ function exportTrajectoryPng(kind){
     const x0 = PAD_X + (totalW - PAD_X * 2 - tableW) / 2;
     let y = headerOut.headerBottomY + 30;
     // fila de cabecera de columnas
-    els.push(_svgText(NS, x0 + 12, y + cellH / 2 - 2, `${sA.caseName} ↓`, { size: 10.5, weight: '700', fill: '#6a6a64', ls: 0.5 }));
-    els.push(_svgText(NS, x0 + 12, y + cellH / 2 + 13, `/ ${sB.caseName} →`, { size: 10.5, weight: '700', fill: '#6a6a64', ls: 0.5 }));
+    els.push(_svgText(NS, x0 + 12, y + cellH / 2 - 2, `${sA.caseName} ↓`, { size: 10.5, weight: '700', fill: '#6b7077', ls: 0.4 }));
+    els.push(_svgText(NS, x0 + 12, y + cellH / 2 + 13, `/ ${sB.caseName} →`, { size: 10.5, weight: '700', fill: '#6b7077', ls: 0.4 }));
     colsP.forEach((b, ci) => {
       const cx = x0 + rhW + ci * cellW + cellW / 2;
       const sw = document.createElementNS(NS, 'rect');
@@ -7610,7 +7774,7 @@ function exportTrajectoryPng(kind){
       els.push(sw);
       els.push(_svgText(NS, cx - 16, y + cellH / 2 - 6, VOTE_LABELS[b], { size: 11.5, weight: '600', fill: '#2c3543', anchor: 'start' }));
     });
-    els.push(_svgText(NS, x0 + rhW + colsP.length * cellW + totW / 2, y + cellH / 2 + 4, 'Total', { size: 10.5, weight: '700', fill: '#6a6a64', anchor: 'middle', ls: 0.8 }));
+    els.push(_svgText(NS, x0 + rhW + colsP.length * cellW + totW / 2, y + cellH / 2 + 4, 'Total', { size: 10.5, weight: '700', fill: '#6b7077', anchor: 'middle', ls: 0.4 }));
     y += cellH;
     // filas
     rowsP.forEach((a) => {
@@ -7621,24 +7785,24 @@ function exportTrajectoryPng(kind){
       colsP.forEach((b, ci) => {
         const cx = x0 + rhW + ci * cellW;
         const v = traj.matrix[a][b];
-        const fillCell = v === 0 ? '#fffdf8' : (a === b ? '#e7efe6' : '#e9deba');
+        const fillCell = v === 0 ? '#ffffff' : (a === b ? '#e7efe6' : '#e3edf4');
         const rc = document.createElementNS(NS, 'rect');
         rc.setAttribute('x', cx); rc.setAttribute('y', y); rc.setAttribute('width', cellW); rc.setAttribute('height', cellH);
-        rc.setAttribute('fill', fillCell); rc.setAttribute('stroke', '#d9d3c4'); rc.setAttribute('stroke-width', '1');
+        rc.setAttribute('fill', fillCell); rc.setAttribute('stroke', '#e7e5e1'); rc.setAttribute('stroke-width', '1');
         els.push(rc);
-        els.push(_svgText(NS, cx + cellW / 2, y + cellH / 2 + 6, v === 0 ? '·' : String(v), { serif: v > 0, size: v > 0 ? 18 : 14, weight: v > 0 ? '700' : '400', fill: v === 0 ? '#9a9588' : '#14181f', anchor: 'middle' }));
+        els.push(_svgText(NS, cx + cellW / 2, y + cellH / 2 + 6, v === 0 ? '·' : String(v), { serif: v > 0, size: v > 0 ? 18 : 14, weight: v > 0 ? '700' : '400', fill: v === 0 ? '#9aa0a6' : '#14181f', anchor: 'middle' }));
       });
       // total fila
       const tx = x0 + rhW + colsP.length * cellW;
       const rt = document.createElementNS(NS, 'rect');
-      rt.setAttribute('x', tx); rt.setAttribute('y', y); rt.setAttribute('width', totW); rt.setAttribute('height', cellH); rt.setAttribute('fill', '#f1ece0'); rt.setAttribute('stroke', '#d9d3c4'); rt.setAttribute('stroke-width', '1');
+      rt.setAttribute('x', tx); rt.setAttribute('y', y); rt.setAttribute('width', totW); rt.setAttribute('height', cellH); rt.setAttribute('fill', '#f5f4f1'); rt.setAttribute('stroke', '#e7e5e1'); rt.setAttribute('stroke-width', '1');
       els.push(rt);
       els.push(_svgText(NS, tx + totW / 2, y + cellH / 2 + 5, String(rowTot[a]), { size: 13, weight: '600', fill: '#2c3543', anchor: 'middle' }));
       y += cellH;
     });
     // fila Total (columnas)
     const rtb = document.createElementNS(NS, 'rect');
-    rtb.setAttribute('x', x0); rtb.setAttribute('y', y); rtb.setAttribute('width', tableW); rtb.setAttribute('height', cellH); rtb.setAttribute('fill', '#f1ece0'); rtb.setAttribute('stroke', '#b7af9d'); rtb.setAttribute('stroke-width', '1');
+    rtb.setAttribute('x', x0); rtb.setAttribute('y', y); rtb.setAttribute('width', tableW); rtb.setAttribute('height', cellH); rtb.setAttribute('fill', '#f5f4f1'); rtb.setAttribute('stroke', '#cfccc6'); rtb.setAttribute('stroke-width', '1');
     els.push(rtb);
     els.push(_svgText(NS, x0 + 12, y + cellH / 2 + 5, 'Total', { size: 11, weight: '700', fill: '#2c3543' }));
     colsP.forEach((b, ci) => els.push(_svgText(NS, x0 + rhW + ci * cellW + cellW / 2, y + cellH / 2 + 5, String(colTot[b]), { size: 13, weight: '700', fill: '#2c3543', anchor: 'middle' })));
@@ -7664,8 +7828,8 @@ function exportTrajectoryPng(kind){
       `${dirSub}. Sobre los legisladores que repiten banca; familias con al menos 2 repetidos.`, totalW, PAD_X, { noMetaChips: true });
     const els = [...headerOut.elements];
     let y = headerOut.headerBottomY + 26;
-    const hb = document.createElementNS(NS, 'rect'); hb.setAttribute('x', PAD_X); hb.setAttribute('y', y); hb.setAttribute('width', totalW - 2 * PAD_X); hb.setAttribute('height', 30); hb.setAttribute('fill', '#f8f5ec'); hb.setAttribute('stroke', '#d9d3c4'); els.push(hb);
-    cols.forEach(c => els.push(_svgText(NS, c.x, y + 19, c.label, { size: 10, weight: '700', fill: '#6a6a64', ls: 1.1, anchor: c.align === 'right' ? 'end' : 'start' })));
+    const hb = document.createElementNS(NS, 'rect'); hb.setAttribute('x', PAD_X); hb.setAttribute('y', y); hb.setAttribute('width', totalW - 2 * PAD_X); hb.setAttribute('height', 30); hb.setAttribute('fill', '#ffffff'); hb.setAttribute('stroke', '#e7e5e1'); els.push(hb);
+    cols.forEach(c => els.push(_svgText(NS, c.x, y + 19, c.label, { size: 10, weight: '700', fill: '#6b7077', ls: 0.4, anchor: c.align === 'right' ? 'end' : 'start' })));
     y += 30;
     const rowH = 30;
     rows.forEach((r, i) => {
@@ -7679,8 +7843,8 @@ function exportTrajectoryPng(kind){
       const pa = r.yesA / r.n * 100, pb = r.yesB / r.n * 100, dd = pb - pa;
       els.push(_svgText(NS, cols[4].x, yc, fmt1(pa) + '%', { size: 12, fill: '#2c3543', anchor: 'end' }));
       els.push(_svgText(NS, cols[5].x, yc, fmt1(pb) + '%', { size: 12, fill: '#2c3543', anchor: 'end' }));
-      els.push(_svgText(NS, cols[6].x, yc, (dd >= 0 ? '+' : '') + fmt1(dd), { size: 12, weight: '600', fill: Math.abs(dd) < 0.05 ? '#6a6a64' : (dd > 0 ? '#3f6e44' : '#a32a2a'), anchor: 'end' }));
-      const sep = document.createElementNS(NS, 'line'); sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y + rowH); sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', y + rowH); sep.setAttribute('stroke', '#ece6d5'); sep.setAttribute('stroke-width', '0.6'); els.push(sep);
+      els.push(_svgText(NS, cols[6].x, yc, (dd >= 0 ? '+' : '') + fmt1(dd), { size: 12, weight: '600', fill: Math.abs(dd) < 0.05 ? '#6b7077' : (dd > 0 ? '#3f6e44' : '#a32a2a'), anchor: 'end' }));
+      const sep = document.createElementNS(NS, 'line'); sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y + rowH); sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', y + rowH); sep.setAttribute('stroke', '#ededeb'); sep.setAttribute('stroke-width', '0.6'); els.push(sep);
       y += rowH;
     });
     const footerOut = buildTablePngFooter(NS, sA, y + 18, totalW, PAD_X, '% afirmativo calculado sobre los repetidos de cada familia.', { generalSource: PNG_TRAJECTORY_SOURCE });
@@ -7696,9 +7860,9 @@ function exportTrajectoryPng(kind){
       `${dirSub}. ${rows.length} legisladores que repiten banca y su voto en cada votación.`, totalW, PAD_X, { noMetaChips: true });
     const els = [...headerOut.elements];
     let y = headerOut.headerBottomY + 26;
-    const hb = document.createElementNS(NS, 'rect'); hb.setAttribute('x', PAD_X); hb.setAttribute('y', y); hb.setAttribute('width', totalW - 2 * PAD_X); hb.setAttribute('height', 30); hb.setAttribute('fill', '#f8f5ec'); hb.setAttribute('stroke', '#d9d3c4'); els.push(hb);
+    const hb = document.createElementNS(NS, 'rect'); hb.setAttribute('x', PAD_X); hb.setAttribute('y', y); hb.setAttribute('width', totalW - 2 * PAD_X); hb.setAttribute('height', 30); hb.setAttribute('fill', '#ffffff'); hb.setAttribute('stroke', '#e7e5e1'); els.push(hb);
     [['LEGISLADOR', C.name], [`VOTO · ${sA.caseName.split(' ')[0]} → ${sB.caseName.split(' ')[0]}`, C.votoA], ['TRAYECTORIA', C.cambio], ['FAMILIA', C.fam], ['BLOQUE', C.bloque]]
-      .forEach(([l, x]) => els.push(_svgText(NS, x, y + 19, l, { size: 10, weight: '700', fill: '#6a6a64', ls: 1.0 })));
+      .forEach(([l, x]) => els.push(_svgText(NS, x, y + 19, l, { size: 10, weight: '700', fill: '#6b7077', ls: 0.4 })));
     y += 30;
     const rowH = 36;
     const trunc = (s, max) => { s = String(s || ''); return s.length > max ? s.slice(0, max - 1) + '…' : s; };
@@ -7706,15 +7870,15 @@ function exportTrajectoryPng(kind){
       if(i % 2) { const zb = document.createElementNS(NS, 'rect'); zb.setAttribute('x', PAD_X); zb.setAttribute('y', y); zb.setAttribute('width', totalW - 2 * PAD_X); zb.setAttribute('height', rowH); zb.setAttribute('fill', '#faf8f1'); els.push(zb); }
       const yc = y + rowH / 2;
       els.push(_svgText(NS, C.name, yc - 1, trunc(r.name, 30), { size: 11.5, weight: '600', fill: '#14181f' }));
-      els.push(_svgText(NS, C.name, yc + 13, trunc(r.province, 26), { size: 9.5, fill: '#6a6a64' }));
+      els.push(_svgText(NS, C.name, yc + 13, trunc(r.province, 26), { size: 9.5, fill: '#6b7077' }));
       _trajVoteBadgePng(NS, C.votoA, yc, r.voteA, els);
-      els.push(_svgText(NS, C.arrow, yc + 4, '→', { size: 13, fill: '#9a9588' }));
+      els.push(_svgText(NS, C.arrow, yc + 4, '→', { size: 13, fill: '#9aa0a6' }));
       _trajVoteBadgePng(NS, C.votoB, yc, r.voteB, els);
       els.push(_svgText(NS, C.cambio, yc + 4, r.sameVote ? 'Mantuvo' : 'Cambió' + (r.sameFamily ? '' : ' · familia'), { size: 11, weight: '600', fill: r.sameVote ? '#3f6e44' : '#a32a2a' }));
       const famDot = document.createElementNS(NS, 'rect'); famDot.setAttribute('x', C.fam); famDot.setAttribute('y', yc - 5); famDot.setAttribute('width', 8); famDot.setAttribute('height', 8); famDot.setAttribute('rx', 2); famDot.setAttribute('fill', FAMILY_COLORS[r.familyA] || '#a09b8c'); els.push(famDot);
       els.push(_svgText(NS, C.fam + 14, yc + 4, trunc(r.sameFamily ? r.familyA : r.familyA + ' → ' + r.familyB, 42), { size: 10.5, fill: '#2c3543' }));
-      els.push(_svgText(NS, C.bloque, yc + 4, trunc(r.blockA, 22), { size: 10, fill: '#6a6a64' }));
-      const sep = document.createElementNS(NS, 'line'); sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y + rowH); sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', y + rowH); sep.setAttribute('stroke', '#ece6d5'); sep.setAttribute('stroke-width', '0.6'); els.push(sep);
+      els.push(_svgText(NS, C.bloque, yc + 4, trunc(r.blockA, 22), { size: 10, fill: '#6b7077' }));
+      const sep = document.createElementNS(NS, 'line'); sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y + rowH); sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', y + rowH); sep.setAttribute('stroke', '#ededeb'); sep.setAttribute('stroke-width', '0.6'); els.push(sep);
       y += rowH;
     });
     const footerOut = buildTablePngFooter(NS, sA, y + 18, totalW, PAD_X, `Ordenado: primero los que cambiaron el voto. ${traj.metrics.nKeptVote} mantienen, ${traj.metrics.nChangedVote} cambian.`, { generalSource: PNG_TRAJECTORY_SOURCE });
@@ -7734,8 +7898,8 @@ function exportTrajectoryPng(kind){
 // común (rasterizeSvgToPng) para terminar en canvas y disparar la descarga.
 
 const TBL_PNG_FONTS = {
-  serifTitle: "'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif",
-  sans:       "'Helvetica Neue', Helvetica, Arial, sans-serif"
+  serifTitle: "'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+  sans:       "'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif"
 };
 
 // Filenames PNG de tablas en español (consistente con los CSV académicos).
@@ -7814,32 +7978,20 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X, opts){
   const eyebrowTxt = 'Figura exportada · Herramienta de visualización legislativa';
   const elements = [];
 
-  const rule = document.createElementNS(NS, 'line');
-  rule.setAttribute('x1', PAD_X); rule.setAttribute('y1', 30);
-  rule.setAttribute('x2', PAD_X + 56); rule.setAttribute('y2', 30);
-  rule.setAttribute('stroke', '#14181f'); rule.setAttribute('stroke-width', '2');
-  elements.push(rule);
-
-  const ruleGold = document.createElementNS(NS, 'line');
-  ruleGold.setAttribute('x1', PAD_X + 60); ruleGold.setAttribute('y1', 30);
-  ruleGold.setAttribute('x2', PAD_X + 76); ruleGold.setAttribute('y2', 30);
-  ruleGold.setAttribute('stroke', '#9c7a2c'); ruleGold.setAttribute('stroke-width', '1.2');
-  elements.push(ruleGold);
-
   const eyebrow = document.createElementNS(NS, 'text');
-  eyebrow.setAttribute('x', PAD_X); eyebrow.setAttribute('y', 52);
+  eyebrow.setAttribute('x', PAD_X); eyebrow.setAttribute('y', 30);
   eyebrow.setAttribute('font-family', TBL_PNG_FONTS.sans);
-  eyebrow.setAttribute('font-size', '9.5'); eyebrow.setAttribute('font-weight', '700');
-  eyebrow.setAttribute('fill', '#9c7a2c');
-  eyebrow.setAttribute('letter-spacing', '2.2');
+  eyebrow.setAttribute('font-size', '9.5'); eyebrow.setAttribute('font-weight', '600');
+  eyebrow.setAttribute('fill', '#6b7077');
+  eyebrow.setAttribute('letter-spacing', '0.6');
   eyebrow.textContent = eyebrowTxt.toUpperCase();
   elements.push(eyebrow);
 
   const t = document.createElementNS(NS, 'text');
-  t.setAttribute('x', PAD_X); t.setAttribute('y', 86);
+  t.setAttribute('x', PAD_X); t.setAttribute('y', 54);
   t.setAttribute('font-family', TBL_PNG_FONTS.serifTitle);
-  t.setAttribute('font-size', '22'); t.setAttribute('font-weight', '700');
-  t.setAttribute('fill', '#14181f'); t.setAttribute('letter-spacing', '-0.5');
+  t.setAttribute('font-size', '18'); t.setAttribute('font-weight', '600');
+  t.setAttribute('fill', '#1e2530'); t.setAttribute('letter-spacing', '-0.3');
   t.textContent = title;
   elements.push(t);
 
@@ -7848,14 +8000,14 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X, opts){
   const subLines = wrapSvgText(bajada, Math.max(40, Math.floor(availW / 6.8)));
   subLines.slice(0, 2).forEach((line, i) => {
     const sb = document.createElementNS(NS, 'text');
-    sb.setAttribute('x', PAD_X); sb.setAttribute('y', 110 + i * 17);
+    sb.setAttribute('x', PAD_X); sb.setAttribute('y', 78 + i * 17);
     sb.setAttribute('font-family', TBL_PNG_FONTS.sans);
     sb.setAttribute('font-size', '13'); sb.setAttribute('font-weight', '400');
-    sb.setAttribute('fill', '#2c3543'); sb.setAttribute('letter-spacing', '-0.05');
+    sb.setAttribute('fill', '#6b7077'); sb.setAttribute('letter-spacing', '-0.05');
     sb.textContent = line;
     elements.push(sb);
   });
-  const subBlockBottom = 110 + Math.min(2, subLines.length) * 17;
+  const subBlockBottom = 78 + Math.min(2, subLines.length) * 17;
 
   // Meta-chips: Caso · Cámara · Fecha · Ley. Se OMITEN en figuras comparadas
   // (multi-escenario), donde la metadata de un solo escenario sería engañosa:
@@ -7877,7 +8029,7 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X, opts){
         const sep = document.createElementNS(NS, 'text');
         sep.setAttribute('x', cursorX); sep.setAttribute('y', metaY);
         sep.setAttribute('font-family', TBL_PNG_FONTS.sans);
-        sep.setAttribute('font-size', '11'); sep.setAttribute('fill', '#9a9588');
+        sep.setAttribute('font-size', '11'); sep.setAttribute('fill', '#9aa0a6');
         sep.textContent = '·';
         elements.push(sep);
         cursorX += 10;
@@ -7885,16 +8037,16 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X, opts){
       const k = document.createElementNS(NS, 'text');
       k.setAttribute('x', cursorX); k.setAttribute('y', metaY);
       k.setAttribute('font-family', TBL_PNG_FONTS.sans);
-      k.setAttribute('font-size', '9.5'); k.setAttribute('font-weight', '700');
-      k.setAttribute('fill', '#6a6a64'); k.setAttribute('letter-spacing', '1.3');
+      k.setAttribute('font-size', '9'); k.setAttribute('font-weight', '600');
+      k.setAttribute('fill', '#9aa0a6'); k.setAttribute('letter-spacing', '0.6');
       k.textContent = c.k;
       elements.push(k);
-      cursorX += _measureTextW(c.k, 9.5, '700', TBL_PNG_FONTS.sans, 1.3) + 8;
+      cursorX += _measureTextW(c.k, 9, '600', TBL_PNG_FONTS.sans, 0.6) + 8;
       const v = document.createElementNS(NS, 'text');
       v.setAttribute('x', cursorX); v.setAttribute('y', metaY);
       v.setAttribute('font-family', TBL_PNG_FONTS.sans);
       v.setAttribute('font-size', '11'); v.setAttribute('font-weight', '600');
-      v.setAttribute('fill', '#2c3543');
+      v.setAttribute('fill', '#1e2530');
       v.textContent = c.v;
       elements.push(v);
       cursorX += _measureTextW(c.v, 11, '600', TBL_PNG_FONTS.sans, 0) + 14;
@@ -7904,7 +8056,7 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X, opts){
   const sep = document.createElementNS(NS, 'line');
   sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', headerBottomY);
   sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', headerBottomY);
-  sep.setAttribute('stroke', '#d9d3c4'); sep.setAttribute('stroke-width', '1');
+  sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '1');
   elements.push(sep);
 
   return { elements, headerBottomY };
@@ -7921,7 +8073,7 @@ function buildTablePngFooter(NS, scenario, y, totalW, PAD_X, extraNote, opts){
   const sep = document.createElementNS(NS, 'line');
   sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y);
   sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', y);
-  sep.setAttribute('stroke', '#d9d3c4'); sep.setAttribute('stroke-width', '1');
+  sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '1');
   elements.push(sep);
 
   const availW = totalW - 2 * PAD_X;
@@ -7946,7 +8098,7 @@ function buildTablePngFooter(NS, scenario, y, totalW, PAD_X, extraNote, opts){
     if(m){
       const k = document.createElementNS(NS, 'tspan');
       k.setAttribute('font-size', '9.5'); k.setAttribute('font-weight', '700');
-      k.setAttribute('fill', '#6a6a64'); k.setAttribute('letter-spacing', '1.3');
+      k.setAttribute('fill', '#6b7077'); k.setAttribute('letter-spacing', '0.4');
       k.textContent = m[1] + '  ';
       t.appendChild(k);
       t.appendChild(document.createTextNode(m[2]));
@@ -7961,7 +8113,7 @@ function buildTablePngFooter(NS, scenario, y, totalW, PAD_X, extraNote, opts){
   credit.setAttribute('x', PAD_X); credit.setAttribute('y', creditY);
   credit.setAttribute('font-family', TBL_PNG_FONTS.sans);
   credit.setAttribute('font-size', '9'); credit.setAttribute('font-weight', '600');
-  credit.setAttribute('fill', '#9a9588'); credit.setAttribute('letter-spacing', '1.2');
+  credit.setAttribute('fill', '#9aa0a6'); credit.setAttribute('letter-spacing', '0.4');
   credit.textContent = 'ELABORACIÓN PROPIA A PARTIR DE FUENTES LEGISLATIVAS OFICIALES.';
   elements.push(credit);
 
@@ -8021,8 +8173,8 @@ function buildTablePngSvg(scenario, kind, rows){
   const headBg = document.createElementNS(NS, 'rect');
   headBg.setAttribute('x', PAD_X); headBg.setAttribute('y', tableStartY);
   headBg.setAttribute('width', availW); headBg.setAttribute('height', headerH);
-  headBg.setAttribute('fill', '#f8f5ec');
-  headBg.setAttribute('stroke', '#d9d3c4'); headBg.setAttribute('stroke-width', '1');
+  headBg.setAttribute('fill', '#ffffff');
+  headBg.setAttribute('stroke', '#e7e5e1'); headBg.setAttribute('stroke-width', '1');
   headRow.appendChild(headBg);
 
   spec.columns.forEach((c, i) => {
@@ -8034,7 +8186,7 @@ function buildTablePngSvg(scenario, kind, rows){
     t.setAttribute('x', tx); t.setAttribute('y', tableStartY + 18);
     t.setAttribute('font-family', TBL_PNG_FONTS.sans);
     t.setAttribute('font-size', '10'); t.setAttribute('font-weight', '700');
-    t.setAttribute('fill', '#6a6a64'); t.setAttribute('letter-spacing', '1.4');
+    t.setAttribute('fill', '#6b7077'); t.setAttribute('letter-spacing', '0.4');
     if(align === 'right') t.setAttribute('text-anchor', 'end');
     if(align === 'center') t.setAttribute('text-anchor', 'middle');
     t.textContent = c.label.toUpperCase();
@@ -8050,7 +8202,7 @@ function buildTablePngSvg(scenario, kind, rows){
       const zebra = document.createElementNS(NS, 'rect');
       zebra.setAttribute('x', PAD_X); zebra.setAttribute('y', ry);
       zebra.setAttribute('width', availW); zebra.setAttribute('height', rowH);
-      zebra.setAttribute('fill', '#fbf9f1');
+      zebra.setAttribute('fill', '#f6f6f4');
       bodyG.appendChild(zebra);
     }
     spec.columns.forEach((c, i) => {
@@ -8067,7 +8219,7 @@ function buildTablePngSvg(scenario, kind, rows){
       const sep = document.createElementNS(NS, 'line');
       sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', ry + rowH);
       sep.setAttribute('x2', PAD_X + availW); sep.setAttribute('y2', ry + rowH);
-      sep.setAttribute('stroke', '#ece6d5'); sep.setAttribute('stroke-width', '0.6');
+      sep.setAttribute('stroke', '#ededeb'); sep.setAttribute('stroke-width', '0.6');
       bodyG.appendChild(sep);
     }
   });
@@ -8078,7 +8230,7 @@ function buildTablePngSvg(scenario, kind, rows){
   tableBorder.setAttribute('x', PAD_X); tableBorder.setAttribute('y', tableStartY);
   tableBorder.setAttribute('width', availW); tableBorder.setAttribute('height', headerH + rows.length * rowH);
   tableBorder.setAttribute('fill', 'none');
-  tableBorder.setAttribute('stroke', '#d9d3c4'); tableBorder.setAttribute('stroke-width', '1');
+  tableBorder.setAttribute('stroke', '#e7e5e1'); tableBorder.setAttribute('stroke-width', '1');
 
   // Nota de filtros si aplica
   let extraNote = null;
@@ -8102,7 +8254,7 @@ function buildTablePngSvg(scenario, kind, rows){
   const bg = document.createElementNS(NS, 'rect');
   bg.setAttribute('x', 0); bg.setAttribute('y', 0);
   bg.setAttribute('width', totalW); bg.setAttribute('height', totalH);
-  bg.setAttribute('fill', '#fffdf8');
+  bg.setAttribute('fill', '#ffffff');
 
   // Compose
   wrapper.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
@@ -8146,7 +8298,7 @@ const TABLE_CELL_RENDERERS = {
     return TABLE_CELL_RENDERERS.text(row, { ...c, weight: '600', fill: '#14181f', size: '11.5' }, h);
   },
   textMutedItalic: (row, c, h) => {
-    const t = TABLE_CELL_RENDERERS.text(row, { ...c, fill: '#6a6a64', size: '10' }, h);
+    const t = TABLE_CELL_RENDERERS.text(row, { ...c, fill: '#6b7077', size: '10' }, h);
     t.setAttribute('font-style', 'italic');
     return t;
   },
@@ -8210,7 +8362,7 @@ const TABLE_CELL_RENDERERS = {
       const t = document.createElementNS(h.NS, 'text');
       t.setAttribute('x', h.x + 12); t.setAttribute('y', h.y);
       t.setAttribute('font-family', TBL_PNG_FONTS.sans);
-      t.setAttribute('font-size', '10.5'); t.setAttribute('fill', '#9a9588');
+      t.setAttribute('font-size', '10.5'); t.setAttribute('fill', '#9aa0a6');
       t.setAttribute('font-style', 'italic');
       t.textContent = 'No consignado';
       out.push(t);
@@ -8240,7 +8392,7 @@ const TABLE_CELL_RENDERERS = {
       const sub = document.createElementNS(h.NS, 'text');
       sub.setAttribute('x', h.x + 12); sub.setAttribute('y', h.y + 12);
       sub.setAttribute('font-family', TBL_PNG_FONTS.sans);
-      sub.setAttribute('font-size', '9'); sub.setAttribute('fill', '#9a9588');
+      sub.setAttribute('font-size', '9'); sub.setAttribute('fill', '#9aa0a6');
       sub.setAttribute('font-style', 'italic');
       const maxChars = Math.floor((h.w - 24) / 4.8);
       sub.textContent = blocks.length > maxChars ? (blocks.slice(0, maxChars - 1) + '…') : blocks;
@@ -8268,7 +8420,7 @@ const TABLE_CELL_RENDERERS = {
     const bg = document.createElementNS(h.NS, 'rect');
     bg.setAttribute('x', bx); bg.setAttribute('y', by);
     bg.setAttribute('width', w); bg.setAttribute('height', segH);
-    bg.setAttribute('rx', 3.5); bg.setAttribute('fill', '#d9d3c4');
+    bg.setAttribute('rx', 3.5); bg.setAttribute('fill', '#e7e5e1');
     out.push(bg);
     let cursorX = bx;
     const segs = [
@@ -8297,7 +8449,7 @@ function hexToSoftBg(hex){
   if(!m) return '#eee';
   const n = parseInt(m[1], 16);
   const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
-  // mix con #fffdf8 al 80%
+  // mix con #ffffff al 80%
   const mix = (c) => Math.round(c * 0.18 + 250 * 0.82);
   const r2 = mix(r), g2 = mix(g), b2 = mix(b);
   return `rgb(${r2}, ${g2}, ${b2})`;
@@ -8432,16 +8584,12 @@ function buildSummaryFichaSvg(scenario){
 
   sections.forEach(section => {
     // Section title bar
-    const goldTick = document.createElementNS(NS, 'line');
-    goldTick.setAttribute('x1', PAD_X); goldTick.setAttribute('y1', cursorY);
-    goldTick.setAttribute('x2', PAD_X + 16); goldTick.setAttribute('y2', cursorY);
-    goldTick.setAttribute('stroke', '#9c7a2c'); goldTick.setAttribute('stroke-width', '2');
-    elements.push(goldTick);
+    // Barra de sección: solo título sobrio, sin tick editorial (DW).
     const stitle = document.createElementNS(NS, 'text');
-    stitle.setAttribute('x', PAD_X + 24); stitle.setAttribute('y', cursorY + 4);
+    stitle.setAttribute('x', PAD_X); stitle.setAttribute('y', cursorY + 4);
     stitle.setAttribute('font-family', TBL_PNG_FONTS.sans);
-    stitle.setAttribute('font-size', '10.5'); stitle.setAttribute('font-weight', '700');
-    stitle.setAttribute('fill', '#6a6a64'); stitle.setAttribute('letter-spacing', '1.8');
+    stitle.setAttribute('font-size', '10.5'); stitle.setAttribute('font-weight', '600');
+    stitle.setAttribute('fill', '#6b7077'); stitle.setAttribute('letter-spacing', '0.4');
     stitle.textContent = section.title;
     elements.push(stitle);
     cursorY += 22;
@@ -8457,7 +8605,7 @@ function buildSummaryFichaSvg(scenario){
       k.setAttribute('x', cellX); k.setAttribute('y', cellY + 12);
       k.setAttribute('font-family', TBL_PNG_FONTS.sans);
       k.setAttribute('font-size', '9.5'); k.setAttribute('font-weight', '700');
-      k.setAttribute('fill', '#6a6a64'); k.setAttribute('letter-spacing', '1.4');
+      k.setAttribute('fill', '#6b7077'); k.setAttribute('letter-spacing', '0.4');
       k.textContent = it[0].toUpperCase();
       elements.push(k);
 
@@ -8475,7 +8623,7 @@ function buildSummaryFichaSvg(scenario){
       else if(flag === 'ok') fill = '#3f6e44';
       // Missing italic
       const looksMissing = /^No\s+(consignado|corresponde)|^Sin\s+dato/i.test(v_text);
-      if(looksMissing){ fill = '#9a9588'; vEl.setAttribute('font-style', 'italic'); vEl.setAttribute('font-weight', '500'); }
+      if(looksMissing){ fill = '#9aa0a6'; vEl.setAttribute('font-style', 'italic'); vEl.setAttribute('font-weight', '500'); }
       vEl.setAttribute('fill', fill);
       const maxChars = Math.floor((colW - 12) / 6.2);
       vEl.textContent = v_text.length > maxChars ? (v_text.slice(0, maxChars - 1) + '…') : v_text;
@@ -8490,7 +8638,7 @@ function buildSummaryFichaSvg(scenario){
       const sep = document.createElementNS(NS, 'line');
       sep.setAttribute('x1', cellX); sep.setAttribute('y1', cellY + 38);
       sep.setAttribute('x2', cellX + colW); sep.setAttribute('y2', cellY + 38);
-      sep.setAttribute('stroke', '#d9d3c4'); sep.setAttribute('stroke-width', '0.6');
+      sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '0.6');
       sep.setAttribute('stroke-dasharray', '2,2');
       elements.push(sep);
     });
@@ -8510,7 +8658,7 @@ function buildSummaryFichaSvg(scenario){
   const bg = document.createElementNS(NS, 'rect');
   bg.setAttribute('x', 0); bg.setAttribute('y', 0);
   bg.setAttribute('width', totalW); bg.setAttribute('height', totalH);
-  bg.setAttribute('fill', '#fffdf8');
+  bg.setAttribute('fill', '#ffffff');
   wrapper.appendChild(bg);
   headerOut.elements.forEach(el => wrapper.appendChild(el));
   elements.forEach(el => wrapper.appendChild(el));
@@ -8606,18 +8754,15 @@ function _svgText(NS, x, y, str, o){
   return t;
 }
 function _svgSectionTitle(NS, x, y, label, els){
-  const tick = document.createElementNS(NS, 'line');
-  tick.setAttribute('x1', x); tick.setAttribute('y1', y); tick.setAttribute('x2', x+16); tick.setAttribute('y2', y);
-  tick.setAttribute('stroke', '#9c7a2c'); tick.setAttribute('stroke-width', '2');
-  els.push(tick);
-  els.push(_svgText(NS, x+24, y+4, label, { size:'10.5', weight:'700', fill:'#6a6a64', ls:'1.8' }));
+  // DW: rótulo de sección sobrio, sin tick editorial ni tracking pesado.
+  els.push(_svgText(NS, x, y+4, label, { size:'10.5', weight:'600', fill:'#6b7077', ls:'0.4' }));
 }
 function _wrapSvg(NS, totalW, totalH, groups){
   const wrapper = document.createElementNS(NS, 'svg');
   wrapper.setAttribute('xmlns', NS); wrapper.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
   wrapper.setAttribute('width', totalW); wrapper.setAttribute('height', totalH);
   const bg = document.createElementNS(NS, 'rect');
-  bg.setAttribute('x', 0); bg.setAttribute('y', 0); bg.setAttribute('width', totalW); bg.setAttribute('height', totalH); bg.setAttribute('fill', '#fffdf8');
+  bg.setAttribute('x', 0); bg.setAttribute('y', 0); bg.setAttribute('width', totalW); bg.setAttribute('height', totalH); bg.setAttribute('fill', '#ffffff');
   wrapper.appendChild(bg);
   groups.forEach(g => g.forEach(el => wrapper.appendChild(el)));
   return { svgStr: new XMLSerializer().serializeToString(wrapper), totalW, totalH };
@@ -8635,11 +8780,11 @@ function buildLegislatorFichaSvg(s, leg){
   const kv = [['Provincia', leg.province], ['Bloque', leg.block], ['Familia política', leg.family]];
   if(leg.presided) kv.unshift(['Rol', 'Presidió la sesión']);
   kv.forEach(([k,v]) => {
-    els.push(_svgText(NS, PAD_X, y+12, k.toUpperCase(), { size:'9.5', weight:'700', fill:'#6a6a64', ls:'1.4' }));
+    els.push(_svgText(NS, PAD_X, y+12, k.toUpperCase(), { size:'9.5', weight:'700', fill:'#6b7077', ls:'0.4' }));
     els.push(_svgText(NS, PAD_X, y+30, String(v), { size:'13', weight:'600' }));
     const sep = document.createElementNS(NS, 'line');
     sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y+38); sep.setAttribute('x2', totalW-PAD_X); sep.setAttribute('y2', y+38);
-    sep.setAttribute('stroke', '#d9d3c4'); sep.setAttribute('stroke-width', '0.6'); sep.setAttribute('stroke-dasharray', '2,2');
+    sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '0.6'); sep.setAttribute('stroke-dasharray', '2,2');
     els.push(sep);
     y += 44;
   });
@@ -8666,7 +8811,7 @@ function _svgBar(NS, x, y, w, h, segs, els, scaleTotal){
   const out = document.createElementNS(NS, 'rect');
   out.setAttribute('x', x); out.setAttribute('y', y); out.setAttribute('width', w); out.setAttribute('height', h);
   out.setAttribute('rx', '2'); out.setAttribute('fill', 'none');
-  out.setAttribute('stroke', '#d9d3c4'); out.setAttribute('stroke-width', '0.75');
+  out.setAttribute('stroke', '#e7e5e1'); out.setAttribute('stroke-width', '0.75');
   els.push(out);
 }
 
@@ -8689,7 +8834,7 @@ function buildProvSummarySvg(s, d){
   y += 26;
   // fila: ámbito + total de bancas
   els.push(_svgText(NS, PAD_X, y + 4, d.name, { font: TBL_PNG_FONTS.serifTitle, size: '17', weight: '700' }));
-  els.push(_svgText(NS, totalW - PAD_X, y + 4, d.total + ' bancas', { size: '12.5', weight: '500', fill: '#6a6a64', anchor: 'end' }));
+  els.push(_svgText(NS, totalW - PAD_X, y + 4, d.total + ' bancas', { size: '12.5', weight: '500', fill: '#6b7077', anchor: 'end' }));
   y += 18;
   // barra apilada nacional/provincial
   // Presidencia no es un voto: no se dibuja como segmento; queda como remanente
@@ -8714,7 +8859,7 @@ function buildProvSummarySvg(s, d){
   numParts.forEach((p, i) => {
     if(i > 0){
       const sep = document.createElementNS(NS, 'tspan');
-      sep.setAttribute('fill', '#c9c2b2'); sep.setAttribute('font-size', '15'); sep.textContent = '    ·    ';
+      sep.setAttribute('fill', '#cfccc6'); sep.setAttribute('font-size', '15'); sep.textContent = '    ·    ';
       numText.appendChild(sep);
     }
     const num = document.createElementNS(NS, 'tspan');
@@ -8722,7 +8867,7 @@ function buildProvSummarySvg(s, d){
     num.textContent = String(p.n);
     numText.appendChild(num);
     const lab = document.createElementNS(NS, 'tspan');
-    lab.setAttribute('fill', '#6a6a64'); lab.setAttribute('font-size', '11.5'); lab.setAttribute('font-weight', '500');
+    lab.setAttribute('fill', '#6b7077'); lab.setAttribute('font-size', '11.5'); lab.setAttribute('font-weight', '500');
     lab.textContent = ' ' + p.label;
     numText.appendChild(lab);
   });
@@ -8738,8 +8883,8 @@ function buildProvSummarySvg(s, d){
     // tarjeta sutil
     const card = document.createElementNS(NS, 'rect');
     card.setAttribute('x', PAD_X); card.setAttribute('y', top); card.setAttribute('width', availW); card.setAttribute('height', CARD_H);
-    card.setAttribute('rx', '6'); card.setAttribute('fill', '#fdfbf4');
-    card.setAttribute('stroke', '#e4ddcd'); card.setAttribute('stroke-width', '0.75');
+    card.setAttribute('rx', '6'); card.setAttribute('fill', '#f5f4f1');
+    card.setAttribute('stroke', '#e7e5e1'); card.setAttribute('stroke-width', '0.75');
     els.push(card);
     // dot de familia (único uso del color de familia)
     const dot = document.createElementNS(NS, 'circle');
@@ -8761,7 +8906,7 @@ function buildProvSummarySvg(s, d){
     if(f.NEGATIVO > 0) mini.push(f.NEGATIVO + ' en contra');
     if(f.ABSTENCION > 0) mini.push(f.ABSTENCION + ' abst.');
     if(f.AUSENTE > 0) mini.push(f.AUSENTE + ' ausentes');
-    els.push(_svgText(NS, PAD_X + 16, top + 48, mini.join('   ·   '), { size: '9.5', weight: '500', fill: '#6a6a64' }));
+    els.push(_svgText(NS, PAD_X + 16, top + 48, mini.join('   ·   '), { size: '9.5', weight: '500', fill: '#6b7077' }));
     y += CARD_H + 8;
   });
 
@@ -9532,9 +9677,19 @@ function renderStatsTab(){
   const cmpHost = document.getElementById('comparePanel');
   const methodHost = document.getElementById('methodPanel');
   if(caseHost) caseHost.innerHTML = renderScenarioIndicators(s);
-  if(cmpHost){ cmpHost.innerHTML = renderComparisonPanel(); mountCompareVisuals(); }
+  if(cmpHost){ cmpHost.innerHTML = renderComparisonPanel(); mountCompareVisuals(); assignCompareSectionIds(); }
   if(methodHost) methodHost.innerHTML = renderMethodologyNotes();
   buildStatsIndex(caseHost, 'Lectura estadística del caso');
+}
+// L4 — asigna ids a las secciones B.x del comparado (mismo slug que buildStatsIndex)
+// para que el índice de recorrido pueda saltar a cada una. No agrega nav extra.
+function assignCompareSectionIds(){
+  const c = document.getElementById('comparePanel'); if(!c) return;
+  c.querySelectorAll('.stats-section').forEach(sec => {
+    const m = sec.querySelector('.stats-section-marker');
+    const mk = m ? (m.textContent || '').trim() : '';
+    if(mk) sec.id = 'sec-' + mk.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  });
 }
 
 // Construye un índice compacto de saltos rápidos a partir de los marcadores de
@@ -10230,11 +10385,21 @@ function renderComparisonPanel(){
         <nav class="stats-index cmp-index" aria-label="Recorrido del análisis comparado">
           <span class="stats-index-label">Recorrido</span>
           <span class="stats-index-links">
-            <a class="stats-index-link" href="#cmp-mov-1">I · Síntesis agregada</a>
+            <a class="stats-index-link cmp-index-mov" href="#cmp-mov-1">I · Síntesis</a>
+            <a class="stats-index-link" href="#sec-b1">B.1</a>
+            <a class="stats-index-link" href="#sec-b2">B.2</a>
+            <a class="stats-index-link" href="#sec-b3">B.3</a>
             <span class="stats-index-sep">·</span>
-            <a class="stats-index-link" href="#cmp-mov-2">II · Exploración por par</a>
+            <a class="stats-index-link cmp-index-mov" href="#cmp-mov-2">II · Exploración</a>
+            <a class="stats-index-link" href="#sec-b4">B.4</a>
+            <a class="stats-index-link" href="#sec-b5">B.5</a>
+            <a class="stats-index-link" href="#sec-b6">B.6</a>
             <span class="stats-index-sep">·</span>
-            <a class="stats-index-link" href="#cmp-mov-3">III · Profundización estructural</a>
+            <a class="stats-index-link cmp-index-mov" href="#cmp-mov-3">III · Profundización</a>
+            <a class="stats-index-link" href="#sec-b7">B.7</a>
+            <a class="stats-index-link" href="#sec-b8">B.8</a>
+            <a class="stats-index-link" href="#sec-b9">B.9</a>
+            <a class="stats-index-link" href="#sec-b10">B.10</a>
           </span>
         </nav>
         <div class="cmp-movement cmp-movement-first" id="cmp-mov-1">
@@ -11262,7 +11427,7 @@ function exportStatsSectionPng(kind){
   // Mini-barra de composición (yes/no/abst/aus) con width fija
   const drawVoteComposition = (x, y, w, h, dist, total) => {
     const acc = [];
-    acc.push(addRect(x, y, w, h, '#ece6d5'));
+    acc.push(addRect(x, y, w, h, '#ededeb'));
     if(!total) return acc;
     let cx = x;
     const segs = [
@@ -11290,7 +11455,7 @@ function exportStatsSectionPng(kind){
   if(spec.layout === 'ficha-hero'){
     // KPI hero (3 columnas) + 2 grupos de pares K/V
     const heroH = 92;
-    const heroBox = addRect(PAD_X, cursorY, availW, heroH, '#fffdf8', '#14181f');
+    const heroBox = addRect(PAD_X, cursorY, availW, heroH, '#ffffff', '#14181f');
     heroBox.setAttribute('stroke-width', '0.6');
     elements.push(heroBox);
     const colW = availW / spec.hero.length;
@@ -11300,16 +11465,16 @@ function exportStatsSectionPng(kind){
         const sep = document.createElementNS(NS, 'line');
         sep.setAttribute('x1', x); sep.setAttribute('y1', cursorY + 12);
         sep.setAttribute('x2', x); sep.setAttribute('y2', cursorY + heroH - 12);
-        sep.setAttribute('stroke', '#d9d3c4'); sep.setAttribute('stroke-width', '1');
+        sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '1');
         elements.push(sep);
       }
       elements.push(addText(x + 16, cursorY + 22, h.label.toUpperCase(),
-        { size:'9.5', weight:'700', fill:'#6a6a64', tracking:'1.8' }));
+        { size:'9.5', weight:'700', fill:'#6b7077', tracking:'0.4' }));
       const tone = h.tone === 'yes' ? VOTE_HEX.yes : (h.tone === 'no' ? VOTE_HEX.no : '#14181f');
       elements.push(addText(x + 16, cursorY + 60, String(h.value),
         { font: TBL_PNG_FONTS.serifTitle, size:'30', weight:'700', fill: tone, tracking:'-1' }));
       elements.push(addText(x + 16, cursorY + 80, h.sub,
-        { size:'10', fill:'#6a6a64' }));
+        { size:'10', fill:'#6b7077' }));
     });
     cursorY += heroH + 24;
 
@@ -11318,11 +11483,11 @@ function exportStatsSectionPng(kind){
       const groupW = (availW - 16) / spec.kvGroups.length;
       const gx = PAD_X + gi * (groupW + 16);
       elements.push(addText(gx, cursorY, grp.title.toUpperCase(),
-        { size:'10', weight:'700', fill:'#9c7a2c', tracking:'1.8' }));
+        { size:'10', weight:'700', fill:'#2f6f9f', tracking:'0.4' }));
       const goldRule = document.createElementNS(NS, 'line');
       goldRule.setAttribute('x1', gx); goldRule.setAttribute('y1', cursorY + 6);
       goldRule.setAttribute('x2', gx + 24); goldRule.setAttribute('y2', cursorY + 6);
-      goldRule.setAttribute('stroke', '#9c7a2c'); goldRule.setAttribute('stroke-width', '2');
+      goldRule.setAttribute('stroke', '#2f6f9f'); goldRule.setAttribute('stroke-width', '2');
       elements.push(goldRule);
       let itemY = cursorY + 26;
       grp.items.forEach((it, idx) => {
@@ -11330,16 +11495,16 @@ function exportStatsSectionPng(kind){
                    : it.tone === 'no'  ? VOTE_HEX.no
                    : it.tone === 'warn'? VOTE_HEX.warn : '#14181f';
         elements.push(addText(gx, itemY, it.k.toUpperCase(),
-          { size:'9.5', weight:'700', fill:'#6a6a64', tracking:'1.4' }));
+          { size:'9.5', weight:'600', fill:'#6b7077', tracking:'0.4' }));
         elements.push(addText(gx + groupW - 4, itemY, String(it.v),
           { font: TBL_PNG_FONTS.serifTitle, size:'15', weight:'700', fill: tone, anchor:'end', tracking:'-0.3' }));
         elements.push(addText(gx, itemY + 14, it.sub,
-          { size:'10', fill:'#9a9588' }));
+          { size:'10', fill:'#9aa0a6' }));
         if(idx < grp.items.length - 1){
           const sep = document.createElementNS(NS, 'line');
           sep.setAttribute('x1', gx); sep.setAttribute('y1', itemY + 22);
           sep.setAttribute('x2', gx + groupW - 4); sep.setAttribute('y2', itemY + 22);
-          sep.setAttribute('stroke', '#d9d3c4'); sep.setAttribute('stroke-width', '0.5');
+          sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '0.5');
           sep.setAttribute('stroke-dasharray', '2,3');
           elements.push(sep);
         }
@@ -11356,25 +11521,25 @@ function exportStatsSectionPng(kind){
     if(heroItems.length){
       const colW = availW / heroItems.length;
       const heroH = 76;
-      elements.push(addRect(PAD_X, cursorY, availW, heroH, '#fbf9f1', '#d9d3c4'));
+      elements.push(addRect(PAD_X, cursorY, availW, heroH, '#f6f6f4', '#e7e5e1'));
       heroItems.forEach((h, i) => {
         const x = PAD_X + i * colW;
         if(i > 0){
           const sep = document.createElementNS(NS, 'line');
           sep.setAttribute('x1', x); sep.setAttribute('y1', cursorY + 12);
           sep.setAttribute('x2', x); sep.setAttribute('y2', cursorY + heroH - 12);
-          sep.setAttribute('stroke', '#d9d3c4'); sep.setAttribute('stroke-width', '1');
+          sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '1');
           elements.push(sep);
         }
         elements.push(addText(x + 16, cursorY + 22, h.label.toUpperCase(),
-          { size:'9.5', weight:'700', fill:'#6a6a64', tracking:'1.6' }));
+          { size:'9.5', weight:'700', fill:'#6b7077', tracking:'0.4' }));
         const tone = h.tone === 'yes' ? VOTE_HEX.yes
                    : h.tone === 'no'  ? VOTE_HEX.no
                    : h.tone === 'warn'? VOTE_HEX.warn : '#14181f';
         elements.push(addText(x + 16, cursorY + 52, String(h.value),
           { font: TBL_PNG_FONTS.serifTitle, size:'22', weight:'700', fill: tone, tracking:'-0.5' }));
         elements.push(addText(x + 16, cursorY + 68, h.sub,
-          { size:'10', fill:'#6a6a64' }));
+          { size:'10', fill:'#6b7077' }));
       });
       cursorY += heroH + 20;
     }
@@ -11387,11 +11552,11 @@ function exportStatsSectionPng(kind){
         const x = PAD_X + pi * (paneW + 24);
         let y = cursorY;
         elements.push(addText(x, y, pane.title.toUpperCase(),
-          { size:'10', weight:'700', fill:'#9c7a2c', tracking:'1.6' }));
+          { size:'10', weight:'700', fill:'#2f6f9f', tracking:'0.4' }));
         y += 18;
         if(!pane.items.length){
           elements.push(addText(x, y, 'Sin datos en este escenario.',
-            { size:'11', fill:'#9a9588', style:'italic' }));
+            { size:'11', fill:'#9aa0a6', style:'italic' }));
           y += 22;
         } else {
           pane.items.forEach(it => {
@@ -11404,11 +11569,11 @@ function exportStatsSectionPng(kind){
             elements.push(addText(labelX, y + 12, it.label,
               { size:'11', weight:'600', fill:'#14181f', maxChars: Math.floor((paneW - 110) / 5.8) }));
             elements.push(addText(labelX, y + 26, it.sub,
-              { size:'9.5', fill:'#9a9588' }));
+              { size:'9.5', fill:'#9aa0a6' }));
             // Mini-barra
             const barX = x + paneW - 100;
             const barW = 70;
-            elements.push(addRect(barX, y + 16, barW, 5, '#ece6d5'));
+            elements.push(addRect(barX, y + 16, barW, 5, '#ededeb'));
             elements.push(addRect(barX, y + 16, barW * Math.min(100, it.pct) / 100, 5, VOTE_HEX.warn));
             elements.push(addText(x + paneW, y + 14, (it.pct).toFixed(1) + '%',
               { font: TBL_PNG_FONTS.serifTitle, size:'14', weight:'700', anchor:'end', tracking:'-0.3' }));
@@ -11426,20 +11591,20 @@ function exportStatsSectionPng(kind){
 
       // Header de columna
       const headY = y + 12;
-      elements.push(addRect(PAD_X, y, availW, 26, '#f8f5ec', '#d9d3c4'));
+      elements.push(addRect(PAD_X, y, availW, 26, '#ffffff', '#e7e5e1'));
       elements.push(addText(PAD_X + 12, headY + 4, useFamilyDot ? 'BLOQUE / FAMILIA' : 'PROVINCIA',
-        { size:'10', weight:'700', fill:'#6a6a64', tracking:'1.4' }));
+        { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4' }));
       elements.push(addText(PAD_X + Math.round(availW * 0.42), headY + 4, 'COMPOSICIÓN DEL VOTO',
-        { size:'10', weight:'700', fill:'#6a6a64', tracking:'1.4' }));
+        { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4' }));
       if(useTerritoryFamilyChip){
         elements.push(addText(PAD_X + Math.round(availW * 0.78), headY + 4, 'FAMILIA PREDOMINANTE',
-          { size:'10', weight:'700', fill:'#6a6a64', tracking:'1.4' }));
+          { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4' }));
       } else {
         elements.push(addText(PAD_X + Math.round(availW * 0.78), headY + 4, 'COHESIÓN',
-          { size:'10', weight:'700', fill:'#6a6a64', tracking:'1.4' }));
+          { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4' }));
       }
       elements.push(addText(PAD_X + availW - 12, headY + 4, useTerritoryFamilyChip ? '% AFIRMATIVO' : '%',
-        { size:'10', weight:'700', fill:'#6a6a64', tracking:'1.4', anchor:'end' }));
+        { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4', anchor:'end' }));
       y += 26;
 
       const labelColW = Math.round(availW * 0.40);
@@ -11449,7 +11614,7 @@ function exportStatsSectionPng(kind){
       const rowH = 32;
       spec.bars.forEach((b, bi) => {
         if(bi % 2 === 0){
-          elements.push(addRect(PAD_X, y, availW, rowH, '#fbf9f1'));
+          elements.push(addRect(PAD_X, y, availW, rowH, '#f6f6f4'));
         }
         // Label
         let labX = PAD_X + 14;
@@ -11460,7 +11625,7 @@ function exportStatsSectionPng(kind){
         elements.push(addText(labX, y + 14, b.label,
           { size:'11.5', weight:'600', fill:'#14181f', maxChars: Math.floor((labelColW - 30) / 6.0) }));
         elements.push(addText(labX, y + 26, b.total + (useFamilyDot ? ' legs' : ' bancas'),
-          { size:'9.5', fill:'#9a9588' }));
+          { size:'9.5', fill:'#9aa0a6' }));
 
         // Mini-barra de composición
         const barX = PAD_X + labelColW + 8;
@@ -11473,7 +11638,7 @@ function exportStatsSectionPng(kind){
           elements.push(addCircle(auxX + 5, y + rowH/2, 4, b.dominantFamilyColor || '#a09b8c'));
           const famText = b.dominantFamily || 'No consignado';
           elements.push(addText(auxX + 14, y + 18, famText,
-            { size:'10.5', weight:'600', fill: b.dominantFamily ? '#14181f' : '#9a9588',
+            { size:'10.5', weight:'600', fill: b.dominantFamily ? '#14181f' : '#9aa0a6',
               style: b.dominantFamily ? 'normal' : 'italic',
               maxChars: Math.floor((auxColW - 20) / 6) }));
         } else {
@@ -11482,7 +11647,7 @@ function exportStatsSectionPng(kind){
             { font: TBL_PNG_FONTS.serifTitle, size:'14', weight:'700', fill: cohesionTone, tracking:'-0.3' }));
           const dominantLabel = b.dominantVote ? (VOTE_LABELS_CSV[b.dominantVote] || '').toLowerCase() : '';
           elements.push(addText(auxX, y + 30, dominantLabel,
-            { size:'9.5', fill:'#9a9588', style:'italic' }));
+            { size:'9.5', fill:'#9aa0a6', style:'italic' }));
         }
 
         // Última columna: cifra grande a la derecha
@@ -11498,12 +11663,12 @@ function exportStatsSectionPng(kind){
           const sep = document.createElementNS(NS, 'line');
           sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y + rowH);
           sep.setAttribute('x2', PAD_X + availW); sep.setAttribute('y2', y + rowH);
-          sep.setAttribute('stroke', '#ece6d5'); sep.setAttribute('stroke-width', '0.6');
+          sep.setAttribute('stroke', '#ededeb'); sep.setAttribute('stroke-width', '0.6');
           elements.push(sep);
         }
         y += rowH;
       });
-      elements.push(addRect(PAD_X, cursorY + 26, availW, y - (cursorY + 26), 'none', '#d9d3c4'));
+      elements.push(addRect(PAD_X, cursorY + 26, availW, y - (cursorY + 26), 'none', '#e7e5e1'));
       cursorY = y + 8;
     }
   }
@@ -11515,15 +11680,15 @@ function exportStatsSectionPng(kind){
     const headerH = 50;
 
     // Header
-    elements.push(addRect(PAD_X, cursorY, availW, headerH, '#f8f5ec', '#d9d3c4'));
+    elements.push(addRect(PAD_X, cursorY, availW, headerH, '#ffffff', '#e7e5e1'));
     elements.push(addText(PAD_X + 14, cursorY + 30, 'INDICADOR',
-      { size:'10', weight:'700', fill:'#6a6a64', tracking:'1.4' }));
+      { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4' }));
     spec.scenarios.forEach((sc, i) => {
       const x = PAD_X + labelColW + i * scenColW;
       elements.push(addText(x + scenColW/2, cursorY + 20, sc.caseName.split(' ')[0] + ' · ' + sc.chamberShort,
         { font: TBL_PNG_FONTS.serifTitle, size:'13', weight:'700', fill:'#14181f', anchor:'middle', tracking:'-0.3' }));
       elements.push(addText(x + scenColW/2, cursorY + 38, sc.date,
-        { size:'10', fill:'#9a9588', anchor:'middle' }));
+        { size:'10', fill:'#9aa0a6', anchor:'middle' }));
     });
     cursorY += headerH;
 
@@ -11533,19 +11698,19 @@ function exportStatsSectionPng(kind){
     let totalBlockH = headerH;
     spec.groups.forEach(grp => {
       // Group header
-      elements.push(addRect(PAD_X, cursorY, availW, groupHeaderH, '#f8f5ec'));
+      elements.push(addRect(PAD_X, cursorY, availW, groupHeaderH, '#ffffff'));
       elements.push(addText(PAD_X + 14, cursorY + 18, grp.title.toUpperCase(),
-        { size:'10', weight:'700', fill:'#9c7a2c', tracking:'1.8' }));
+        { size:'10', weight:'700', fill:'#2f6f9f', tracking:'0.4' }));
       cursorY += groupHeaderH;
       totalBlockH += groupHeaderH;
 
       grp.metrics.forEach((m, mi) => {
-        if(mi % 2 === 0) elements.push(addRect(PAD_X, cursorY, availW, rowH, '#fbf9f1'));
+        if(mi % 2 === 0) elements.push(addRect(PAD_X, cursorY, availW, rowH, '#f6f6f4'));
         elements.push(addText(PAD_X + 14, cursorY + 19, m.label,
           { size:'11.5', weight:'600', fill:'#14181f' }));
         if(m.sub){
           elements.push(addText(PAD_X + 14, cursorY + 28, m.sub.toLowerCase(),
-            { size:'9.5', fill:'#9a9588', style:'italic' }));
+            { size:'9.5', fill:'#9aa0a6', style:'italic' }));
         }
         spec.scenarios.forEach((sc, i) => {
           const x = PAD_X + labelColW + i * scenColW;
@@ -11563,7 +11728,7 @@ function exportStatsSectionPng(kind){
         totalBlockH += rowH;
       });
     });
-    elements.push(addRect(PAD_X, cursorY - totalBlockH, availW, totalBlockH, 'none', '#d9d3c4'));
+    elements.push(addRect(PAD_X, cursorY - totalBlockH, availW, totalBlockH, 'none', '#e7e5e1'));
     cursorY += 8;
   }
 
@@ -11578,7 +11743,7 @@ function exportStatsSectionPng(kind){
       const row = Math.floor(bi / cols);
       const x = PAD_X + col * (cellW + 24);
       const y = cursorY + row * (cellH + 16);
-      elements.push(addRect(x, y, cellW, cellH, '#fbf9f1', '#d9d3c4'));
+      elements.push(addRect(x, y, cellW, cellH, '#f6f6f4', '#e7e5e1'));
       // Title
       elements.push(addText(x + 16, y + 24, blk.title,
         { font: TBL_PNG_FONTS.serifTitle, size:'14', weight:'700', fill:'#14181f', tracking:'-0.3' }));
@@ -11587,7 +11752,7 @@ function exportStatsSectionPng(kind){
         const ly = y + 50 + di * 24;
         elements.push(addText(x + 16, ly, d.label,
           { size:'11', fill:'#2c3543' }));
-        const tone = Math.abs(d.value) < 0.05 ? '#9a9588' : (d.value > 0 ? VOTE_HEX.yes : VOTE_HEX.no);
+        const tone = Math.abs(d.value) < 0.05 ? '#9aa0a6' : (d.value > 0 ? VOTE_HEX.yes : VOTE_HEX.no);
         const sgnText = sgn(d.value) + ' ' + d.unit;
         elements.push(addText(x + cellW - 16, ly, sgnText,
           { font: TBL_PNG_FONTS.serifTitle, size:'14', weight:'700', fill: tone, anchor:'end', tracking:'-0.3' }));
@@ -11601,15 +11766,15 @@ function exportStatsSectionPng(kind){
     const rowH = 70;
     spec.ranks.forEach((rk, ri) => {
       const y = cursorY + ri * (rowH + 10);
-      elements.push(addRect(PAD_X, y, availW, rowH, '#fbf9f1', '#d9d3c4'));
+      elements.push(addRect(PAD_X, y, availW, rowH, '#f6f6f4', '#e7e5e1'));
       // Tick gold left
-      elements.push(addRect(PAD_X, y, 4, rowH, '#9c7a2c'));
+      elements.push(addRect(PAD_X, y, 4, rowH, '#2f6f9f'));
       elements.push(addText(PAD_X + 20, y + 22, rk.label.toUpperCase(),
-        { size:'10', weight:'700', fill:'#9c7a2c', tracking:'1.8' }));
+        { size:'10', weight:'700', fill:'#2f6f9f', tracking:'0.4' }));
       elements.push(addText(PAD_X + 20, y + 48, rk.winner,
         { font: TBL_PNG_FONTS.serifTitle, size:'18', weight:'700', fill:'#14181f', tracking:'-0.4' }));
       elements.push(addText(PAD_X + 20, y + 64, rk.base.toLowerCase(),
-        { size:'10.5', fill:'#9a9588', style:'italic' }));
+        { size:'10.5', fill:'#9aa0a6', style:'italic' }));
       // Valor a la derecha
       const tone = rk.tone === 'yes' ? VOTE_HEX.yes
                  : rk.tone === 'no'  ? VOTE_HEX.no
@@ -11634,19 +11799,19 @@ function exportStatsSectionPng(kind){
     if(spec.pngLimit && rowsToRender.length > spec.pngLimit) rowsToRender = rowsToRender.slice(0, spec.pngLimit);
 
     // Header de la tabla
-    elements.push(addRect(PAD_X, cursorY, availW, headerH, '#f8f5ec', '#d9d3c4'));
+    elements.push(addRect(PAD_X, cursorY, availW, headerH, '#ffffff', '#e7e5e1'));
     cols.forEach((c, i) => {
       const align = c.align || 'left';
       const tx = align === 'right' ? colXs[i] + colWs[i] - 10 : colXs[i] + 12;
       const t = addText(tx, cursorY + 18, (c.label || c.key).toUpperCase(),
-        { size:'10', weight:'700', fill:'#6a6a64', tracking:'1.4', anchor: align === 'right' ? 'end' : undefined });
+        { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4', anchor: align === 'right' ? 'end' : undefined });
       elements.push(t);
     });
     cursorY += headerH;
 
     // Filas
     rowsToRender.forEach((row, ri) => {
-      if(ri % 2 === 0) elements.push(addRect(PAD_X, cursorY, availW, rowH, '#fbf9f1'));
+      if(ri % 2 === 0) elements.push(addRect(PAD_X, cursorY, availW, rowH, '#f6f6f4'));
       cols.forEach((c, i) => {
         const align = c.align || 'left';
         const tx = align === 'right' ? colXs[i] + colWs[i] - 10 : colXs[i] + 12;
@@ -11655,7 +11820,7 @@ function exportStatsSectionPng(kind){
         const txt = raw.length > maxChars ? raw.slice(0, maxChars - 1) + '…' : raw;
         let fill = '#14181f';
         // tint cromática para valores Rice/Rae con "No calculable"
-        if(/^No calc/i.test(raw)) fill = '#9a9588';
+        if(/^No calc/i.test(raw)) fill = '#9aa0a6';
         elements.push(addText(tx, cursorY + 19, txt, {
           size: align === 'right' ? '12' : '11.5',
           weight: align === 'right' ? '700' : '500',
@@ -11669,18 +11834,18 @@ function exportStatsSectionPng(kind){
         const sep = document.createElementNS(NS, 'line');
         sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', cursorY + rowH);
         sep.setAttribute('x2', PAD_X + availW); sep.setAttribute('y2', cursorY + rowH);
-        sep.setAttribute('stroke', '#ece6d5'); sep.setAttribute('stroke-width', '0.6');
+        sep.setAttribute('stroke', '#ededeb'); sep.setAttribute('stroke-width', '0.6');
         elements.push(sep);
       }
       cursorY += rowH;
     });
     // Borde envolvente
     const tblTop = cursorY - rowsToRender.length * rowH - headerH;
-    elements.push(addRect(PAD_X, tblTop, availW, headerH + rowsToRender.length * rowH, 'none', '#d9d3c4'));
+    elements.push(addRect(PAD_X, tblTop, availW, headerH + rowsToRender.length * rowH, 'none', '#e7e5e1'));
     if(spec.pngLimit && spec.rows.length > spec.pngLimit){
       cursorY += 8;
       elements.push(addText(PAD_X, cursorY + 10, `Se muestran ${spec.pngLimit} filas de ${spec.rows.length}. El CSV trae todas.`,
-        { size:'10', fill:'#9a9588', style:'italic' }));
+        { size:'10', fill:'#9aa0a6', style:'italic' }));
       cursorY += 16;
     }
   }
@@ -11688,18 +11853,18 @@ function exportStatsSectionPng(kind){
   else if(spec.layout === 'two-pane-bars-rice'){
     // Rice por familia/bloque + KPI Rae
     const heroH = 76;
-    elements.push(addRect(PAD_X, cursorY, availW, heroH, '#fbf9f1', '#d9d3c4'));
+    elements.push(addRect(PAD_X, cursorY, availW, heroH, '#f6f6f4', '#e7e5e1'));
     const raeStr = spec.raeComputable ? spec.raeValue.toFixed(3) : 'No calculable';
-    const raeTone = !spec.raeComputable ? '#9a9588'
+    const raeTone = !spec.raeComputable ? '#9aa0a6'
                     : spec.raeValue < 0.30 ? VOTE_HEX.yes
                     : spec.raeValue > 0.55 ? VOTE_HEX.warn
                     : '#14181f';
     elements.push(addText(PAD_X + 20, cursorY + 22, 'ÍNDICE DE RAE — FRAGMENTACIÓN DEL VOTO EMITIDO',
-      { size:'9.5', weight:'700', fill:'#6a6a64', tracking:'1.6' }));
+      { size:'9.5', weight:'700', fill:'#6b7077', tracking:'0.4' }));
     elements.push(addText(PAD_X + 20, cursorY + 56, raeStr,
       { font: TBL_PNG_FONTS.serifTitle, size:'30', weight:'700', fill: raeTone, tracking:'-0.8' }));
     elements.push(addText(PAD_X + 220, cursorY + 56, spec.raeComputable ? `${spec.raeDenom} votos emitidos · base afi + neg + abst` : '—',
-      { size:'11', fill:'#6a6a64' }));
+      { size:'11', fill:'#6b7077' }));
     cursorY += heroH + 20;
 
     const paneW = (availW - 24) / 2;
@@ -11707,11 +11872,11 @@ function exportStatsSectionPng(kind){
     const drawRicePane = (title, items, isBlock, x) => {
       let y = cursorY;
       elements.push(addText(x, y, title.toUpperCase(),
-        { size:'10', weight:'700', fill:'#9c7a2c', tracking:'1.6' }));
+        { size:'10', weight:'700', fill:'#2f6f9f', tracking:'0.4' }));
       y += 18;
       if(!items.length){
         elements.push(addText(x, y, 'Sin grupos con afi/neg suficientes para calcular Rice.',
-          { size:'11', fill:'#9a9588', style:'italic' }));
+          { size:'11', fill:'#9aa0a6', style:'italic' }));
         y += 22;
       } else {
         items.forEach(it => {
@@ -11719,10 +11884,10 @@ function exportStatsSectionPng(kind){
           elements.push(addText(x + 14, y + 12, isBlock ? it.block : it.family,
             { size:'11', weight:'600', fill:'#14181f', maxChars: Math.floor((paneW - 110) / 5.8) }));
           elements.push(addText(x + 14, y + 26, `n=${it.total}`,
-            { size:'9.5', fill:'#9a9588' }));
+            { size:'9.5', fill:'#9aa0a6' }));
           const barX = x + paneW - 100;
           const barW = 70;
-          elements.push(addRect(barX, y + 16, barW, 5, '#ece6d5'));
+          elements.push(addRect(barX, y + 16, barW, 5, '#ededeb'));
           elements.push(addRect(barX, y + 16, barW * Math.min(1, it.rice), 5, VOTE_HEX.yes));
           elements.push(addText(x + paneW, y + 14, (it.rice * 100).toFixed(1) + '%',
             { font: TBL_PNG_FONTS.serifTitle, size:'14', weight:'700', anchor:'end', tracking:'-0.3' }));
@@ -11741,16 +11906,16 @@ function exportStatsSectionPng(kind){
     const barH = 60;
     spec.raeBars.forEach((b, i) => {
       const y = cursorY + i * (barH + 12);
-      elements.push(addRect(PAD_X, y, availW, barH, '#fbf9f1', '#d9d3c4'));
+      elements.push(addRect(PAD_X, y, availW, barH, '#f6f6f4', '#e7e5e1'));
       elements.push(addText(PAD_X + 20, y + 22, b.label,
         { font: TBL_PNG_FONTS.serifTitle, size:'16', weight:'700', fill:'#14181f', tracking:'-0.4' }));
       elements.push(addText(PAD_X + 20, y + 42, b.sub,
-        { size:'10.5', fill:'#9a9588', style:'italic' }));
+        { size:'10.5', fill:'#9aa0a6', style:'italic' }));
       // Barra de Rae (max teórico ~0.667 con 3 categorías; escalado a 0-1)
       if(b.computable){
         const barX = PAD_X + 360;
         const barW = availW - 360 - 120;
-        elements.push(addRect(barX, y + barH/2 - 4, barW, 8, '#ece6d5'));
+        elements.push(addRect(barX, y + barH/2 - 4, barW, 8, '#ededeb'));
         elements.push(addRect(barX, y + barH/2 - 4, barW * (b.value / 0.667), 8,
           b.value < 0.30 ? VOTE_HEX.yes : b.value > 0.55 ? VOTE_HEX.warn : '#14181f'));
         elements.push(addText(PAD_X + availW - 20, y + 36, b.value.toFixed(3),
@@ -11758,7 +11923,7 @@ function exportStatsSectionPng(kind){
             fill: b.value < 0.30 ? VOTE_HEX.yes : b.value > 0.55 ? VOTE_HEX.warn : '#14181f' }));
       } else {
         elements.push(addText(PAD_X + availW - 20, y + 36, 'No calculable',
-          { size:'12', fill:'#9a9588', anchor:'end', style:'italic' }));
+          { size:'12', fill:'#9aa0a6', anchor:'end', style:'italic' }));
       }
     });
     cursorY += spec.raeBars.length * (barH + 12);
@@ -11773,25 +11938,25 @@ function exportStatsSectionPng(kind){
     const headerH = 50;
 
     // Header
-    elements.push(addRect(PAD_X, cursorY, availW, headerH, '#f8f5ec', '#d9d3c4'));
+    elements.push(addRect(PAD_X, cursorY, availW, headerH, '#ffffff', '#e7e5e1'));
     elements.push(addText(PAD_X + 14, cursorY + 30, isProvince ? 'PROVINCIA' : 'FAMILIA POLÍTICA',
-      { size:'10', weight:'700', fill:'#6a6a64', tracking:'1.4' }));
+      { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4' }));
     spec.scenarios.forEach((sc, i) => {
       const x = PAD_X + labelColW + i * scenColW;
       elements.push(addText(x + scenColW/2, cursorY + 20, sc.caseName.split(' ')[0] + ' · ' + sc.chamberShort,
         { font: TBL_PNG_FONTS.serifTitle, size:'12.5', weight:'700', fill:'#14181f', anchor:'middle', tracking:'-0.3' }));
       elements.push(addText(x + scenColW/2, cursorY + 36, sc.date,
-        { size:'9.5', fill:'#9a9588', anchor:'middle' }));
+        { size:'9.5', fill:'#9aa0a6', anchor:'middle' }));
     });
     if(isProvince){
       elements.push(addText(PAD_X + availW - tagColW/2, cursorY + 30, 'PATRÓN',
-        { size:'10', weight:'700', fill:'#6a6a64', tracking:'1.4', anchor:'middle' }));
+        { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4', anchor:'middle' }));
     }
     cursorY += headerH;
 
     const rowH = 44;
     spec.wideRows.forEach((wr, wi) => {
-      if(wi % 2 === 0) elements.push(addRect(PAD_X, cursorY, availW, rowH, '#fbf9f1'));
+      if(wi % 2 === 0) elements.push(addRect(PAD_X, cursorY, availW, rowH, '#f6f6f4'));
       // Label
       if(!isProvince){
         elements.push(addCircle(PAD_X + 16, cursorY + rowH/2, 5, wr.color));
@@ -11807,7 +11972,7 @@ function exportStatsSectionPng(kind){
         const cell = wr.cells[sc.id];
         if(!cell || !cell.total){
           elements.push(addText(x + scenColW/2, cursorY + rowH/2 + 4, '—',
-            { size:'12', fill:'#9a9588', anchor:'middle', style:'italic' }));
+            { size:'12', fill:'#9aa0a6', anchor:'middle', style:'italic' }));
           return;
         }
         // Bg cromático
@@ -11818,7 +11983,7 @@ function exportStatsSectionPng(kind){
           elements.push(addText(x + scenColW/2, cursorY + 20, fmt(cell.pctYesPresent) + '%',
             { font: TBL_PNG_FONTS.serifTitle, size:'14', weight:'700', fill:'#14181f', anchor:'middle', tracking:'-0.3' }));
           elements.push(addText(x + scenColW/2, cursorY + 35, `${cell.total} legs · coh. ${fmt(cell.cohesion)}%`,
-            { size:'9.5', fill:'#6a6a64', anchor:'middle' }));
+            { size:'9.5', fill:'#6b7077', anchor:'middle' }));
         } else {
           // provincia
           const dom = cell.dominantVote;
@@ -11830,7 +11995,7 @@ function exportStatsSectionPng(kind){
           elements.push(addText(x + scenColW/2, cursorY + 20, fmt(cell.pctYes) + '%',
             { font: TBL_PNG_FONTS.serifTitle, size:'14', weight:'700', fill:'#14181f', anchor:'middle', tracking:'-0.3' }));
           elements.push(addText(x + scenColW/2, cursorY + 35, `${dominantLabel} · ${cell.total} reps`,
-            { size:'9.5', fill:'#6a6a64', anchor:'middle' }));
+            { size:'9.5', fill:'#6b7077', anchor:'middle' }));
         }
       });
       // Tag de patrón (provincias)
@@ -11863,7 +12028,7 @@ function exportStatsSectionPng(kind){
     { generalSource: spec.noScenarioInName ? PNG_COMPARISON_SOURCE : null });
   const totalH = footerOut.footerBottomY + 12;
 
-  const bg = addRect(0, 0, totalW, totalH, '#fffdf8');
+  const bg = addRect(0, 0, totalW, totalH, '#ffffff');
   wrapper.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
   wrapper.setAttribute('width', totalW); wrapper.setAttribute('height', totalH);
   wrapper.appendChild(bg);
@@ -12052,8 +12217,8 @@ function exportStatsPng(){
   const headBg = document.createElementNS(NS, 'rect');
   headBg.setAttribute('x', PAD_X); headBg.setAttribute('y', tableTop);
   headBg.setAttribute('width', totalW - 2*PAD_X); headBg.setAttribute('height', headerH);
-  headBg.setAttribute('fill', '#f8f5ec');
-  headBg.setAttribute('stroke', '#d9d3c4'); headBg.setAttribute('stroke-width', '1');
+  headBg.setAttribute('fill', '#ffffff');
+  headBg.setAttribute('stroke', '#e7e5e1'); headBg.setAttribute('stroke-width', '1');
   elements.push(headBg);
   ['INDICADOR', 'VALOR', 'DETALLE'].forEach((lbl, i) => {
     const t = document.createElementNS(NS, 'text');
@@ -12061,7 +12226,7 @@ function exportStatsPng(){
     t.setAttribute('x', tx); t.setAttribute('y', tableTop + 18);
     t.setAttribute('font-family', TBL_PNG_FONTS.sans);
     t.setAttribute('font-size', '10'); t.setAttribute('font-weight', '700');
-    t.setAttribute('fill', '#6a6a64'); t.setAttribute('letter-spacing', '1.4');
+    t.setAttribute('fill', '#6b7077'); t.setAttribute('letter-spacing', '0.4');
     if(i === 1) t.setAttribute('text-anchor', 'end');
     t.textContent = lbl;
     elements.push(t);
@@ -12073,7 +12238,7 @@ function exportStatsPng(){
       const zebra = document.createElementNS(NS, 'rect');
       zebra.setAttribute('x', PAD_X); zebra.setAttribute('y', ry);
       zebra.setAttribute('width', totalW - 2*PAD_X); zebra.setAttribute('height', rowH);
-      zebra.setAttribute('fill', '#fbf9f1');
+      zebra.setAttribute('fill', '#f6f6f4');
       elements.push(zebra);
     }
     // Indicator label
@@ -12097,7 +12262,7 @@ function exportStatsPng(){
     const det = document.createElementNS(NS, 'text');
     det.setAttribute('x', colXs[2] + 14); det.setAttribute('y', ry + 19);
     det.setAttribute('font-family', TBL_PNG_FONTS.sans);
-    det.setAttribute('font-size', '10.5'); det.setAttribute('fill', '#6a6a64');
+    det.setAttribute('font-size', '10.5'); det.setAttribute('fill', '#6b7077');
     det.setAttribute('font-style', 'italic');
     const maxChars = Math.floor((colWs[2] - 24) / 5.6);
     const dt = String(r.detail || '');
@@ -12108,7 +12273,7 @@ function exportStatsPng(){
       const sep = document.createElementNS(NS, 'line');
       sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', ry + rowH);
       sep.setAttribute('x2', PAD_X + (totalW - 2*PAD_X)); sep.setAttribute('y2', ry + rowH);
-      sep.setAttribute('stroke', '#ece6d5'); sep.setAttribute('stroke-width', '0.6');
+      sep.setAttribute('stroke', '#ededeb'); sep.setAttribute('stroke-width', '0.6');
       elements.push(sep);
     }
   });
@@ -12119,7 +12284,7 @@ function exportStatsPng(){
   tableBorder.setAttribute('width', totalW - 2*PAD_X);
   tableBorder.setAttribute('height', headerH + rows.length * rowH);
   tableBorder.setAttribute('fill', 'none');
-  tableBorder.setAttribute('stroke', '#d9d3c4'); tableBorder.setAttribute('stroke-width', '1');
+  tableBorder.setAttribute('stroke', '#e7e5e1'); tableBorder.setAttribute('stroke-width', '1');
   elements.push(tableBorder);
 
   const footerStartY = tableBottomY + 18;
@@ -12130,7 +12295,7 @@ function exportStatsPng(){
   const bg = document.createElementNS(NS, 'rect');
   bg.setAttribute('x', 0); bg.setAttribute('y', 0);
   bg.setAttribute('width', totalW); bg.setAttribute('height', totalH);
-  bg.setAttribute('fill', '#fffdf8');
+  bg.setAttribute('fill', '#ffffff');
 
   wrapper.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
   wrapper.setAttribute('width', totalW); wrapper.setAttribute('height', totalH);
@@ -12186,8 +12351,8 @@ function exportComparatorPng(){
   const headBg = document.createElementNS(NS, 'rect');
   headBg.setAttribute('x', PAD_X); headBg.setAttribute('y', tableTop);
   headBg.setAttribute('width', totalW - 2*PAD_X); headBg.setAttribute('height', headerH * 1.4);
-  headBg.setAttribute('fill', '#f8f5ec');
-  headBg.setAttribute('stroke', '#d9d3c4'); headBg.setAttribute('stroke-width', '1');
+  headBg.setAttribute('fill', '#ffffff');
+  headBg.setAttribute('stroke', '#e7e5e1'); headBg.setAttribute('stroke-width', '1');
   elements.push(headBg);
   cols.forEach(c => {
     const t = document.createElementNS(NS, 'text');
@@ -12195,7 +12360,7 @@ function exportComparatorPng(){
     t.setAttribute('x', tx); t.setAttribute('y', tableTop + 17);
     t.setAttribute('font-family', TBL_PNG_FONTS.sans);
     t.setAttribute('font-size', '10'); t.setAttribute('font-weight', '700');
-    t.setAttribute('fill', '#6a6a64'); t.setAttribute('letter-spacing', '1.2');
+    t.setAttribute('fill', '#6b7077'); t.setAttribute('letter-spacing', '0.4');
     if(c.align === 'right') t.setAttribute('text-anchor', 'end');
     t.textContent = c.label;
     elements.push(t);
@@ -12204,7 +12369,7 @@ function exportComparatorPng(){
       tsub.setAttribute('x', tx); tsub.setAttribute('y', tableTop + 34);
       tsub.setAttribute('font-family', TBL_PNG_FONTS.sans);
       tsub.setAttribute('font-size', '9.5'); tsub.setAttribute('font-weight', '600');
-      tsub.setAttribute('fill', '#9a9588');
+      tsub.setAttribute('fill', '#9aa0a6');
       if(c.align === 'right') tsub.setAttribute('text-anchor', 'end');
       tsub.textContent = c.sub;
       elements.push(tsub);
@@ -12233,7 +12398,7 @@ function exportComparatorPng(){
       const z = document.createElementNS(NS, 'rect');
       z.setAttribute('x', PAD_X); z.setAttribute('y', ry);
       z.setAttribute('width', totalW - 2*PAD_X); z.setAttribute('height', rowH);
-      z.setAttribute('fill', '#fbf9f1');
+      z.setAttribute('fill', '#f6f6f4');
       elements.push(z);
     }
     // Label
@@ -12269,7 +12434,7 @@ function exportComparatorPng(){
       const sep = document.createElementNS(NS, 'line');
       sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', ry + rowH);
       sep.setAttribute('x2', PAD_X + (totalW - 2*PAD_X)); sep.setAttribute('y2', ry + rowH);
-      sep.setAttribute('stroke', '#ece6d5'); sep.setAttribute('stroke-width', '0.6');
+      sep.setAttribute('stroke', '#ededeb'); sep.setAttribute('stroke-width', '0.6');
       elements.push(sep);
     }
   });
@@ -12280,7 +12445,7 @@ function exportComparatorPng(){
   border.setAttribute('width', totalW - 2*PAD_X);
   border.setAttribute('height', headerH * 1.4 + metrics.length * rowH);
   border.setAttribute('fill', 'none');
-  border.setAttribute('stroke', '#d9d3c4'); border.setAttribute('stroke-width', '1');
+  border.setAttribute('stroke', '#e7e5e1'); border.setAttribute('stroke-width', '1');
   elements.push(border);
 
   // Footer común — uso el escenario activo solo para las fuentes; aclaro alcance comparativo
@@ -12291,7 +12456,7 @@ function exportComparatorPng(){
   const sep = document.createElementNS(NSf, 'line');
   sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', footerStartY);
   sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', footerStartY);
-  sep.setAttribute('stroke', '#d9d3c4'); sep.setAttribute('stroke-width', '1');
+  sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '1');
   fEls.push(sep);
   const fuenteLine = document.createElementNS(NSf, 'text');
   fuenteLine.setAttribute('x', PAD_X); fuenteLine.setAttribute('y', footerStartY + 22);
@@ -12299,7 +12464,7 @@ function exportComparatorPng(){
   fuenteLine.setAttribute('font-size', '11.5'); fuenteLine.setAttribute('fill', '#2c3543');
   const k = document.createElementNS(NSf, 'tspan');
   k.setAttribute('font-size', '9.5'); k.setAttribute('font-weight', '700');
-  k.setAttribute('fill', '#6a6a64'); k.setAttribute('letter-spacing', '1.3');
+  k.setAttribute('fill', '#6b7077'); k.setAttribute('letter-spacing', '0.4');
   k.textContent = 'FUENTE  ';
   fuenteLine.appendChild(k);
   fuenteLine.appendChild(document.createTextNode(sourcesNote));
@@ -12310,7 +12475,7 @@ function exportComparatorPng(){
   notaLine.setAttribute('font-size', '11.5'); notaLine.setAttribute('fill', '#2c3543');
   const k2 = document.createElementNS(NSf, 'tspan');
   k2.setAttribute('font-size', '9.5'); k2.setAttribute('font-weight', '700');
-  k2.setAttribute('fill', '#6a6a64'); k2.setAttribute('letter-spacing', '1.3');
+  k2.setAttribute('fill', '#6b7077'); k2.setAttribute('letter-spacing', '0.4');
   k2.textContent = 'NOTA  ';
   notaLine.appendChild(k2);
   notaLine.appendChild(document.createTextNode('Comparar Diputados y Senado considerando que el principio de representación es distinto: población vs. 3 por jurisdicción. Porcentajes sobre presentes salvo la tasa de ausencia (sobre cuerpo).'));
@@ -12320,7 +12485,7 @@ function exportComparatorPng(){
   credit.setAttribute('x', PAD_X); credit.setAttribute('y', creditY);
   credit.setAttribute('font-family', TBL_PNG_FONTS.sans);
   credit.setAttribute('font-size', '9'); credit.setAttribute('font-weight', '600');
-  credit.setAttribute('fill', '#9a9588'); credit.setAttribute('letter-spacing', '1.2');
+  credit.setAttribute('fill', '#9aa0a6'); credit.setAttribute('letter-spacing', '0.4');
   credit.textContent = 'ELABORACIÓN PROPIA A PARTIR DE FUENTES LEGISLATIVAS OFICIALES.';
   fEls.push(credit);
   const totalH = creditY + 16;
@@ -12328,7 +12493,7 @@ function exportComparatorPng(){
   const bg = document.createElementNS(NS, 'rect');
   bg.setAttribute('x', 0); bg.setAttribute('y', 0);
   bg.setAttribute('width', totalW); bg.setAttribute('height', totalH);
-  bg.setAttribute('fill', '#fffdf8');
+  bg.setAttribute('fill', '#ffffff');
 
   wrapper.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
   wrapper.setAttribute('width', totalW); wrapper.setAttribute('height', totalH);
