@@ -4989,15 +4989,15 @@ function renderVizCard(){
   card.innerHTML = `
     <div class="mode-nav">
       <div class="subtabs" role="tablist" aria-label="Modos de análisis">
-        <button class="subtab is-on" data-subtab="case">Análisis del caso</button>
-        <button class="subtab" data-subtab="compare">Análisis comparado</button>
-        <button class="subtab" data-subtab="data">Datos</button>
-        <button class="subtab" data-subtab="method">Metodología</button>
+        <button class="subtab is-on" role="tab" id="tab-case" aria-controls="panel-case" aria-selected="true" data-subtab="case">Análisis del caso</button>
+        <button class="subtab" role="tab" id="tab-compare" aria-controls="panel-compare" aria-selected="false" data-subtab="compare">Análisis comparado</button>
+        <button class="subtab" role="tab" id="tab-data" aria-controls="panel-data" aria-selected="false" data-subtab="data">Datos</button>
+        <button class="subtab" role="tab" id="tab-method" aria-controls="panel-method" aria-selected="false" data-subtab="method">Metodología</button>
       </div>
     </div>
 
     <!-- ===== ANÁLISIS DEL CASO: ver + interpretar el escenario activo ===== -->
-    <div class="subpanel is-on" data-subtab="case">
+    <div class="subpanel is-on" role="tabpanel" id="panel-case" aria-labelledby="tab-case" data-subtab="case">
       ${renderScenarioSelector()}
       <details class="meta-bar" id="metaBar"></details>
       <p class="mode-bajada">Composición legislativa, distribución territorial y comportamiento por bloque, familia política y provincia de la votación seleccionada.</p>
@@ -5062,12 +5062,12 @@ function renderVizCard(){
     </div>
 
     <!-- ===== ANÁLISIS COMPARADO: comparar entre escenarios ===== -->
-    <div class="subpanel" data-subtab="compare">
+    <div class="subpanel" role="tabpanel" id="panel-compare" aria-labelledby="tab-compare" data-subtab="compare">
       <div id="comparePanel"></div>
     </div>
 
     <!-- ===== DATOS: tablas + exportaciones avanzadas ===== -->
-    <div class="subpanel" data-subtab="data">
+    <div class="subpanel" role="tabpanel" id="panel-data" aria-labelledby="tab-data" data-subtab="data">
       ${renderScenarioSelector()}
       <p class="mode-bajada">Base nominal de la votación seleccionada — <strong>${esc(s.caseName)} · ${esc(s.chamberShort)}</strong>. Para cambiar el universo de datos, elegí otro caso o cámara en este selector.</p>
       <div id="tablesPanel"></div>
@@ -5092,7 +5092,7 @@ function renderVizCard(){
     </div>
 
     <!-- ===== METODOLOGÍA: fuentes, criterios y límites ===== -->
-    <div class="subpanel" data-subtab="method">
+    <div class="subpanel" role="tabpanel" id="panel-method" aria-labelledby="tab-method" data-subtab="method">
       <div id="methodPanel"></div>
     </div>
   `;
@@ -12512,7 +12512,11 @@ function bindSubtabEvents(){
 
 function activateSubtab(name){
   state.subtab = name;
-  document.querySelectorAll('.subtab').forEach(x => x.classList.toggle('is-on', x.dataset.subtab === name));
+  document.querySelectorAll('.subtab').forEach(x => {
+    const on = x.dataset.subtab === name;
+    x.classList.toggle('is-on', on);
+    x.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
   document.querySelectorAll('.subpanel').forEach(p => p.classList.toggle('is-on', p.dataset.subtab === name));
   // Modo de análisis activo → clase en <body> para scopear (solo @media screen)
   // los controles que gobiernan cada modo: el selector de caso/cámara y la
