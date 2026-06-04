@@ -2,6 +2,16 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-04 — Auditoría integral: pulido de CSS, foco y accesibilidad (sin tocar datos)
+
+Pasada de calidad sobre el HTML, posterior al reskin Plex. Ningún cambio de datos, cálculos, resultados ni exports: verificado idéntico a `origin/main` y con diff visual pixel-a-pixel para los cambios de tokens.
+
+- **CSS muerto / inconsistente (`chore`)** — eliminadas 14 custom properties sin uso (`--bg`, `--acid-bright`, `--on-acid`, `--radius`, y los 10 `--fam-*`, cuyos colores viven en el objeto JS `FAMILY_COLORS`). Consolidados los tokens "gold" que el reskin dejó mal nombrados (nombre `gold`, valor azul `#2f6f9f`): `--accent-gold→--accent`, `--accent-gold-soft→--acid-soft`, `--accent-gold-text→--ink-2`, `--gold-rule→--line-strong` (34 referencias, todas value-idénticas → cero cambio visual). Corregidos comentarios falsos ("Acento dorado/ocre", "Atlas", "stroke dorado", encabezado "v1.0 2026-05-19").
+- **Foco de teclado (`fix`)** — el reskin había dejado un segundo bloque `:focus-visible` que solapaba al canónico y aplicaba un halo solo a botones/links genéricos, dejando `.subtab/.nav-seg/.vote-pill/.btn-exp` con un anillo distinto. Se eliminó el duplicado y se sumó `summary:focus-visible` al canónico: **todos los controles comparten ahora el mismo anillo** (2px sólido + offset, azul acero del sistema).
+- **Accesibilidad de pestañas (`fix`)** — el `role="tablist"` declaraba la región pero los botones no eran `role="tab"` (0 `aria-selected` en todo el archivo) ni los paneles `role="tabpanel"`. Se completó el patrón: `role=tab` + `id` + `aria-controls` + `aria-selected` en los 4 botones; `role=tabpanel` + `id` + `aria-labelledby` en los 4 subpaneles; toggle de `aria-selected` en `activateSubtab`.
+
+QA: 4 caras IBM Plex cargadas; `_getPlexFontCss()` → 4 `@font-face`; smoke 4 pestañas; B.5 sin highlight (2 mapas, contador 5); intra 64/38; cross 9; metodología 10; PNG (con Plex, flechas y tildes), CSV y print 54 OK; consola limpia; HTML −1,4 KB. Sin push.
+
 ## 2026-06-04 — Integración de reskin tipográfico (IBM Plex Sans · estilo Datawrapper)
 
 Se reemplazó `index.html` por una versión nueva provista por el autor: **reskin tipográfico y de cabecera** sobre el estado de la Fase 5. Cambios respecto del HEAD anterior (`origin/main`):
