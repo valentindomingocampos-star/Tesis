@@ -3767,6 +3767,7 @@ table.dtable td.col-block{
 
 button:focus-visible,
 a:focus-visible,
+summary:focus-visible,
 [role="tab"]:focus-visible,
 [role="button"]:focus-visible,
 [tabindex]:focus-visible{
@@ -3798,7 +3799,7 @@ a:focus-visible,
 }
 
 /* Asientos del hemiciclo (SVG <circle>): outline no aplica a SVG.
-   Refuerzo con stroke dorado del sistema ancho para foco de teclado. */
+   Refuerzo con stroke de acento ancho para foco de teclado. */
 .seat:focus-visible{
   stroke: var(--accent);
   stroke-width: 2.5;
@@ -3934,14 +3935,6 @@ a:focus-visible,
 /* Scroll suave en saltos de índice internos (Comparado / Metodología). */
 @media (prefers-reduced-motion: no-preference){
   html{ scroll-behavior: smooth; }
-}
-/* Foco visible elegante: anillo azul acero + halo suave. */
-button:focus-visible, a:focus-visible, summary:focus-visible,
-[role="tab"]:focus-visible, [role="button"]:focus-visible, [tabindex]:focus-visible,
-.search-input:focus-visible, .search-table:focus-visible, .select-input:focus-visible{
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 4px var(--acid-soft);
 }
 /* Revelado fluido del contenido de details al abrir (expand suave, sin salto). */
 @media (prefers-reduced-motion: no-preference){
