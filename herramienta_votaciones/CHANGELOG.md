@@ -12,7 +12,16 @@ Se reemplazó `index.html` por una versión nueva provista por el autor: **reski
 
 **Datos/cálculos idénticos** a `origin/main` (nombres, votos, familias, bloques, provincias, totales por escenario). Smoke test 11/11 (Caso, Datos+tab, Comparado, B.5 sin highlight, intra 64/38, cross 9, PNG, CSV, print 54, consola limpia).
 
-> ⚠ **Caveat documentado (no resuelto):** pese al comentario «Tipografía UI embebida (base64, offline)», la fuente **no está embebida** — 0 reglas `@font-face`, 0 payloads `woff/ttf/otf`, archivo solo +7.230 bytes (un Plex embebido pesaría 50–150 KB+). En máquinas sin IBM Plex Sans instalado, la herramienta y los PNG exportados caen al fallback `ui-sans-serif / system-ui / Helvetica Neue`. `_getPlexFontCss()` devuelve vacío (no halla `@font-face`). A resolver antes de considerar la entrega final si se busca tipografía portable/offline. Commit local; sin push.
+### IBM Plex Sans embebida de verdad (portabilidad tipográfica resuelta)
+
+La versión inicial del reskin referenciaba la fuente como hoja externa `assets/plex.css`, que no se bundleaba junto al HTML: el `<link>` fallaba al correr la herramienta, no se cargaba ningún `@font-face` y todo caía al fallback `system-ui / Helvetica` (en pantalla y en los PNG). **Resuelto:** se inlineó el contenido de `assets/plex.css` dentro del HTML como `<style id="plex-fonts">`, embebiendo **IBM Plex Sans en WOFF2 base64, pesos 400/500/600/700 (normal), subset Latin**, sin ninguna `url()` externa → la herramienta queda **100 % offline y autocontenida**.
+
+- **`@font-face` reales:** 4 (uno por peso); **payloads WOFF2 base64 reales:** 4 (~39 KB woff2 c/u). Pesos elegidos = exactamente los que usa el CSS (`--w-regular 400 · --w-medium 500 · --w-semi 600 · --w-bold 700`). Sin itálicas embebidas: los 12 `font-style:italic` se sintetizan (oblicua) sobre la cara embebida, sin caer a otra familia.
+- **`_getPlexFontCss()`** ya no devuelve vacío: lee los 4 `@font-face` del documento (215.932 chars) y los inyecta en cada SVG exportado → los **PNG rasterizan en Plex**. Verificado: caracteres españoles (Córdoba, ELABORACIÓN) y símbolos de tablas (`→`, `·`, `—`) renderizan correctamente (los glifos fuera del subset Latin usan el stack de fallback durante la rasterización).
+- `document.fonts` confirma las **4 caras IBM Plex Sans cargadas**. La función no requirió cambios de lógica: estaba bien diseñada, solo faltaba que existieran `@font-face` reales.
+- **Tamaño:** HTML de 700 KB → **916 KB** (+216 KB, atribuibles a las 4 fuentes WOFF2). Las caras ya vienen subseteadas a Latin; no se subsetea más (sin tooling local y para no arriesgar glifos españoles/símbolos).
+
+Commit local; sin push.
 
 ## 2026-06-03 — Fase 5.6 · Optimización segura (limpieza de deuda técnica)
 
