@@ -3128,13 +3128,6 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .cmp-cell.is-compact .cmp-map{ max-height: 380px; }
 /* Read-only: las bancas del comparado no se seleccionan (sin cursor de acción). */
 .cmp-hemicycle .cmp-seat{ cursor: default; }
-/* Provincias que cambiaron de voto dominante (segundo mapa del par): borde
-   dorado. La clase CSS gana sobre el atributo stroke inline (menor especificidad). */
-.cmp-map .province-path.is-changed{
-  stroke: var(--accent-gold);
-  stroke-width: 3;
-  stroke-opacity: 1;
-}
 
 /* Leyenda compartida del comparado */
 .cmp-legend{
@@ -3181,22 +3174,6 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   font-size: var(--t-sm);
   color: var(--ink-2);
   align-self: center;
-}
-.terr-gold{
-  margin-left: auto;
-  font-size: var(--t-xs);
-  color: var(--muted);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  align-self: center;
-}
-.terr-gold-sw{
-  width: 16px;
-  height: 0;
-  border-top: 3px solid var(--accent-gold);
-  border-radius: 2px;
-  display: inline-block;
 }
 .terr-change-list{
   list-style: none;
@@ -5712,15 +5689,15 @@ function buildCompareHemicycleSvg(s, colorMode){
   return svg;
 }
 
-// Mapa comparado. opts.highlightVs = _provinceData del otro escenario: marca con
-// borde dorado las provincias cuyo voto dominante cambió. opts.showLabels=false
-// para la grilla (mapas chicos). Read-only.
+// Mapa comparado. opts.showLabels=false para la grilla (mapas chicos). Read-only.
+// El mapa NO destaca visualmente las provincias que cambiaron de voto dominante
+// (Fase 5.6): la diferencia territorial se lee por comparación directa entre los
+// dos mapas y se detalla en el resumen textual (computeTerritorialChanges).
 function buildCompareMapSvg(s, colorMode, opts){
   opts = opts || {};
   ensureScenarioPrepared(s);
   const pData = s._provinceData;
   const mode = colorMode === 'family' ? 'family' : 'vote';
-  const compareData = opts.highlightVs || null;
   const showLabels = opts.showLabels !== false;
 
   const svg = el('svg', {
@@ -5751,14 +5728,8 @@ function buildCompareMapSvg(s, colorMode, opts){
     if(pName === 'Tierra del Fuego'){
       pathD = pathD + ' ' + Object.values(MALVINAS_PATHS).join(' ');
     }
-    // ¿Cambió el voto dominante respecto del otro escenario del par?
-    let changed = false;
-    if(compareData && info){
-      const other = compareData[pName];
-      if(other && other.dominantVote && info.dominantVote && other.dominantVote !== info.dominantVote) changed = true;
-    }
     provLayer.appendChild(el('path', {
-      class: 'province-path' + (changed ? ' is-changed' : ''),
+      class: 'province-path',
       d: pathD, fill, stroke, 'stroke-width': 1.0, 'stroke-opacity': 0.92,
       'data-province': pName
     }));
@@ -5816,9 +5787,9 @@ function buildCompareLegendHtml(scens, colorMode){
 }
 
 // Cambios territoriales (Fase 5.3): provincias cuyo voto DOMINANTE cambia entre
-// sA y sB. Espeja EXACTAMENTE la condición del highlight `.is-changed` del segundo
-// mapa (buildCompareMapSvg). Solo lectura: usa _provinceData ya calculado, no toca
-// cálculos ni datasets.
+// sA y sB. Misma condición que antes alimentaba el highlight del mapa (ya retirado
+// en Fase 5.6); ahora solo nutre el resumen textual. Solo lectura: usa
+// _provinceData ya calculado, no toca cálculos ni datasets.
 function computeTerritorialChanges(sA, sB){
   ensureScenarioPrepared(sA); ensureScenarioPrepared(sB);
   const pA = sA._provinceData || {}, pB = sB._provinceData || {};
@@ -5832,8 +5803,9 @@ function computeTerritorialChanges(sA, sB){
   return changes;
 }
 
-// Resumen territorial para B.5 (en pantalla): contador + leyenda del dorado +
-// lista compacta + nota metodológica. Estado sobrio si no hay cambios.
+// Resumen territorial para B.5 (en pantalla): contador + lista compacta +
+// nota metodológica. Estado sobrio si no hay cambios. El mapa no destaca las
+// provincias cambiantes (Fase 5.6): la diferencia se lee comparando los mapas.
 function buildTerritorialSummaryHtml(sA, sB){
   const changes = computeTerritorialChanges(sA, sB);
   const n = changes.length;
@@ -5841,9 +5813,8 @@ function buildTerritorialSummaryHtml(sA, sB){
   const shown = changes.slice(0, MAX);
   const extra = n - shown.length;
   const cN = `${esc(sA.caseName)} · ${esc(sA.chamberShort)}`, cB = `${esc(sB.caseName)} · ${esc(sB.chamberShort)}`;
-  const goldLeg = '<span class="terr-gold"><span class="terr-gold-sw"></span>Borde dorado en el segundo mapa</span>';
   if(n === 0){
-    return `<div class="terr-summary terr-summary-empty">${goldLeg} · Sin cambios de voto dominante provincial entre ${cN} y ${cB}.</div>`;
+    return `<div class="terr-summary terr-summary-empty">Sin cambios de voto dominante provincial entre ${cN} y ${cB}.</div>`;
   }
   const item = (c) => `<li class="terr-item"><span class="terr-prov">${esc(c.province)}</span>`
     + `<span class="vote-badge ${VOTE_CLASS[c.voteA]}">${esc(VOTE_LABELS[c.voteA])}</span>`
@@ -5853,7 +5824,6 @@ function buildTerritorialSummaryHtml(sA, sB){
     <div class="terr-summary-head">
       <span class="terr-count">${n}</span>
       <span class="terr-count-label">${n === 1 ? 'provincia cambió' : 'provincias cambiaron'} de voto dominante entre ${cN} y ${cB}</span>
-      ${goldLeg}
     </div>
     <ul class="terr-change-list">${shown.map(item).join('')}${extra > 0 ? `<li class="terr-more">+ ${extra} provincia${extra !== 1 ? 's' : ''} más</li>` : ''}</ul>
     <p class="terr-note">El cambio se calcula sobre el voto dominante provincial en cada escenario comparado. No mide intensidad legislador por legislador, sino variación del predominio territorial agregado.</p>
@@ -5892,7 +5862,7 @@ function mountCompareVisuals(){
   if(mapMount){
     mapMount.innerHTML = '';
     mapMount.appendChild(cmpVizCell(sA, buildCompareMapSvg(sA, mode)));
-    mapMount.appendChild(cmpVizCell(sB, buildCompareMapSvg(sB, mode, { highlightVs: sA._provinceData })));
+    mapMount.appendChild(cmpVizCell(sB, buildCompareMapSvg(sB, mode)));
   }
   const quadMount = document.getElementById('cmpQuad');
   if(quadMount){
@@ -7166,7 +7136,6 @@ const SVG_EXPORT_STYLES = `
   .seat.is-dim { opacity: 0.22; }
   .map-bg { fill: #fbfaf5; }
   .province-path { stroke-linejoin: round; stroke-linecap: round; stroke-opacity: 0.85; }
-  .province-path.is-changed { stroke: #9c7a2c; stroke-width: 3; stroke-opacity: 1; }
   .province-label { font-size: 9.5px; font-weight: 600; fill: #14181f; text-anchor: middle; paint-order: stroke; stroke: rgba(255,253,248,0.95); stroke-width: 2.8; stroke-linejoin: round; }
   .province-label.is-small { font-size: 8.5px; stroke-width: 2.4; }
   .malvinas-label { font-size: 8.5px; font-style: italic; fill: #2c3543; font-weight: 600; text-anchor: middle; letter-spacing: .02em; paint-order: stroke; stroke: rgba(255,253,248,0.95); stroke-width: 2.4; stroke-linejoin: round; }
@@ -7661,7 +7630,7 @@ function exportCompareVizPng(kind){
     const isMap = kind === 'maps';
     const cells = [
       { svg: isMap ? buildCompareMapSvg(sA, mode) : buildCompareHemicycleSvg(sA, mode), ...cellLabel(sA) },
-      { svg: isMap ? buildCompareMapSvg(sB, mode, { highlightVs: sA._provinceData }) : buildCompareHemicycleSvg(sB, mode), ...cellLabel(sB) }
+      { svg: isMap ? buildCompareMapSvg(sB, mode) : buildCompareHemicycleSvg(sB, mode), ...cellLabel(sB) }
     ];
     composite = buildCompareCompositeSvg(cells, isMap
       ? { cols: 2, cellW: 520, cellH: 832, labelH: 50, titleFont: 22, subFont: 14, gap: 80, rowGap: 0 }
@@ -7671,7 +7640,7 @@ function exportCompareVizPng(kind){
     legendScens = [sA, sB];
     fileParts = ['comparado', isMap ? 'mapas' : 'hemiciclos', sA.id + '_vs_' + sB.id, modeES];
     if(isMap){
-      reading = 'En el segundo mapa, el borde dorado señala las provincias cuyo voto dominante cambió respecto del primero.';
+      reading = 'La diferencia territorial se lee comparando ambos mapas; el detalle de provincias con cambio de voto dominante figura en la nota.';
       // Resumen territorial en el PNG (Fase 5.3): contador + lista compacta en la
       // nota del footer (se ajusta/envuelve; no genera clipping).
       const tch = computeTerritorialChanges(sA, sB);
@@ -10352,7 +10321,7 @@ function renderComparisonPanel(){
   const cmpMapSection = `
     <section class="stats-section cmp-viz-section">
       ${_sectionHead('B.5', 'Mapas lado a lado',
-        'Voto predominante por provincia. En el segundo mapa, las provincias con borde dorado cambiaron de voto dominante respecto del primero.', null,
+        'Voto predominante por provincia. La diferencia territorial se lee comparando ambos mapas; el resumen debajo detalla las provincias con cambio de voto dominante entre ambos escenarios.', null,
         '<button class="btn-exp btn-exp-primary" data-export="compare-maps-png" title="Descargar como lámina PNG">↓ PNG lámina</button>')}
       <div class="dual-viz" id="cmpDualMap"></div>
       ${buildTerritorialSummaryHtml(cmpPairScens[0], cmpPairScens[1])}

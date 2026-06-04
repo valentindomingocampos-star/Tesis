@@ -2,6 +2,28 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Corrección B.5 · Retiro del destacado territorial del mapa
+
+Se elimina por completo el destacado visual de las provincias que cambiaron de voto dominante en el segundo mapa de B.5 (antes: borde dorado). **No se reemplaza** por navy, punteado, halo, gris ni ningún otro efecto: la diferencia territorial se lee por comparación directa entre los dos mapas y se detalla en el resumen textual.
+
+### Qué se sacó (highlight)
+- **JS** `buildCompareMapSvg`: se quitó el cómputo `changed`, la aplicación de la clase `is-changed` al `path` y la opción `opts.highlightVs` (con su variable `compareData`). Los dos llamadores (mapa en pantalla y composite del export) dejan de pasar `highlightVs`. Los `path` salen siempre como `province-path` plano.
+- **CSS pantalla**: se eliminó la regla `.cmp-map .province-path.is-changed{ stroke: var(--accent-gold)… }`.
+- **CSS export SVG** (`SVG_EXPORT_STYLES`): se eliminó `.province-path.is-changed{ stroke:#9c7a2c… }`.
+- **Leyenda del dorado**: se eliminó el chip «Borde dorado en el segundo mapa» del resumen (`buildTerritorialSummaryHtml`) y su CSS (`.terr-gold`, `.terr-gold-sw`).
+- *(Las clases `is-changed` de `traj-matrix` en B.6 son otra cosa — la diagonal de la matriz de trayectoria — y quedan intactas.)*
+
+### Qué se mantuvo
+- B.5 sigue siendo **dos mapas**. El resumen interpretativo intacto: **contador** «N provincias cambiaron de voto dominante…», **lista compacta** «provincia · voto A → voto B» con sellos y **nota metodológica**. `computeTerritorialChanges` sin cambios (misma condición que antes alimentaba el highlight; ahora solo nutre el texto).
+- **Export PNG** de mapas comparados conserva el resumen textual en la NOTA («Provincias con cambio de voto dominante (N): …»).
+
+### Textos actualizados (sin «borde dorado»/«highlight»)
+- Subtítulo de B.5: «…La diferencia territorial se lee comparando ambos mapas; el resumen debajo detalla las provincias con cambio de voto dominante entre ambos escenarios.»
+- LECTURA del export PNG: «La diferencia territorial se lee comparando ambos mapas; el detalle de provincias con cambio de voto dominante figura en la nota.»
+
+### QA
+- Solo 2 mapas (sin tercer mapa); `0` paths con `is-changed` en el mapa; `0` strokes dorados computados; leyenda dorada ausente; contador (**5** Dip) y lista (**5** ítems) siguen funcionando; cambiar par actualiza contador/lista; export PNG sin borde/highlight y con resumen textual (sin clipping); exports previos intactos; datos y conteos de voto **idénticos a HEAD**; consola limpia; **print 54** (sin regresión); token `--accent-gold` sigue en uso en filetes/foco/matriz (no quedó huérfano). Sin push.
+
 ## 2026-06-03 — Fase 5.5 · Limpieza responsive (desktop-first, bloque defensivo)
 
 Auditoría de los 9 bloques `@media`. **No había CSS muerto:** todos los selectores responsive apuntan a clases vivas. Los breakpoints de escritorio (`max-width:1366px/min-1101px` → sidebar 360→320px; `max-width:1100px` ×3 → apilado a 1 columna; `min-width:1101px`/`min-width:900px` → mejoras; `@media screen` scoping de modos; `@media print`; `prefers-reduced-motion`) quedan **intactos y razonables**.
