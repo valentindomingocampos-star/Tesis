@@ -1,6 +1,6 @@
 # Contexto del proyecto — "El péndulo del poder"
 
-> Briefing para arrancar una sesión nueva de Claude Code (o cualquier asistente) con todo el contexto del proyecto: la tesis de grado y su herramienta de visualización de votaciones. Verificado contra el código al 2026-06-02.
+> Briefing para arrancar una sesión nueva de Claude Code (o cualquier asistente) con todo el contexto del proyecto: la tesis de grado y su herramienta de visualización de votaciones. Verificado contra el código al 2026-06-04.
 
 ## 0. Cómo trabajar conmigo
 
@@ -21,7 +21,7 @@
 
 ## 2. La herramienta (foco del trabajo de código)
 
-- **Archivo único:** `herramienta_votaciones/index.html` — una sola página HTML/CSS/JS, autocontenida, **sin dependencias externas** (~533 KB, ~9970 líneas). Todo (datos, estilos, lógica) va embebido. Se abre directo en el navegador, sin servidor.
+- **Archivo único:** `herramienta_votaciones/index.html` — una sola página HTML/CSS/JS, autocontenida y **offline, sin dependencias externas** (~916 KB, ~13.000 líneas). Todo va embebido: datos, estilos, lógica y la tipografía **IBM Plex Sans** (WOFF2 base64, pesos 400/500/600/700). Se abre directo en el navegador, sin servidor.
 - **Función:** complemento metodológico de la tesis. Visualiza las 4 votaciones nominales con que el Congreso trató ambas leyes. No reemplaza el análisis.
 
 **Escenarios (IDs internos):** `aerolineas_diputados` · `aerolineas_senado` · `ypf_diputados` · `ypf_senado`.
@@ -35,7 +35,7 @@ Ej. Aerolíneas Diputados: 257 bancas, quórum 129, presentes 238, ausentes 19, 
 // vote ∈ AFIRMATIVO | NEGATIVO | ABSTENCION | AUSENTE | PRESIDENCIA
 ```
 
-**Vistas:** hemiciclo (bancas SVG `<circle class="seat">`) y mapa provincial (SVG con heatmap por provincia, incluye inset Malvinas). Sub-tabs: Visualización · Estadísticas · Tablas · Exportar.
+**Arquitectura:** 4 pestañas principales — **Análisis del caso · Análisis comparado · Datos · Metodología** (la pestaña activa fija una clase `mode-*` en `<body>` que acota qué controles se muestran). Un selector de caso/cámara (dentro de Caso y Datos) elige la votación analizada. **Vistas del caso:** hemiciclo (bancas SVG `<circle class="seat">`) y mapa provincial (SVG con heatmap por provincia, inset Malvinas). **Diseño:** editorial de datos estilo Datawrapper, tipografía IBM Plex Sans.
 
 **Modos de color:** `'vote'` o `'family'` (no ambos a la vez — ver regla central).
 
@@ -45,19 +45,19 @@ Ej. Aerolíneas Diputados: 257 bancas, quórum 129, presentes 238, ausentes 19, 
 
 **Indicadores politológicos:** cohesión de Rice (familia y bloque), fragmentación de Rae, ausentismo territorial, polarización, % afirmativo, comparadores entre los 4 escenarios, síntesis interpretativa automática (describe magnitudes vs umbrales explícitos; nunca causalidad).
 
-**Exportación:** figuras PNG (hemiciclo/mapa con contexto académico embebido: eyebrow, título, bajada, metadatos, leyenda, nota de lectura, fuentes, crédito), tablas como PNG editorial, y CSV (legisladores, provincias, familias, resumen, comparativo 4 escenarios + indicadores granulares). ~65 botones de export en total.
+**Exportación:** figuras PNG (hemiciclo/mapa con contexto académico embebido: eyebrow, título, bajada, metadatos, leyenda, nota de lectura, fuentes, crédito), tablas como PNG editorial, CSV (legisladores, provincias, familias, resumen, comparativo 4 escenarios + indicadores granulares) e Imprimir/PDF (anexo de ~54 páginas). ~40 botones de export. Los PNG rasterizan con la IBM Plex Sans embebida → idénticos online u offline.
 
 **Estado** (objeto `state`, valores iniciales):
 ```js
 scenarioId:'aerolineas_diputados', view:'hemicycle', colorMode:'vote',
 voteFilter:'TODOS', provinceFilter:'', search:'', selectedIndex:null,
-subtab:'viz', tableSearch:'', sortCol:null, sortDir:1,
+subtab:'case', tableSearch:'', sortCol:null, sortDir:1,
 famHeatMetric:'pctYesPresent'
 ```
 
 **Pipeline de render (funciones clave):**
 - `render()` → `renderTabs`, `renderMetaBar`, `renderVizCard`.
-- `renderVizCard()` arma toolbar + sub-tabs y llama: `populateProvinceSelect`, `renderValidationPanel`, `renderFigureBlocks`, `renderLegend`, `renderStage`, `renderSummaryStrip`, `renderTables`, `renderStatsTab`, `bind*Events`, `updateSeatCounter`.
+- `renderVizCard()` arma las 4 pestañas (modo) con sus subpaneles y monta el selector de caso/cámara; `activateSubtab(name)` alterna el panel activo y fija la clase `mode-*` en `<body>`. Llama, entre otras, a: `populateProvinceSelect`, `renderValidationPanel`, `renderFigureBlocks`, `renderLegend`, `renderStage`, `renderSummaryStrip`, `renderTables`, `renderStatsTab`, `bind*Events`, `updateSeatCounter`.
 - `renderStage()` → `renderHemicycle()` | `renderMap()`.
 - Filtrado: `legMatchesFilters(leg, q)` (predicado único) ← usado por `applyFilters(svg)` (atenúa bancas con `.is-dim`) y `updateSeatCounter()`.
 - Selección: `selectLegislator(idx)`. Pre-proceso de bancas: `assignSeats()`.
@@ -82,17 +82,14 @@ Voto y partido **nunca** se codifican en la misma marca visual. El color de la b
 11. **Confirmar alcance antes de editar.** No avanzar de etapa sin que yo lo pida.
 12. Hay tests con jsdom posibles para smoke-testear el render (conteos, teclado, contador) — usarlos para validar antes de cerrar una etapa.
 
-## 5. Estado actual (al 2026-06-02)
+## 5. Estado actual (al 2026-06-04)
 
-> **Ojo con el nombre "Etapa":** en el `CHANGELOG` hay etapas históricas (Etapa 1–5 y A–D) que corresponden al desarrollo de la v1.0 (mayo 2026) y **ya están hechas**. El plan **vigente** es otro (repaso de accesibilidad + rediseño):
+Desarrollo funcional **cerrado**. La herramienta está estable, autocontenida y lista para tesis/anexo. Todas las etapas están hechas y commiteadas (detalle por commit en `herramienta_votaciones/CHANGELOG.md`):
 
-- **Etapa 1 (accesibilidad) — terminada, testeada y commiteada (2026-06-02):**
-  - Hemiciclo navegable por teclado: bancas con `role="button"` + `aria-label` (nombre/voto/bloque/familia/provincia como texto), roving tabindex, flechas (←↑ previa / →↓ siguiente con wrap-around), Home/End, Enter/Espacio seleccionan, foco visible, tooltip por teclado.
-  - Contador con `aria-live` ("Mostrando X de Y bancas según los filtros activos").
-  - Refactor: predicado de filtrado unificado en `legMatchesFilters(leg, q)`.
-  - Validado con smoke tests jsdom en los 4 escenarios (conteos 257/72 etc. intactos, navegación de teclado, contador, filtros y export sin romperse).
-  - Documentado en `CHANGELOG.md` (entrada 2026-06-02).
-- **Etapa 2 (rediseño visual) — pendiente, alcance aún no definido en detalle.** No empezar hasta acordar qué cubre.
+- **Accesibilidad** — hemiciclo navegable por teclado (`role="button"` + `aria-label`, roving tabindex, flechas/Home/End, Enter/Espacio), contador con `aria-live`, foco visible. Predicado de filtrado unificado en `legMatchesFilters`.
+- **Rediseño "Atlas" + Fase 5** — selector físico de caso/cámara dentro de Caso/Datos; trayectoria entre cámaras (B.6b) separada de la intra; diferencia territorial textual en B.5 (dos mapas planos, sin highlight, con contador + lista + nota); limpieza responsive desktop-first; optimización de código (CSS muerto removido).
+- **Reskin tipográfico a IBM Plex Sans** (estilo Datawrapper), con la fuente **embebida en WOFF2 base64** (offline, portable) tanto en pantalla como en los PNG exportados.
+- 4 escenarios validados; datasets/cálculos intactos; print de 54 páginas; exports PNG/CSV operativos.
 
 ## 6. Git / GitHub
 

@@ -13,9 +13,9 @@ python3 -m http.server 8000
 
 Abrir el navegador en `http://localhost:8000/herramienta_votaciones/`.
 
-## Selección de escenario
+## Selección de la votación
 
-En la barra superior, debajo del título, aparecen cuatro tarjetas: una por escenario. Se selecciona haciendo clic. La pestaña activa queda marcada y todos los componentes (hemiciclo, mapa, tablas, paneles laterales, footer) se actualizan al instante.
+Dentro de las pestañas **Análisis del caso** y **Datos**, un selector de caso/cámara elige cuál de las cuatro votaciones se analiza: dos botones de caso (Aerolíneas Argentinas / YPF) y dos de cámara (Diputados / Senado). Al cambiar, todos los componentes (hemiciclo, mapa, indicadores, tablas, paneles laterales) se actualizan al instante y se limpian los filtros activos.
 
 ## Modos de color
 
@@ -57,26 +57,24 @@ Click en el mapa, o sobre una fila del panel provincial, filtra el hemiciclo a e
 - Barra horizontal con la distribución del voto.
 - Lista completa de representantes con bloque, familia y voto.
 
-## Sub-tabs del escenario
+## Las cuatro pestañas
 
-Cada escenario tiene cuatro sub-vistas:
+La herramienta se organiza en cuatro pestañas en la cabecera:
 
-- **Visualización** — hemiciclo y mapa (heatmap territorial), con resumen ejecutivo encima.
-- **Estadísticas** — indicadores politológicos del escenario activo (resultado agregado, participación, cohesión por familia y bloque, territorialización, cohesión dicotómica de Rice, fragmentación de Rae) + comparador de los 4 escenarios.
-- **Tablas** — cuatro láminas editoriales:
-  - **Resumen institucional** (ficha académica con 5 secciones: identificación · trámite · conteos · fuentes · validación).
-  - **Tabla nominal de legisladores** (buscador independiente, headers ordenables, badges de voto, chips de familia, bloque con ellipsis y tooltip nativo).
-  - **Resumen territorial por provincia** (con mini-barras de composición del voto por distrito, voto predominante en badge, familia predominante con chip).
-  - **Resumen por familia política** (chip familia + sub-línea con bloques incluidos, mini-barras de composición, % afirmativo).
-- **Exportar** — tres bloques: Figuras PNG · Tablas como figura PNG · Tablas CSV.
+- **Análisis del caso** — la votación seleccionada: hemiciclo y mapa provincial (con el toggle de vista y el de color), filtros, resumen, ficha institucional colapsable, panel de validación, los **indicadores politológicos del escenario** (resultado agregado, participación, cohesión por familia y bloque, territorialización, cohesión dicotómica de Rice y fragmentación de Rae, con síntesis interpretativa automática) y el panel lateral (legislador seleccionado · resumen nacional/provincial).
+- **Análisis comparado** — comparación sistemática de las cuatro votaciones: tabla agregada, diferencias entre casos y entre cámaras, rankings, hemiciclos y mapas lado a lado (con resumen territorial de cambios), trayectoria de legisladores (intra-cámara y entre cámaras), familias por % afirmativo, provincias por voto predominante, Rae comparado y grilla panorámica 2×2.
+- **Datos** — base nominal de la votación: **ficha institucional** (5 secciones: identificación · trámite · conteos · fuentes · validación) y **tabla nominal de legisladores** (buscador, headers ordenables, badges de voto, chips de familia).
+- **Metodología** — criterios de clasificación de votos, fuentes y universo, definiciones de Rice/Rae, tratamiento de presidencia y no voto, bloques y familias, agregación territorial y criterios de trayectoria.
+
+> Las tablas territorial por provincia y por familia política, y las exportaciones, se generan desde la pestaña correspondiente (Caso / Comparado / Datos) junto al contenido que describen.
 
 ## Exportar a PNG
 
-En sub-tab **Exportar**:
+Los botones de exportación están en cada pestaña, junto al contenido que generan (además, **Imprimir / PDF** produce el anexo completo paginado de ~54 páginas):
 
 ### Figuras PNG
 
-- **Hemiciclo / mapa con contexto académico (recomendado para tesis).** Wrapper editorial completo: eyebrow "FIGURA EXPORTADA · HERRAMIENTA DE VISUALIZACIÓN LEGISLATIVA", título serif, bajada, franja de metadatos institucionales, gráfico centrado, leyenda cromática con conteos, nota de lectura, fuentes documentales, nota de Malvinas (mapa), crédito al pie. Filename: `<escenario>_<figura>_contexto_<voto|familia>.png` (ej. `aerolineas_diputados_hemiciclo_contexto_voto.png`).
+- **Hemiciclo / mapa con contexto académico (recomendado para tesis).** Wrapper editorial completo: eyebrow "FIGURA EXPORTADA · HERRAMIENTA DE VISUALIZACIÓN LEGISLATIVA", título en IBM Plex Sans, bajada, franja de metadatos institucionales, gráfico centrado, leyenda cromática con conteos, nota de lectura, fuentes documentales, nota de Malvinas (mapa), crédito al pie. Filename: `<escenario>_<figura>_contexto_<voto|familia>.png` (ej. `aerolineas_diputados_hemiciclo_contexto_voto.png`).
 - **Solo gráfico PNG.** El SVG crudo sin wrapper, para usos editoriales donde el contexto se compone aparte. Filename: `<escenario>_<figura>_<voto|familia>.png`.
 
 ### Tablas como figura PNG
@@ -86,13 +84,13 @@ Cuatro figuras editoriales:
 - **Tabla nominal** — `<escenario>_tabla_legisladores.png`. Por defecto exporta las filas visibles tras filtros y búsqueda. Si no hay filtros activos y son > 100 filas, el browser pide confirmación antes (porque el PNG resultante es alto y denso); para la nómina completa de 257 legisladores se recomienda usar el CSV.
 - **Resumen provincial** — `<escenario>_tabla_provincias.png`. ~24 jurisdicciones con mini-barras de composición.
 - **Resumen por familia** — `<escenario>_tabla_familias.png`. ~10 familias políticas con bloques como sub-línea.
-- **Resumen institucional** — `<escenario>_resumen_institucional.png`. Ficha académica formal, 5 secciones con tick dorado.
+- **Resumen institucional** — `<escenario>_resumen_institucional.png`. Ficha académica formal, 5 secciones con tick por sección.
 
-Características de los PNG: fondo cream `#fffdf8`, rasterizado 2,5×, tipografía estable (Iowan/Palatino para títulos, Helvetica/Arial para datos), badges/chips/mini-barras como SVG primitives.
+Características de los PNG: fondo blanco `#ffffff`, rasterizado 2,5×, **tipografía IBM Plex Sans embebida** (idéntica online u offline, en cualquier máquina), badges/chips/mini-barras como SVG primitives.
 
 ## Exportar a CSV
 
-En el bloque **Tablas CSV**, cinco salidas:
+Cinco salidas CSV, cada una desde su tabla o panel:
 
 - **Legisladores** — `<escenario>_tabla_legisladores.csv` (del escenario activo, respeta filtros y búsqueda activos).
 - **Provincias** — `<escenario>_tabla_provincias.csv` (con porcentajes 1-decimal sobre el total del distrito).
@@ -125,5 +123,5 @@ Antes de pegar un PNG en el documento final, conviene chequear:
 ## Si algo no se ve bien
 
 - El hemiciclo o el mapa están en blanco → revisar consola del navegador (F12). Es probable que el archivo no se haya cargado por una restricción de `file://`. Solución: usar el servidor local.
-- Los PNG salen sin texto del centro → confirmar que se está exportando desde la versión publicada (no desde un backup anterior a la corrección del rasterizado).
+- Los PNG no salen con la tipografía esperada → la fuente IBM Plex Sans va embebida en el HTML; si se editó el archivo, confirmar que el bloque `<style id="plex-fonts">` con los `@font-face` sigue presente.
 - Una provincia falta en el mapa → revisar `PROVINCE_PATHS` en el HTML. Si todas las 24 jurisdicciones están definidas, el problema es otro.

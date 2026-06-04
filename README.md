@@ -15,14 +15,14 @@ La hipótesis sostiene que privatizaciones y reestatizaciones no fueron decision
 
 ## La herramienta de visualización
 
-`herramienta_votaciones/` contiene una aplicación **HTML/CSS/JS de una sola página, autocontenida y sin dependencias externas** (`index.html`), que reconstruye las **cuatro votaciones nominales** con las que el Congreso trató ambas leyes:
+`herramienta_votaciones/` contiene una aplicación **HTML/CSS/JS de una sola página, autocontenida y offline, sin dependencias externas** (`index.html`) — incluso la tipografía **IBM Plex Sans** va embebida (WOFF2 base64). Reconstruye las **cuatro votaciones nominales** con las que el Congreso trató ambas leyes:
 
 | Caso | Cámara |
 |------|--------|
 | Aerolíneas Argentinas | Diputados · Senado |
 | YPF | Diputados · Senado |
 
-Permite leer la composición del voto por **banca, bloque político, familia partidaria y provincia**, en dos vistas complementarias: **hemiciclo** y **mapa provincial**.
+Permite leer la composición del voto por **banca, bloque político, familia partidaria y provincia**, en dos vistas complementarias —**hemiciclo** y **mapa provincial**— organizadas en cuatro pestañas: **Análisis del caso · Análisis comparado · Datos · Metodología**.
 
 **Principio de diseño central:** voto y partido nunca se codifican en la misma marca visual. El color representa el voto *o* la familia política (modo seleccionable); la otra dimensión se consulta vía tooltip, panel individual, filtros y tablas. Esta separación es lo que le da rigor metodológico a la lectura.
 
