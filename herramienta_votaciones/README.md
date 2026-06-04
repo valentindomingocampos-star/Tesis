@@ -15,7 +15,6 @@ Forma parte del trabajo de tesis de grado *"El péndulo del poder: disputas de p
 - **Modo familia limpio**: las bancas codifican un único plano (regla metodológica: voto y partido nunca compiten en la misma marca). El cruce se consulta en tooltip, panel individual, filtros y tablas.
 - **Tablas premium editoriales**: 4 tarjetas distintas (tabla nominal, resumen territorial, resumen por familia, ficha institucional) con tipografía afinada, mini-barras de composición, badges/chips sobrios y notas metodológicas al pie.
 - **Exportaciones académicas**: 4 PNG con contexto académico (hemiciclo + mapa, modo voto + modo familia), 4 PNG de tablas editoriales, 5 CSV con columnas en español formal y trazabilidad por fila.
-- **Backups preservados** en `backups/`, uno por cada reconstrucción importante y uno por cada etapa de pulido editorial, sin tocar.
 
 ## Archivo maestro
 
@@ -109,14 +108,6 @@ herramienta_votaciones/
 │   ├── ypf_diputados/
 │   └── ypf_senado/
 ├── trazabilidad/               ← cruces nombre × distrito × fuente (Senado)
-├── exports/                    ← destino sugerido para imágenes/CSV generados
-│   ├── png/
-│   └── csv/
-├── backups/                    ← versiones del HTML previas a cada reconstrucción
-│   ├── pre_senado/
-│   ├── pre_ypf_diputados/
-│   ├── pre_aerolineas_diputados/
-│   └── versiones_anteriores/
 └── auditorias/                 ← reportes por escenario y auditoría final
     ├── auditoria_final.md
     ├── reporte_aerolineas_diputados.md
@@ -133,8 +124,6 @@ Dentro de la herramienta, en cualquier escenario, sub-tab **Exportar**:
 - **Tablas como figura PNG.** Cada tabla se renderiza como figura editorial autosuficiente (eyebrow + título + bajada + meta-chips + tabla con badges/chips/mini-barras + fuentes + credit). Filenames: `<escenario>_tabla_legisladores.png`, `tabla_provincias.png`, `tabla_familias.png`, `resumen_institucional.png`. La tabla nominal exporta las filas visibles tras filtros y búsqueda; si no hay filtros y son > 100 filas, pide confirmación.
 - **Tablas CSV.** Codificación UTF-8 con BOM (acentos respetados en Excel y Numbers). Cinco salidas: `<escenario>_tabla_legisladores.csv`, `tabla_provincias.csv`, `tabla_familias.csv`, `resumen_institucional.csv`, y `comparativo_votaciones_resumen.csv` (4 escenarios). Cada CSV incluye contexto institucional (Caso · Cámara · Fecha · Ley), valores de voto en español formal (Afirmativo / Negativo / Abstención / Ausente / Presidencia), porcentajes 1-decimal sobre el denominador apropiado, fuentes documentales y estado de validación.
 
-Una vez generados, conviene mover los archivos descargados a `exports/png/` o `exports/csv/` para mantenerlos versionados con el proyecto.
-
 ## Fuentes
 
 | Tipo | Archivo | Ubicación |
@@ -149,9 +138,7 @@ Una vez generados, conviene mover los archivos descargados a `exports/png/` o `e
 
 ## Respaldos
 
-`backups/` contiene snapshots del HTML maestro inmediatamente anteriores a cada reconstrucción importante (Aerolíneas Diputados, YPF Diputados, Senado). Existen para poder rebobinar cualquier cambio si aparece un error que recién se descubre más tarde.
-
-**Regla operativa: no editar ni borrar los backups salvo recuperación explícita.** Son archivos de sólo lectura desde la perspectiva del trabajo cotidiano. Si en algún momento hay que rebobinar uno, la operación correcta es **copiarlo** sobre `index.html` (no moverlo), para que el backup quede preservado en su lugar.
+El versionado por git cumple la función de respaldo: cualquier estado anterior del `index.html` maestro es recuperable desde el historial de commits (incluidas las reconstrucciones de dataset y las etapas de pulido editorial).
 
 ## Cómo seguir trabajando
 

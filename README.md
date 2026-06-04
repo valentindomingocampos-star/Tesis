@@ -40,8 +40,7 @@ Permite leer la composición del voto por **banca, bloque político, familia par
     ├── docs/                  ← metodología, validación de datos, guía de uso, checklists
     ├── fuentes/               ← fuentes primarias: diarios de sesiones y actas de votación nominal (PDF/XLSX)
     ├── trazabilidad/          ← CSV de trazabilidad voto a voto
-    ├── auditorias/            ← reportes de auditoría de datos por escenario
-    └── backups/               ← versiones anteriores del HTML (preservadas)
+    └── auditorias/            ← reportes de auditoría de datos por escenario
 ```
 
 ## Fuentes

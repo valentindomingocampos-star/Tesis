@@ -98,9 +98,8 @@ Voto y partido **nunca** se codifican en la misma marca visual. El color de la b
 
 - Repo **público**: <https://github.com/valentindomingocampos-star/Tesis> (rama `main`).
 - Autenticado con `gh` CLI (cuenta `valentindomingocampos-star`), `gh auth setup-git` ya hecho.
-- El versionado git reemplaza los backups manuales.
+- El versionado git reemplaza los backups manuales: los snapshots HTML de `backups/` se eliminaron por redundantes con el historial de commits.
 - Para guardar cambios: `git add -A && git commit -m "..." && git push` (o pedírmelo: "subí los cambios").
-- La carpeta `herramienta_votaciones/backups/` (HTML viejos) quedó redundante con git; se puede limpiar a futuro **sin borrar sin confirmar antes**.
 
 ## 7. Estructura del repo
 
@@ -118,8 +117,7 @@ Voto y partido **nunca** se codifican en la misma marca visual. El color de la b
     │                             checklist_revision_final.md
     ├── fuentes/                  PDFs/XLSX de diarios de sesión y actas nominales
     ├── trazabilidad/             CSV de trazabilidad voto a voto (senado)
-    ├── auditorias/               reportes de auditoría de datos por escenario
-    └── backups/                  versiones anteriores del HTML (redundante c/ git)
+    └── auditorias/               reportes de auditoría de datos por escenario
 ```
 
 **Primer paso sugerido en sesión nueva:** leer `herramienta_votaciones/index.html` y `herramienta_votaciones/docs/` antes de tocar nada, y confirmar el alcance conmigo.
