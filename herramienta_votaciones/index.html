@@ -250,19 +250,6 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   border-bottom: 1px solid var(--line);
 }
 .scenario-nav .nav-seg-group{ margin-right: var(--space-2); }
-.nav-axis{
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-.nav-axis-label{
-  font-size: var(--t-xs);
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-weight: var(--w-semi);
-  font-feature-settings: "smcp", "c2sc", "kern";
-}
 /* Control segmentado refinado: registro plano sobre papel, segmentos separados
    por hairline; el activo se marca con un filete dorado (no con relleno). */
 .nav-seg-group{
@@ -1080,13 +1067,6 @@ svg.map-svg{
 }
 .province-label.is-small{ font-size: 8.5px; stroke-width: 2.4; }
 
-.map-note{
-  padding: 0 var(--space-5) var(--space-4);
-  font-size: var(--t-sm);
-  color: var(--muted);
-  line-height: 1.55;
-}
-
 /* Islas Malvinas — los paths se fusionan al de Tierra del Fuego, sólo queda
    el label para identificación cartográfica. */
 .malvinas-layer{ opacity: 1; }
@@ -1293,11 +1273,6 @@ svg.map-svg{
   margin: 0 0 var(--space-3);
   line-height: 1.25;
 }
-.detail-meta{
-  font-size: var(--t-sm);
-  color: var(--muted);
-  margin-bottom: var(--space-3);
-}
 .detail-vote-row{
   display: flex;
   align-items: center;
@@ -1329,12 +1304,6 @@ svg.map-svg{
   color: var(--ink-2);
   font-weight: var(--w-medium);
 }
-.tag-row{
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 14px;
-}
 .tag{
   display: inline-flex;
   align-items: center;
@@ -1353,10 +1322,6 @@ svg.map-svg{
   height: 8px;
   border-radius: 50%;
 }
-.tag.tag-vote.yes{ background: var(--vote-yes-soft); color: var(--vote-yes); border-color: transparent; }
-.tag.tag-vote.no{ background: var(--vote-no-soft); color: var(--vote-no); border-color: transparent; }
-.tag.tag-vote.abs{ background: var(--vote-abs-soft); color: var(--ink-2); border-color: transparent; }
-.tag.tag-vote.pres{ background: var(--vote-pres); color: #fff; border-color: transparent; }
 
 .kv-list{
   display: grid;
@@ -1796,33 +1761,6 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .terr-extra{ margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid currentColor; }
 
 
-/* Cards con header de export — agrupación analítica */
-.exp-card{
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  margin-bottom: var(--space-4);
-  overflow: hidden;
-  box-shadow: var(--shadow-xs);
-}
-.exp-card-h{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--line);
-  background: var(--bg-soft);
-}
-.exp-card-h h3{
-  font-size: var(--t-xs);
-  font-weight: var(--w-semi);
-  margin: 0;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.exp-card-b{ padding: var(--space-5); }
-
 /* Botones de export — secundarios, no compiten con el contenido */
 .btn-exp{
   display: inline-flex;
@@ -1860,13 +1798,6 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-2);
-}
-.exp-card-note{
-  margin: 0 0 var(--space-4);
-  font-size: var(--t-sm);
-  color: var(--muted);
-  line-height: 1.55;
-  max-width: 640px;
 }
 
 /* =====================================================================
@@ -1975,12 +1906,6 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   border-radius: 0 0 var(--radius-xs) var(--radius-xs);
 }
 
-/* Tablas con encabezado y pie de figura */
-.tbl-figure{ margin-bottom: var(--space-5); }
-.tbl-figure .fig-header{ border-radius: var(--radius-xs) var(--radius-xs) 0 0; }
-.tbl-figure .fig-footer{ border-radius: 0 0 var(--radius-xs) var(--radius-xs); }
-.tbl-figure > .exp-card{ margin-bottom: 0; border-radius: 0; border-top: 0; border-bottom: 0; box-shadow: none; }
-
 /* =====================================================================
    TABLAS PREMIUM EDITORIALES
    Estructura unificada: cada tabla es una "lámina" autosuficiente con
@@ -2027,14 +1952,6 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   background: var(--gold-rule);
 }
 .tbl-card-headline{ min-width: 0; }
-.tbl-card-eyebrow{
-  font-size: var(--t-xs);
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--accent-gold-text);
-  font-weight: var(--w-semi);
-  margin: var(--space-2) 0 var(--space-2);
-}
 .tbl-card-title{
   margin: 0 0 var(--space-2);
   font-family: var(--font-serif);
@@ -2155,12 +2072,6 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .col-fam-name .family-dot{
   width: 10px; height: 10px; border-radius: 50%; margin: 0;
 }
-.col-block.col-block-tight{
-  max-width: 220px;
-  font-size: var(--t-xs);
-  color: var(--muted);
-  font-style: italic;
-}
 .col-pct{
   font-variant-numeric: tabular-nums;
   text-align: right;
@@ -2212,7 +2123,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   .fig-controls, .viz-figmeta, .meta-summary-toggle,
   .ctx-export, .adv-export, .filter-disclosure, .stats-index, .panel-actions,
   .tbl-card-actions, .stats-section-actions, .stats-division-actions,
-  .btn-exp, .btn-exp-grid, .exp-card,
+  .btn-exp, .btn-exp-grid,
   /* Visualizaciones comparadas exploratorias (hemiciclos/mapas lado a lado y
      grilla 2×2) y su selector: son ayudas de pantalla. En el anexo impreso se
      conservan la tabla agregada, diferencias, rankings, trayectoria, heatmaps,
@@ -2291,8 +2202,6 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
    KPIs y small-caps para labels. Reduce el peso visual de las "cards" a
    favor de la lectura tipográfica tipo informe académico.
    ===================================================================== */
-.stats-panel{ display: grid; gap: 0; }
-
 /* "División" — agrupa varias secciones (A o B). Card grande con padding fluido */
 /* Bloque principal estadístico: mantiene --shadow-md como pieza de
    peso. Respiración vertical sube a --space-8 (32px) para separar
@@ -2581,7 +2490,6 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .h-bar-fill.is-yes{  background: var(--vote-yes); }
 .h-bar-fill.is-no{   background: var(--vote-no); }
 .h-bar-fill.is-warn{ background: var(--vote-abst); }
-.h-bar-fill.is-abs{  background: var(--vote-abs); }
 .h-bar-value{
   font-variant-numeric: tabular-nums;
   font-family: var(--font-serif);
@@ -3492,40 +3400,6 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   letter-spacing: -0.003em;
 }
 
-/* Nota metodológica editorial — bloque tipográfico, no card */
-.methodology-note{
-  padding: var(--space-4) var(--space-6);
-  font-size: var(--t-sm);
-  color: var(--ink-2);
-  line-height: 1.65;
-  letter-spacing: -0.003em;
-  background: var(--paper-sunk);
-  border-top: 1px solid var(--line);
-}
-/* Encabezado "Criterios" — sólo el strong directo de .methodology-note recibe
-   el tratamiento de eyebrow (block, dorado, small-caps). Los <strong> dentro
-   de los <li> mantienen el flow inline normal. */
-.methodology-note > strong{
-  display: block;
-  color: var(--accent-gold-text);
-  font-weight: var(--w-semi);
-  text-transform: uppercase;
-  letter-spacing: .14em;
-  font-size: 10px;
-  margin: 0 0 var(--space-3);
-}
-.methodology-note li strong{
-  color: var(--ink);
-  font-weight: var(--w-semi);
-  /* sin display:block, sin uppercase: queda inline dentro de la oración */
-}
-.methodology-note ul{ margin: 0; padding-left: var(--space-5); columns: 1; }
-.methodology-note li{ padding: 4px 0; }
-@media (min-width: 900px){
-  .methodology-note ul{ columns: 2; column-gap: var(--space-8); }
-  .methodology-note li{ break-inside: avoid; }
-}
-
 /* Alineamiento — bloque de nota larga (no calculado) */
 .align-note{
   padding: var(--space-4) var(--space-6);
@@ -3611,11 +3485,6 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   letter-spacing: -0.005em;
   line-height: 1.4;
   font-variant-numeric: tabular-nums;
-}
-.ficha-item-v.is-missing{
-  color: var(--muted);
-  font-style: italic;
-  font-variant-numeric: normal;
 }
 .ficha-item-v.is-result-yes{ color: var(--vote-yes); font-weight: var(--w-bold); }
 .ficha-item-v.is-result-no{ color: var(--vote-no); font-weight: var(--w-bold); }
@@ -3790,32 +3659,6 @@ table.dtable td.col-block{
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--ink-2);
-}
-
-/* Acceso directo a la sub-tab Exportar desde la vista de visualización.
-   Discreto, alineado a la derecha, sin sombra ni jerarquía propia: el hub
-   real de exportes vive en la sub-tab Exportar. */
-.viz-export-bar{
-  display: flex;
-  justify-content: flex-end;
-  padding: var(--space-3) var(--space-5) 0;
-}
-.btn-exp-jumpto{
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  font-family: inherit;
-  font-size: var(--t-sm);
-  font-weight: var(--w-semi);
-  letter-spacing: -0.005em;
-  padding: var(--space-1) var(--space-2);
-  cursor: pointer;
-  border-radius: var(--radius-xs);
-  transition: color .12s, background .12s;
-}
-.btn-exp-jumpto:hover{
-  color: var(--ink);
-  background: var(--bg-soft);
 }
 
 /* Responsive — bloque defensivo, NO rediseño mobile (desktop-first).
@@ -7082,7 +6925,6 @@ function validateScenario(scenario){
 // =====================================================================
 // ACCESORES DE COLOR
 // =====================================================================
-function getColorByVote(vote){ return VOTE_COLORS[vote] || '#a09b8c'; }
 function getColorByFamily(family){ return FAMILY_COLORS[family] || '#a09b8c'; }
 
 // =====================================================================

@@ -2,6 +2,26 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Fase 5.6 · Optimización segura (limpieza de deuda técnica)
+
+Limpieza final sin refactor agresivo: solo se quitó **código muerto confirmado** (CSS de clases que no se aplican en ningún lado y una función no usada). No se tocó arquitectura, `render()`, exports, datasets, cálculos, trayectoria, Rice/Rae ni normalización.
+
+### Auditoría
+- **Funciones**: de ~190 declaradas, dos aparecían una sola vez. `getColorByVote` → solo definición, nunca llamada (el color de voto se obtiene vía `VOTE_COLORS[...]` directo) → **muerta**. `patchBuildTablePngSvg` → es un **IIFE auto-invocado** (parchea `buildTablePngSvg` para decorar filas): se ejecuta, no es muerta → **no tocar** (afecta exports).
+- **CSS**: de 454 clases definidas en el `<style>`, se cruzó cada una contra el cuerpo JS/HTML. Las construidas dinámicamente (`mode-${m}`, `is-${c.tier}`, `meta-v-${kind}`) se descartaron como falsos positivos verificando el origen de cada variable. Quedaron **15 clases/bloques confirmados sin aplicar en ningún `class=`/`el()`** del archivo.
+
+### Eliminado (seguro)
+- Función `getColorByVote`.
+- CSS muerto: `.nav-axis` / `.nav-axis-label` (rótulos CASO/CÁMARA que retiró Fase 5.1), `.map-note`, `.detail-meta`, `.tag-row`, `.tag.tag-vote.*` (×4), el cluster `.exp-card` / `.exp-card-h` / `.exp-card-h h3` / `.exp-card-b` / `.exp-card-note` (esquema viejo de tarjetas de export; hoy se usa `adv-export`/`btn-exp`), `.tbl-figure` (×4, incluía `.tbl-figure > .exp-card`), `.tbl-card-eyebrow`, `.col-block.col-block-tight`, `.stats-panel`, `.h-bar-fill.is-abs` (las barras de cohesión usan `is-warn`, nunca `is-abs`), todo el bloque `.methodology-note` (+ su `@media (min-width:900px)`, cuyo único contenido eran reglas de esa clase; la pestaña Metodología usa el aparato A.3, no esta clase), `.ficha-item-v.is-missing` (ningún `fichaItem` pasa esa klass), `.viz-export-bar` / `.btn-exp-jumpto`, y `.exp-card` del selector del `@media print`. **−158 líneas netas.**
+
+### No tocado por riesgo (documentado)
+- `patchBuildTablePngSvg` (IIFE que parchea exports) — funcional, **no tocar**.
+- `.meta-v-na` / `.meta-v-source` — son construibles vía `meta-v-${kind}` (API paramétrica de `metaItem`, kind∈missing/na/source); aunque hoy no se invoquen con esos kinds, forman parte del contrato → **se dejan**.
+- Los tres `@media (max-width:1100px)` separados (workspace / sidebar / dual-viz) — están junto a su componente por localidad; fusionarlos sería refactor sin valor → **se dejan**.
+
+### QA
+- Selector físico en Caso ✅ y en Datos permanece en Datos (cambia escenario → `subtab='data'`, `scenario=aerolineas_senado`) ✅; Comparado funciona; B.5 mapas planos + resumen territorial (5) ✅; **B.6 intra 64 / 38** ✅; **B.6b cross 9** ✅; exports PNG `maps` y `quad` sin throw ✅; tablas/ficha/metodología renderizan sin cambios visuales (QA visual de las zonas tocadas) ✅; consola sin errores; llaves del `<style>` balanceadas (1023/1023); **print 54** (sin regresión); datos y conteos de voto **idénticos a HEAD**. Foco/teclado sin tocar (CSS de `:focus-visible` intacto). Sin push.
+
 ## 2026-06-03 — Corrección B.5 · Retiro del destacado territorial del mapa
 
 Se elimina por completo el destacado visual de las provincias que cambiaron de voto dominante en el segundo mapa de B.5 (antes: borde dorado). **No se reemplaza** por navy, punteado, halo, gris ni ningún otro efecto: la diferencia territorial se lee por comparación directa entre los dos mapas y se detalla en el resumen textual.
