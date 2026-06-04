@@ -2,6 +2,19 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-04 — Refinamientos editoriales premium (Fase 1, sin tocar datos/exports)
+
+Quick wins de percepción tras la auditoría de diseño/UX. Solo CSS/markup/microcopy en pantalla; sin tocar datos, cálculos ni la maquinaria de export (que construye su propio SVG/CSV).
+
+- **C1 · H1 del masthead** más editorial: `font-size` `clamp(25px,3vw,33px)` → `clamp(34px,3.2vw,44px)`, tracking −0.015em → −0.022em, line-height 1.12 → 1.06. Más "primer impacto" de portada sin cambiar la familia (sigue IBM Plex Sans).
+- **C3 · Transición de pestañas** afinada: el crossfade `omFade` del subpanel pasa de `--dur-3` (.34s) a `--dur-2` (.22s), más imperceptible. Ya estaba gateado por `prefers-reduced-motion` (verificado: 0.22s → ~0 con reduced) y apagado en print.
+- **C4 · Micro-tipografía**: headers de tabla `.dtable th` de `--muted` → `--ink-2` (más contraste/escaneo); `line-height` de `.mode-bajada` 1.55 → 1.6.
+- **C5 · Estados hover**: flechas de orden de tabla más perceptibles (`opacity .35 → .5`, `.8` en hover de header); realce sutil de fila al pasar el cursor (`tbody tr:hover` → `--paper-sunk`) para escanear filas anchas, sin `cursor:pointer` (no implica clic).
+- **C6 · Microcopy**: verbo de estados vacíos unificado a «Seleccioná» (antes «Elegí» en el placeholder de ficha).
+- **C2 (tabla nominal) — NO implementado**: capar el ancho de la tabla la dejaba desalineada respecto de la ficha institucional (bordes derechos distintos → card "flotante"). Se revirtió; queda para v1.1 (requiere capar ficha + tabla en conjunto o rehacer proporciones de columna).
+
+QA: 4 pestañas; B.5 sin highlight (2 mapas); intra 64/38; cross 9; metodología 10; PNG/CSV OK; print 54; consola limpia; IBM Plex 4 caras; `_getPlexFontCss()` 4 `@font-face`; reduced-motion respetado; datos idénticos a `origin/main`. Sin push.
+
 ## 2026-06-04 — Auditoría integral: pulido de CSS, foco y accesibilidad (sin tocar datos)
 
 Pasada de calidad sobre el HTML, posterior al reskin Plex. Ningún cambio de datos, cálculos, resultados ni exports: verificado idéntico a `origin/main` y con diff visual pixel-a-pixel para los cambios de tokens.
