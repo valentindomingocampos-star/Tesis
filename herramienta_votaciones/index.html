@@ -3147,6 +3147,83 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   border-top: 1px solid var(--line);
 }
 
+/* Resumen territorial de cambios bajo los mapas de B.5 (Fase 5.3) — compacto,
+   editorial, no se come la sección. */
+.terr-summary{
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--paper-sunk);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--gold-rule);
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+}
+.terr-summary-empty{
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  line-height: 1.55;
+}
+.terr-summary-head{
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.terr-count{
+  font-family: var(--font-serif);
+  font-size: var(--t-xl);
+  font-weight: var(--w-bold);
+  color: var(--accent-gold-text);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.terr-count-label{
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  align-self: center;
+}
+.terr-gold{
+  margin-left: auto;
+  font-size: var(--t-xs);
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: center;
+}
+.terr-gold-sw{
+  width: 16px;
+  height: 0;
+  border-top: 3px solid var(--accent-gold);
+  border-radius: 2px;
+  display: inline-block;
+}
+.terr-change-list{
+  list-style: none;
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
+.terr-item{
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--t-xs);
+}
+.terr-item .terr-prov{ font-weight: var(--w-semi); color: var(--ink); }
+.terr-item .vote-badge{ font-size: 10px; padding: 1px var(--space-2); }
+.terr-arrow{ color: var(--muted-soft); }
+.terr-more{ font-size: var(--t-xs); color: var(--muted); align-self: center; }
+.terr-note{
+  margin: 0;
+  font-size: var(--t-xs);
+  color: var(--muted);
+  line-height: 1.55;
+  max-width: 860px;
+}
+
 /* Grilla panorámica plegable (B.10) — apéndice visual colapsado por defecto */
 .cmp-quad-details{ padding: 0; }
 .cmp-quad-summary{
@@ -5745,6 +5822,51 @@ function buildCompareLegendHtml(scens, colorMode){
     .map(f => `<span class="legend-chip"><span class="legend-sw" style="background:${FAMILY_COLORS[f]}"></span>${esc(f)}</span>`).join('');
 }
 
+// Cambios territoriales (Fase 5.3): provincias cuyo voto DOMINANTE cambia entre
+// sA y sB. Espeja EXACTAMENTE la condición del highlight `.is-changed` del segundo
+// mapa (buildCompareMapSvg). Solo lectura: usa _provinceData ya calculado, no toca
+// cálculos ni datasets.
+function computeTerritorialChanges(sA, sB){
+  ensureScenarioPrepared(sA); ensureScenarioPrepared(sB);
+  const pA = sA._provinceData || {}, pB = sB._provinceData || {};
+  const changes = [];
+  Object.keys(PROVINCE_PATHS).forEach(p => {
+    const a = pA[p], b = pB[p];
+    if(a && b && a.dominantVote && b.dominantVote && a.dominantVote !== b.dominantVote){
+      changes.push({ province: p, voteA: a.dominantVote, voteB: b.dominantVote });
+    }
+  });
+  return changes;
+}
+
+// Resumen territorial para B.5 (en pantalla): contador + leyenda del dorado +
+// lista compacta + nota metodológica. Estado sobrio si no hay cambios.
+function buildTerritorialSummaryHtml(sA, sB){
+  const changes = computeTerritorialChanges(sA, sB);
+  const n = changes.length;
+  const MAX = 14;
+  const shown = changes.slice(0, MAX);
+  const extra = n - shown.length;
+  const cN = `${esc(sA.caseName)} · ${esc(sA.chamberShort)}`, cB = `${esc(sB.caseName)} · ${esc(sB.chamberShort)}`;
+  const goldLeg = '<span class="terr-gold"><span class="terr-gold-sw"></span>Borde dorado en el segundo mapa</span>';
+  if(n === 0){
+    return `<div class="terr-summary terr-summary-empty">${goldLeg} · Sin cambios de voto dominante provincial entre ${cN} y ${cB}.</div>`;
+  }
+  const item = (c) => `<li class="terr-item"><span class="terr-prov">${esc(c.province)}</span>`
+    + `<span class="vote-badge ${VOTE_CLASS[c.voteA]}">${esc(VOTE_LABELS[c.voteA])}</span>`
+    + `<span class="terr-arrow">→</span>`
+    + `<span class="vote-badge ${VOTE_CLASS[c.voteB]}">${esc(VOTE_LABELS[c.voteB])}</span></li>`;
+  return `<div class="terr-summary">
+    <div class="terr-summary-head">
+      <span class="terr-count">${n}</span>
+      <span class="terr-count-label">${n === 1 ? 'provincia cambió' : 'provincias cambiaron'} de voto dominante entre ${cN} y ${cB}</span>
+      ${goldLeg}
+    </div>
+    <ul class="terr-change-list">${shown.map(item).join('')}${extra > 0 ? `<li class="terr-more">+ ${extra} provincia${extra !== 1 ? 's' : ''} más</li>` : ''}</ul>
+    <p class="terr-note">El cambio se calcula sobre el voto dominante provincial en cada escenario comparado. No mide intensidad legislador por legislador, sino variación del predominio territorial agregado.</p>
+  </div>`;
+}
+
 // Celda con header editorial + SVG. compact = celda de la grilla 2×2.
 function cmpVizCell(s, svgNode, compact){
   const cell = document.createElement('div');
@@ -7540,7 +7662,7 @@ function exportCompareVizPng(kind){
   if(!sA || !sB){ console.error('exportCompareVizPng: par inválido'); return; }
 
   const cellLabel = (s) => ({ title: `${s.caseName} · ${s.chamberShort}`, sub: `${s.date} · ${s.result}` });
-  let composite, title, subtitle, legendScens, fileParts, reading = '';
+  let composite, title, subtitle, legendScens, fileParts, reading = '', note = '';
 
   if(kind === 'hemicycles' || kind === 'maps'){
     const isMap = kind === 'maps';
@@ -7555,7 +7677,15 @@ function exportCompareVizPng(kind){
     subtitle = `${sA.caseName} · ${sA.chamberShort} frente a ${sB.caseName} · ${sB.chamberShort} · color por ${modeES}`;
     legendScens = [sA, sB];
     fileParts = ['comparado', isMap ? 'mapas' : 'hemiciclos', sA.id + '_vs_' + sB.id, modeES];
-    if(isMap) reading = 'En el segundo mapa, el borde dorado señala las provincias cuyo voto dominante cambió respecto del primero.';
+    if(isMap){
+      reading = 'En el segundo mapa, el borde dorado señala las provincias cuyo voto dominante cambió respecto del primero.';
+      // Resumen territorial en el PNG (Fase 5.3): contador + lista compacta en la
+      // nota del footer (se ajusta/envuelve; no genera clipping).
+      const tch = computeTerritorialChanges(sA, sB);
+      note = tch.length
+        ? `Provincias con cambio de voto dominante (${tch.length}): ` + tch.map(c => `${c.province} (${VOTE_LABELS[c.voteA].toLowerCase()} → ${VOTE_LABELS[c.voteB].toLowerCase()})`).join('; ') + '.'
+        : 'Sin cambios de voto dominante provincial entre los escenarios comparados.';
+    }
   } else if(kind === 'quad'){
     const isMap = state.quadView === 'map';
     const cells = QUAD_ORDER.map(id => {
@@ -7581,6 +7711,7 @@ function exportCompareVizPng(kind){
     legend: getCompareLegendItems(legendScens, mode),
     legendEyebrow: mode === 'family' ? 'Familias políticas' : 'Sentido del voto',
     reading,
+    note,
     source: PNG_COMPARISON_SOURCE,
     credit: getExportFigureCredit()
   };
@@ -10231,6 +10362,7 @@ function renderComparisonPanel(){
         'Voto predominante por provincia. En el segundo mapa, las provincias con borde dorado cambiaron de voto dominante respecto del primero.', null,
         '<button class="btn-exp btn-exp-primary" data-export="compare-maps-png" title="Descargar como lámina PNG">↓ PNG lámina</button>')}
       <div class="dual-viz" id="cmpDualMap"></div>
+      ${buildTerritorialSummaryHtml(cmpPairScens[0], cmpPairScens[1])}
       <div class="legend cmp-legend" aria-hidden="true">${cmpPairLegend}</div>
     </section>
   `;

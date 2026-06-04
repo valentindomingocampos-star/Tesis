@@ -2,6 +2,18 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Fase 5.3 · Diferencia territorial mejorada (B.5), sin tercer mapa
+
+B.5 sigue siendo **dos mapas** (escenario A y escenario B; el borde dorado en el segundo señala las provincias cuyo voto dominante cambió). Se agrega debajo un **resumen territorial compacto** que lee ese cambio de forma agregada, sin un tercer mapa ni un mapa de diferencia.
+
+### Implementación (aislada)
+- Helper nuevo `computeTerritorialChanges(sA, sB)` — **read-only**, recorre `PROVINCE_PATHS` y replica exactamente la condición de `.is-changed` (provincias con `dominantVote` definido en ambos y distinto). No toca cálculos ni `_provinceData` (solo lee tras `ensureScenarioPrepared`).
+- `buildTerritorialSummaryHtml(sA, sB)` — bloque editorial bajo los mapas: **contador** «N provincias cambiaron de voto dominante…», **leyenda del dorado** («Borde dorado en el segundo mapa»), **lista compacta** «provincia · voto A → voto B» con sellos (máx. 14 + «+X más»), **nota metodológica** («El cambio se calcula sobre el voto dominante provincial… no mide intensidad legislador por legislador, sino variación del predominio territorial agregado») y **estado vacío** sobrio.
+- **Export PNG de mapas (B.5)** ahora incluye el contador + lista en la NOTA del pie («Provincias con cambio de voto dominante (N): …»). El resto del layout académico del export queda intacto.
+
+### QA
+- Contador coincide exactamente con el resaltado dorado (Dip **5** = highlight 5; Sen **3** = highlight 3); lista coincide con el cálculo; **solo 2 mapas** (sin tercer mapa); cambiar el par actualiza contador/lista (5→3); el toggle de color no rompe; export PNG incluye contador/lista sin clipping (envuelve en 2 líneas); exports previos intactos; datos idénticos a HEAD; consola limpia; print **54** (sin regresión).
+
 ## 2026-06-03 — Fase 5.2 · Trayectoria cross-cámara (B.6b)
 
 Dentro de B.6 Trayectoria se separa la operación en dos subestructuras, metodológicamente distintas, sin renumerar el comparado:
