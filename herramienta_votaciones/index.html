@@ -110,6 +110,12 @@
   --space-8: 32px;
   --space-10: 40px;
 
+  /* Ancho máximo del contenedor — generoso y fluido para desktop/proyector,
+     con gutters adaptativos (94vw) en pantallas muy anchas. El texto largo
+     conserva sus propios topes de lectura por sección; el ancho extra va a
+     composición: grillas, mapas, tablas y comparados. */
+  --shell-max: min(1700px, 94vw);
+
   /* Tipografía Datawrapper-like — IBM Plex Sans embebida para todo (títulos +
      cuerpo + tablas): legibilidad y escaneabilidad por sobre personalidad. */
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -143,9 +149,9 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
    LAYOUT
    ===================================================================== */
 .shell{
-  max-width: 1380px;
+  max-width: var(--shell-max);
   margin: 0 auto;
-  padding: var(--space-10) var(--space-6) var(--space-10);
+  padding: var(--space-8) var(--space-6) var(--space-10);
 }
 
 /* Header editorial — masthead con jerarquía tipográfica clásica */
@@ -178,7 +184,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
    ===================================================================== */
 .masthead{
   position: relative;
-  margin-bottom: var(--space-10);
+  margin-bottom: var(--space-8);
   padding-top: var(--space-4);
   border-top: 1px solid var(--rule-ink);
 }
@@ -190,7 +196,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   justify-content: space-between;
   gap: var(--space-4) var(--space-6);
   flex-wrap: wrap;
-  padding-bottom: var(--space-8);
+  padding-bottom: var(--space-6);
 }
 /* Folio: kicker a la izquierda, metadatos a la derecha. Texto sobrio, sin marca. */
 .folio-mark{
@@ -392,7 +398,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 }
 .context-anchor.is-visible{ transform: translateY(0); }
 .context-anchor-inner{
-  max-width: 1380px;
+  max-width: var(--shell-max);
   margin: 0 auto;
   padding: var(--space-3) var(--space-10);
   display: flex;
