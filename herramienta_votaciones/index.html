@@ -317,7 +317,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 }
 .scenario-nav .nav-seg-group{ margin-right: var(--space-2); }
 /* Control segmentado refinado: registro plano sobre papel, segmentos separados
-   por hairline; el activo se marca con un filete dorado (no con relleno). */
+   por hairline; el activo se marca con un filete de acento (no con relleno). */
 .nav-seg-group{
   display: inline-flex;
   background: var(--card);
@@ -639,7 +639,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 }
 
 /* Lámina principal — la pieza central como figura de tesis: sin sombra, borde
-   fino, filete dorado superior (firma de lámina). La elevación la da el montaje
+   fino, filete de acento superior (firma de lámina). La elevación la da el montaje
    + el borde, no el box-shadow. */
 .viz-card{
   background: var(--card);
@@ -838,7 +838,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 }
 
 /* Aviso metodológico del modo de color (solo modo familia): el color no es el
-   voto. Cinta dorada prominente arriba de la leyenda — imposible de pasar por
+   voto. Cinta de acento prominente arriba de la leyenda — imposible de pasar por
    alto, pero editorial. Se mantiene visible en impresión (contexto necesario). */
 .color-notice{
   display: flex;
@@ -1559,7 +1559,7 @@ svg.map-svg{
   line-height: 1.4;
 }
 
-/* Tooltip — denso pero legible, con jerarquía clara y rastro dorado sobrio */
+/* Tooltip — denso pero legible, con jerarquía clara y rastro de acento sobrio */
 .tt{
   position: fixed;
   background: var(--ink);
@@ -1655,7 +1655,7 @@ svg.map-svg{
    ===================================================================== */
 
 /* Modos de análisis — navegación de informe. Numerados (01–04), título a mayor
-   cuerpo, subrayado dorado que se traza al activarse. Una sola definición:
+   cuerpo, subrayado de acento que se traza al activarse. Una sola definición:
    el override tardío de .subtab se eliminó (consolidación). */
 .mode-nav{
   display: flex;
@@ -2885,7 +2885,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 
 /* Selector de métrica del heatmap familias × escenarios — control plano del
    sistema (mismo lenguaje que el selector Caso×Cámara y Hemiciclo/Mapa):
-   registro plano, segmentos separados por hairline, activo con filete dorado. */
+   registro plano, segmentos separados por hairline, activo con filete de acento. */
 .metric-toggle{
   display: inline-flex;
   background: var(--card);
@@ -2953,7 +2953,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 /* Movimientos del análisis comparado (A.1.2): el comparado se lee como un
    argumento en tres actos — I. Síntesis agregada, II. Exploración por par,
    III. Profundización estructural. Cada uno abre con filete de tinta + numeral
-   romano dorado, dando estructura al scroll en vez de una lista plana de bloques. */
+   romano de acento, dando estructura al scroll en vez de una lista plana de bloques. */
 .cmp-movement{
   display: flex;
   align-items: baseline;
@@ -3875,7 +3875,7 @@ summary:focus-visible,
 .hemicycle.is-blooming .guide-arc{ animation: omArcDraw .5s ease backwards; }
 .hemicycle.is-blooming .center-panel-group{ animation: omFade .55s ease .34s backwards; }
 
-/* Subtabs: el subrayado dorado (animado) se define junto a .subtab — una sola
+/* Subtabs: el subrayado de acento (animado) se define junto a .subtab — una sola
    fuente de verdad. Se eliminó el override tardío para evitar deriva de estilos. */
 
 /* Micro-interacciones de hover (consistencia) */
@@ -11734,7 +11734,7 @@ function exportStatsSectionPng(kind){
   }
 
   else if(spec.layout === 'ranking-cards'){
-    // Lista de 5 ranking cards horizontales con barra de fondo dorada
+    // Lista de 5 ranking cards horizontales con barra de fondo de acento
     const rowH = 70;
     spec.ranks.forEach((rk, ri) => {
       const y = cursorY + ri * (rowH + 10);
