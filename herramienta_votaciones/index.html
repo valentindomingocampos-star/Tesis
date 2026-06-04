@@ -3198,6 +3198,57 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   letter-spacing: .01em;
 }
 .traj-metrics{ margin-bottom: var(--space-2); }
+/* Subcabeceras B.6a / B.6b dentro de la sección B.6 Trayectoria (Fase 5.2). */
+.traj-subhead{
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin: var(--space-5) 0 var(--space-3);
+}
+.traj-subhead-marker{
+  font-size: 11px;
+  font-weight: var(--w-bold);
+  color: var(--accent-gold-text);
+  letter-spacing: .12em;
+  font-variant-numeric: tabular-nums;
+}
+.traj-subhead-title{
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--t-md);
+  font-weight: var(--w-bold);
+  color: var(--ink);
+  letter-spacing: -0.012em;
+}
+.traj-cross-tag{
+  margin-left: auto;
+  font-size: var(--t-xs);
+  color: var(--muted);
+  background: var(--paper-sunk);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xs);
+  padding: 1px var(--space-2);
+  align-self: center;
+}
+/* B.6b — separada de la intra-cámara por un filete de tinta (operación distinta). */
+.traj-cross{
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 2px solid var(--rule-ink);
+}
+.traj-cross-note{
+  margin: 0 0 var(--space-4);
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  line-height: 1.6;
+  max-width: 860px;
+  background: var(--paper-sunk);
+  border-left: 2px solid var(--gold-rule);
+  padding: var(--space-3) var(--space-4);
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+}
+.traj-cross-note strong{ color: var(--ink); font-weight: var(--w-semi); }
+
 .traj-block{ margin-top: var(--space-5); }
 .traj-block-title{
   margin: 0 0 var(--space-1);
@@ -5810,6 +5861,89 @@ function computeTrajectory(pair){
 
 // HTML de la sección B.10 (aditivo dentro del comparado). Estado vacío para
 // pares cross-cámara o sin repetidos.
+// Trayectoria ENTRE CÁMARAS (Fase 5.2): bloque FIJO y separado de la intra-cámara.
+// Registra legisladores que participaron en Aerolíneas·Diputados (2008) y luego en
+// YPF·Senado (2012) — trayectoria política entre cámaras, NO continuidad dentro de
+// una misma cámara. Helper aislado: NO toca computeTrajectory (intra, validada 64/38)
+// ni sus métricas. No depende del par seleccionado.
+const CROSS_CHAMBER_PAIR = { idA: 'aerolineas_diputados', idB: 'ypf_senado' };
+function computeCrossChamberTrajectory(){
+  const { idA, idB } = CROSS_CHAMBER_PAIR;
+  const sA = SCENARIOS[idA], sB = SCENARIOS[idB];
+  const legsA = getLegsForScenario(idA);
+  const legsB = getLegsForScenario(idB);
+  const mapB = new Map();
+  legsB.forEach(l => { if(!mapB.has(trajNormName(l.name))) mapB.set(trajNormName(l.name), l); });
+  const matched = [];
+  legsA.forEach(a => {
+    const b = mapB.get(trajNormName(a.name));
+    if(b){
+      matched.push({
+        name: a.name, province: a.province,
+        voteA: a.vote, voteB: b.vote, sameVote: a.vote === b.vote,
+        familyA: a.family, familyB: b.family, sameFamily: a.family === b.family,
+        blockA: a.block, blockB: b.block
+      });
+    }
+  });
+  matched.sort((a, b) => a.name.localeCompare(b.name, 'es'));
+  const nKeptVote = matched.filter(x => x.sameVote).length;
+  const nKeptFamily = matched.filter(x => x.sameFamily).length;
+  return {
+    scenA: sA, scenB: sB, matched,
+    metrics: { n: matched.length, nKeptVote, nChangedVote: matched.length - nKeptVote, nKeptFamily, nChangedFamily: matched.length - nKeptFamily }
+  };
+}
+
+// B.6b — vista secundaria cross-cámara. Tabla densa al estilo de B.10.
+function renderCrossChamberTrajectory(){
+  const cross = computeCrossChamberTrajectory();
+  const sA = cross.scenA, sB = cross.scenB, m = cross.metrics;
+  const yrA = String(sA.date).slice(-4), yrB = String(sB.date).slice(-4);
+  const vb = (v) => `<span class="vote-badge ${VOTE_CLASS[v]}">${esc(VOTE_LABELS[v])}</span>`;
+  const dot = (f) => `<span class="family-dot" style="background:${FAMILY_COLORS[f] || '#a09b8c'}"></span>`;
+  const rows = cross.matched.map(r => `<tr>
+    <td class="traj-leg-cell"><span class="traj-name" title="${esc(r.name)}">${esc(r.name)}</span><span class="traj-prov">${esc(r.province)}</span></td>
+    <td class="traj-voto-cell">${vb(r.voteA)}<span class="traj-arrow">→</span>${vb(r.voteB)}</td>
+    <td class="traj-tray-cell">${r.sameVote ? '<span class="traj-badge kept">Mantuvo</span>' : '<span class="traj-badge changed">Cambió</span>'}${r.sameFamily ? '' : '<span class="traj-badge fam">Cambió familia</span>'}</td>
+    <td class="traj-fam-cell" title="${esc(r.sameFamily ? r.familyA : r.familyA + ' → ' + r.familyB)}">${r.sameFamily ? `${dot(r.familyA)}${esc(r.familyA)}` : `${dot(r.familyA)}${esc(r.familyA)} <span class="traj-arrow">→</span> ${dot(r.familyB)}${esc(r.familyB)}`}</td>
+    <td class="traj-block-cell" title="${esc(r.blockA === r.blockB ? r.blockA : r.blockA + ' → ' + r.blockB)}">${r.blockA === r.blockB ? esc(r.blockA) : `${esc(r.blockA)} <span class="traj-arrow">→</span> ${esc(r.blockB)}`}</td>
+  </tr>`).join('');
+  return `
+    <div class="traj-cross">
+      <div class="traj-subhead">
+        <span class="traj-subhead-marker">B.6b</span>
+        <h4 class="traj-subhead-title">Trayectoria entre cámaras · ${esc(sA.chamberShort)} ${esc(yrA)} → ${esc(sB.chamberShort)} ${esc(yrB)}</h4>
+        <span class="traj-cross-tag">Vista secundaria</span>
+      </div>
+      <p class="traj-cross-note">Esta vista registra legisladores que participaron en la votación de <strong>${esc(sA.caseName)}</strong> en <strong>${esc(sA.chamberShort)}</strong> en ${esc(yrA)} y luego en la votación de <strong>${esc(sB.caseName)}</strong> en <strong>${esc(sB.chamberShort)}</strong> en ${esc(yrB)}. No mide continuidad institucional dentro de una misma cámara, sino <strong>trayectoria política entre cámaras distintas</strong>.</p>
+      <div class="data-grid traj-metrics">
+        <div class="data-grid-cell"><div class="data-grid-label">Legisladores identificados</div><div class="data-grid-value">${m.n}</div></div>
+        <div class="data-grid-cell"><div class="data-grid-label">Mantienen el voto</div><div class="data-grid-value is-yes">${m.nKeptVote}</div></div>
+        <div class="data-grid-cell"><div class="data-grid-label">Cambian el voto</div><div class="data-grid-value is-no">${m.nChangedVote}</div></div>
+        <div class="data-grid-cell"><div class="data-grid-label">Mantienen familia</div><div class="data-grid-value">${m.nKeptFamily}</div></div>
+      </div>
+      <div class="traj-block">
+        <h4 class="traj-block-title">Detalle nominal · entre cámaras</h4>
+        <div class="dtable-wrap">
+          <table class="dtable traj-table">
+            <colgroup><col class="c-leg"><col class="c-voto"><col class="c-tray"><col class="c-fam"><col class="c-bloq"></colgroup>
+            <thead><tr>
+              <th>Legislador</th>
+              <th>Voto · ${esc(sA.chamberShort)} ${esc(yrA)} <span class="traj-arrow">→</span> ${esc(sB.chamberShort)} ${esc(yrB)}</th>
+              <th>Trayectoria</th>
+              <th>Familia</th>
+              <th>Bloque</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <p class="traj-table-note">${m.n} legisladores que pasaron de ${esc(sA.chamberShort)} (${esc(yrA)}) a ${esc(sB.chamberShort)} (${esc(yrB)}).</p>
+      </div>
+    </div>
+  `;
+}
+
 function renderTrajectorySection(){
   const cp = (state.comparePair && state.comparePair.length === 2) ? state.comparePair : ['aerolineas_diputados', 'ypf_diputados'];
   const traj = computeTrajectory(cp);
@@ -5824,10 +5958,17 @@ function renderTrajectorySection(){
   const head = _sectionHead('B.6', 'Trayectoria de legisladores',
     'Legisladores que repiten banca entre las dos votaciones del par y cómo cambia o se mantiene su voto. Match por nombre exacto (normalizado); se usa el voto efectivo (quien presidió y votó cuenta por su voto).', null, trajActions);
 
+  // B.6a (intra-cámara) y B.6b (entre cámaras, fija) son operaciones distintas y
+  // quedan visualmente separadas. B.6b NO depende del par seleccionado.
+  const intraSubhead = `<div class="traj-subhead"><span class="traj-subhead-marker">B.6a</span><h4 class="traj-subhead-title">Continuidad intra-cámara</h4></div>`;
+  const crossHtml = renderCrossChamberTrajectory();
+
   if(!traj.sameChamber || traj.metrics.nMatched === 0){
     return `<section class="stats-section">
       ${head}
-      <div class="traj-empty">No hay legisladores repetidos entre estos dos escenarios. La trayectoria nominal se calcula solo cuando existe continuidad de banca entre ambas votaciones.</div>
+      ${intraSubhead}
+      <div class="traj-empty">No hay legisladores repetidos entre estos dos escenarios. La continuidad intra-cámara se calcula solo cuando ambas votaciones son de la misma cámara.</div>
+      ${crossHtml}
     </section>`;
   }
 
@@ -5960,10 +6101,12 @@ function renderTrajectorySection(){
 
   return `<section class="stats-section">
     ${head}
+    ${intraSubhead}
     ${metricsHtml}
     ${matrixHtml}
     ${tableHtml}
     ${migrationHtml}
+    ${crossHtml}
   </section>`;
 }
 

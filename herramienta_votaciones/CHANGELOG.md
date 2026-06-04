@@ -2,6 +2,20 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-03 — Fase 5.2 · Trayectoria cross-cámara (B.6b)
+
+Dentro de B.6 Trayectoria se separa la operación en dos subestructuras, metodológicamente distintas, sin renumerar el comparado:
+- **B.6a · Continuidad intra-cámara** — la trayectoria validada (matriz, nominal, migración por familia) que depende del par seleccionado; **sin cambios** (64 Diputados / 38 Senado).
+- **B.6b · Trayectoria entre cámaras** — bloque **fijo** (no depende del par) que registra los legisladores que pasaron de **Aerolíneas · Diputados 2008 → YPF · Senado 2012**.
+
+### Implementación (aislada)
+- **No se tocó `computeTrajectory`** (intra, validada) ni sus métricas. Helper nuevo aislado `computeCrossChamberTrajectory()` (par fijo `aerolineas_diputados → ypf_senado`, match exacto normalizado con el mismo `trajNormName`) + `renderCrossChamberTrajectory()`. Detecta **9** legisladores (7 mantienen el voto, 8 mantienen familia).
+- B.6b incluye: subcabecera con marcador, **nota metodológica** («…participaron en Diputados en 2008 y luego en Senado en 2012… no es continuidad institucional dentro de una cámara, sino trayectoria política entre cámaras distintas»), tag «Vista secundaria», métricas resumen (identificados / mantienen / cambian) y tabla nominal densa (estilo B.10: voto A→B con sellos, trayectoria, familia A→B, bloque A→B). **Separada de B.6a por un filete de tinta.** Aparece incluso cuando la intra está vacía (pares cross-cámara), porque no depende del par.
+- **Sin export PNG** para cross-cámara (pendiente); los exports intra (matriz/nominal/familias) quedan intactos. No hay Sankey (tabla/matriz sobria).
+
+### QA
+- `computeTrajectory` idéntica a HEAD (diff vacío); intra Dip **64** y Sen **38** sin cambios; cross detecta **9**; B.6a y B.6b presentes como secciones separadas; la cross no altera matriz/nominal/migración intra; estado vacío same-chamber sigue funcionando y B.6b igual aparece; exports intra intactos; datos idénticos; consola sin errores; print 54 (53 + 1).
+
 ## 2026-06-03 — Fase 5.1 · Mudanza física del selector de caso/cámara
 
 El selector de caso/cámara y la meta-bar dejan de ser controles globales superiores: ahora viven físicamente **dentro de los subpaneles Caso y Datos** (la meta-bar solo en Caso). Sin tocar datos, cálculos, compute*, votos, exports validados.
