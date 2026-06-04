@@ -1,10 +1,10 @@
 <!doctype html>
 <!--
   Herramienta de visualización legislativa · Reestatizaciones de YPF y Aerolíneas Argentinas
-  Versión: v1.0 — versión estable para tesis (2026-05-19)
+  Versión estable para tesis · diseño final IBM Plex Sans (embebida WOFF2 base64).
   Complemento metodológico de la tesis "El péndulo del poder" (Ciencia Política y RR.II., UBA).
   Datasets validados: 257 / 72 / 257 / 72 (Aerolíneas y YPF, Diputados y Senado).
-  HTML autocontenido, sin dependencias externas.
+  HTML autocontenido y offline, sin dependencias externas.
 -->
 <html lang="es">
 <head>
@@ -30,11 +30,8 @@
    TOKENS DE DISEÑO
    ===================================================================== */
 :root{
-  /* Paleta editorial premium — off-white papel con tinte cálido marcado;
-     tinta más profunda que negro plano para evocar publicación impresa
-     (NYT, FT, Le Monde, Cuadernos del Plata). Cada color institucional,
-     ninguno SaaS, ninguno chillón. */
-  --bg: #faf9f7;
+  /* Paleta editorial neutra — off-white papel con tinte cálido leve y tinta
+     más profunda que el negro plano, para evocar publicación impresa. */
   --bg-soft: #f3f2ef;
   --card: #ffffff;
   --line: #e7e5e1;
@@ -44,22 +41,11 @@
   --muted: #6b7077;
   --muted-soft: #9aa0a6;
 
-  /* Acento dorado/ocre sobrio — uso parsimonioso: reglas, subrayados,
-     activos secundarios, detalles jerárquicos. Reemplaza al ink solido
-     como marca de jerarquía en estados activos. */
-  --accent-gold: #2f6f9f;
-  --accent-gold-soft: #e3edf4;
-  /* Dorado tipográfico — variante más oscura para texto chico (eyebrows,
-     labels, rankings, notas). No usar en bordes, líneas, dots ni decoración
-     —para eso queda --accent-gold. Garantiza contraste sobre --bg / --card. */
-  --accent-gold-text: #4a4f57;
-
   /* Sistema Datawrapper — fondo claro, hairlines, color en los datos (no en el
      chrome). El acento azul acero es funcional: estado activo, foco, links,
      subrayados discretos. Nunca rellena bloques grandes ni compite con el dato. */
   --paper-mount: #f1f0ed;   /* fondo de la app, apenas distinto de las cards */
   --paper-sunk:  #f5f4f1;   /* hundidos — headers de tabla, metadatos */
-  --gold-rule:   var(--line-strong);   /* filetes decorativos de card → neutros (sin marca) */
   --rule-accent: #2f6f9f;              /* subrayado activo funcional (azul acero) */
   --rule-ink:    #1e2530;   /* filete fuerte de títulos */
 
@@ -67,9 +53,7 @@
      Los colores de marca fuertes quedan prohibidos: el color pertenece al dato
      (voto / familia / heatmap / trayectoria), no al chrome. */
   --acid: #2f6f9f;
-  --acid-bright: #3a82b8;
   --acid-soft: #e3edf4;
-  --on-acid: #ffffff;
 
   /* Votos: paleta institucional desaturada — verde hunter, burgundy,
      ocre mostaza, piedra cálida. Pensada para imprenta y proyección.
@@ -86,23 +70,11 @@
   --vote-abs-soft: #ede9dd;
   --vote-pres: #14181f;     /* presidencia — tinta profunda */
 
-  /* Familias políticas — paleta categórica editorial: 10 tonos profundos,
-     desaturados, discriminables entre sí y separados del rango de votos.
-     Pensada para fondo claro, mapa y ojo-de-buey simultáneo. */
-  --fam-fpv:    #0c4a6e;   /* azul petróleo profundo */
-  --fam-ucr:    #9a3412;   /* terracota oscura */
-  --fam-pro:    #b08227;   /* ocre dorado (sustituye al amarillo brillante) */
-  --fam-cc:     #115e59;   /* teal profundo */
-  --fam-soc:    #9f1239;   /* rosa burdeos */
-  --fam-perdis: #7c2d12;   /* marrón oscuro */
-  --fam-cizq:   #312e81;   /* indigo profundo */
-  --fam-conc:   #155e75;   /* cyan profundo */
-  --fam-prov:   #5b21b6;   /* violeta profundo */
-  --fam-otros:  #57534e;   /* piedra neutra cálida */
+  /* Colores de familias políticas: definidos en JS (objeto FAMILY_COLORS),
+     no como custom properties CSS. */
 
   /* Sombras layered — más sutiles, multi-capa para profundidad editorial */
   --shadow-xs: 0 1px 0 rgba(15,23,42,.02), 0 0 0 1px rgba(15,23,42,.025); /* única en uso (context-anchor) */
-  --radius: 10px;
   --radius-sm: 6px;
   --radius-xs: 4px;
 
@@ -393,8 +365,8 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   font-size: var(--t-xs);
   font-weight: var(--w-semi);
   letter-spacing: .01em;
-  color: var(--accent-gold-text);
-  background: var(--accent-gold-soft);
+  color: var(--ink-2);
+  background: var(--acid-soft);
   border-radius: var(--radius-xs);
   padding: 3px var(--space-3);
 }
@@ -502,7 +474,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   font-size: var(--t-xs);
   letter-spacing: .12em;
   text-transform: uppercase;
-  color: var(--accent-gold-text);
+  color: var(--ink-2);
   font-weight: var(--w-semi);
   white-space: nowrap;
 }
@@ -764,7 +736,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 .search-input:focus{
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-gold-soft);
+  box-shadow: 0 0 0 3px var(--acid-soft);
 }
 .search-input::placeholder{ color: var(--muted-soft); }
 
@@ -780,7 +752,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   cursor: pointer;
   transition: border-color var(--dur-1) var(--ease-soft);
 }
-.select-input:focus{ outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-gold-soft); }
+.select-input:focus{ outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--acid-soft); }
 
 .btn-text{
   appearance: none;
@@ -941,7 +913,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 .filter-summary::before{ content: '⌕'; color: var(--muted); font-weight: var(--w-regular); }
 .filter-summary::after{ content: '▾'; margin-left: auto; color: var(--muted); font-size: var(--t-xs); }
 .filter-disclosure[open] .filter-summary::after{ content: '▴'; }
-.filter-summary-active{ color: var(--accent-gold-text); font-weight: var(--w-semi); font-size: var(--t-xs); }
+.filter-summary-active{ color: var(--ink-2); font-weight: var(--w-semi); font-size: var(--t-xs); }
 .filter-disclosure .toolbar-row{ border-top: 1px solid var(--line); border-bottom: none; }
 
 /* Exportación contextual (figura activa). */
@@ -1299,9 +1271,9 @@ svg.map-svg{
 
 /* Card anexa: paneles del sidebar. Sombra suave para no competir con el
    viz-card central. */
-/* Ficha lateral (Atlas): panel plano de archivo — filete dorado superior,
-   borde firme, sin sombra. La elevación viene del montaje y el borde, no de
-   la sombra (coherente con viz-card). */
+/* Ficha lateral: panel plano de archivo — filete superior, borde firme, sin
+   sombra. La elevación viene del montaje y el borde, no de la sombra
+   (coherente con viz-card). */
 .panel{
   background: var(--card);
   border: 1px solid var(--line-strong);
@@ -1549,7 +1521,7 @@ svg.map-svg{
 .member-row.is-selected{
   border-color: var(--line-strong);
   background: var(--card);
-  box-shadow: inset 3px 0 0 var(--accent-gold);
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 .mr-top{
   display: flex;
@@ -1602,7 +1574,7 @@ svg.map-svg{
   z-index: 100;
   max-width: 300px;
   box-shadow: 0 12px 32px rgba(0,0,0,.32), 0 0 0 1px rgba(20,24,31,.16);
-  border-left: 2px solid var(--accent-gold);
+  border-left: 2px solid var(--accent);
 }
 .tt strong{
   display: block;
@@ -1673,7 +1645,7 @@ svg.map-svg{
   left: 0;
   width: 40px;
   height: 1.5px;
-  background: var(--accent-gold);
+  background: var(--accent);
 }
 .footer strong{ color: var(--ink); font-weight: var(--w-semi); }
 .footer br{ margin-bottom: var(--space-1); }
@@ -2291,9 +2263,9 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 /* Bloque principal estadístico: mantiene --shadow-md como pieza de
    peso. Respiración vertical sube a --space-8 (32px) para separar
    las dos divisiones (A escenario · B comparador) con más aire. */
-/* División analítica (Atlas): lámina/capítulo plano — sin sombra, borde firme,
-   radio chico. La cabecera es una banda hundida con filete de archivo
-   (tinta + oro), igual que el masthead. Elevación por montaje, no por sombra. */
+/* División analítica: lámina/capítulo plano — sin sombra, borde firme, radio
+   chico. La cabecera es una banda hundida con filete de archivo (tinta + acento),
+   igual que el masthead. Elevación por montaje, no por sombra. */
 .stats-division{
   background: var(--card);
   border: 1px solid var(--line-strong);
@@ -2326,14 +2298,14 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   top: 0; left: 58px;
   width: 22px;
   height: 2px;
-  background: var(--gold-rule);
+  background: var(--line-strong);
 }
 .stats-division-eyebrow{
   margin: var(--space-2) 0 var(--space-2);
   font-size: var(--t-xs);
   letter-spacing: .14em;
   text-transform: uppercase;
-  color: var(--accent-gold-text);
+  color: var(--ink-2);
   font-weight: var(--w-semi);
   font-feature-settings: "smcp", "kern";
 }
@@ -2423,7 +2395,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   letter-spacing: .015em;
 }
 .stats-aside-marker{
-  color: var(--accent-gold-text);
+  color: var(--ink-2);
   font-weight: var(--w-bold);
   letter-spacing: .12em;
   margin-right: var(--space-2);
@@ -2602,7 +2574,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   font-size: 10px;
   letter-spacing: .05em;
   text-transform: uppercase;
-  color: var(--accent-gold-text);
+  color: var(--ink-2);
   font-weight: var(--w-semi);
   margin-bottom: var(--space-2);
 }
@@ -2747,7 +2719,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   font-size: 10px;
   letter-spacing: .14em;
   text-transform: uppercase;
-  color: var(--accent-gold-text);
+  color: var(--ink-2);
   font-weight: var(--w-bold);
   border-bottom: 1px solid var(--line);
 }
@@ -2838,7 +2810,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   font-size: 10px;
   letter-spacing: .14em;
   text-transform: uppercase;
-  color: var(--accent-gold-text);
+  color: var(--ink-2);
   font-weight: var(--w-bold);
 }
 .insights-list{
@@ -2864,7 +2836,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   position: absolute;
   left: 0;
   top: var(--space-2);
-  color: var(--accent-gold-text);
+  color: var(--ink-2);
   font-weight: var(--w-bold);
   font-size: var(--t-md);
   font-family: var(--font-serif);
@@ -2960,7 +2932,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   font-size: var(--t-xs);
   letter-spacing: .08em;
   text-transform: uppercase;
-  color: var(--accent-gold-text);
+  color: var(--ink-2);
   font-weight: var(--w-semi);
   margin: 0 var(--space-2) 0 0;
 }
@@ -3151,7 +3123,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   padding: var(--space-3) var(--space-4);
   background: var(--paper-sunk);
   border: 1px solid var(--line);
-  border-left: 2px solid var(--gold-rule);
+  border-left: 2px solid var(--line-strong);
   border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
 }
 .terr-summary-empty{
@@ -3227,14 +3199,14 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .cmp-quad-summary-cta{
   margin-left: auto;
   font-size: var(--t-xs);
-  color: var(--accent-gold-text);
+  color: var(--ink-2);
   font-weight: var(--w-semi);
   letter-spacing: .01em;
 }
 .cmp-quad-summary-cta::after{ content: ' ▾'; }
 .cmp-quad-details[open] .cmp-quad-summary-cta::after{ content: ' ▴'; }
 .cmp-quad-details[open] .cmp-quad-summary{ border-bottom: 1px solid var(--line); }
-.cmp-quad-summary:hover .cmp-quad-summary-text{ color: var(--accent-gold-text); }
+.cmp-quad-summary:hover .cmp-quad-summary-text{ color: var(--ink-2); }
 .cmp-quad-body{ padding: var(--space-5) var(--space-6); }
 
 /* --- Trayectoria de legisladores (B.6) --- */
@@ -3251,7 +3223,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .traj-dir{
   margin: 0 0 var(--space-3);
   font-size: var(--t-sm);
-  color: var(--accent-gold-text);
+  color: var(--ink-2);
   font-weight: var(--w-semi);
   letter-spacing: .01em;
 }
@@ -3266,7 +3238,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 .traj-subhead-marker{
   font-size: 11px;
   font-weight: var(--w-bold);
-  color: var(--accent-gold-text);
+  color: var(--ink-2);
   letter-spacing: .12em;
   font-variant-numeric: tabular-nums;
 }
@@ -3301,7 +3273,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   line-height: 1.6;
   max-width: 860px;
   background: var(--paper-sunk);
-  border-left: 2px solid var(--gold-rule);
+  border-left: 2px solid var(--line-strong);
   padding: var(--space-3) var(--space-4);
   border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
 }
@@ -3372,7 +3344,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 }
 .traj-matrix td.is-zero{ color: var(--muted-soft); font-family: var(--font-sans); font-weight: var(--w-regular); }
 .traj-matrix td.is-kept{ background: var(--vote-yes-soft); }
-.traj-matrix td.is-changed{ background: var(--accent-gold-soft); }
+.traj-matrix td.is-changed{ background: var(--acid-soft); }
 .traj-matrix .traj-tot{ background: var(--paper-sunk); color: var(--ink-2); }
 .traj-matrix .traj-tot-row th, .traj-matrix .traj-tot-row td{ background: var(--paper-sunk); font-weight: var(--w-semi); border-top: 2px solid var(--line-strong); }
 .traj-sw{ display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
@@ -3428,7 +3400,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 }
 .traj-badge.kept{ background: var(--vote-yes-soft); border-color: var(--vote-yes); color: var(--vote-yes); }
 .traj-badge.changed{ background: var(--vote-no-soft); border-color: var(--vote-no); color: var(--vote-no); }
-.traj-badge.fam{ background: var(--vote-abst-soft); border-color: var(--vote-abst); color: var(--accent-gold-text); margin-left: 4px; }
+.traj-badge.fam{ background: var(--vote-abst-soft); border-color: var(--vote-abst); color: var(--ink-2); margin-left: 4px; }
 
 .traj-fam-table .col-num.is-up{ color: var(--vote-yes); font-weight: var(--w-semi); }
 .traj-fam-table .col-num.is-down{ color: var(--vote-no); font-weight: var(--w-semi); }
@@ -3511,7 +3483,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 }
 .align-note::before{
   content: '⊘  ';
-  color: var(--accent-gold-text);
+  color: var(--ink-2);
   font-style: normal;
   font-weight: var(--w-bold);
 }
@@ -3553,7 +3525,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
   display: inline-block;
   width: 18px;
   height: 2px;
-  background: var(--gold-rule);
+  background: var(--line-strong);
 }
 .ficha-grid{
   display: grid;
@@ -3647,7 +3619,7 @@ table.dtable .col-num{ text-align: right; font-variant-numeric: tabular-nums; }
 .search-table:focus{
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-gold-soft);
+  box-shadow: 0 0 0 3px var(--acid-soft);
 }
 .search-table::placeholder{ color: var(--muted-soft); }
 .tbl-meta{
@@ -3798,13 +3770,13 @@ a:focus-visible,
 [role="tab"]:focus-visible,
 [role="button"]:focus-visible,
 [tabindex]:focus-visible{
-  outline: 2px solid var(--accent-gold);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: var(--radius-xs);
 }
 
 .nav-seg:focus-visible{
-  outline: 2px solid var(--accent-gold);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: var(--radius-xs);
 }
@@ -3814,21 +3786,21 @@ a:focus-visible,
 .vote-pill:focus-visible,
 .btn-text:focus-visible,
 .btn-exp:focus-visible{
-  outline: 2px solid var(--accent-gold);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
 .search-input:focus-visible,
 .search-table:focus-visible,
 .select-input:focus-visible{
-  outline: 2px solid var(--accent-gold);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
 /* Asientos del hemiciclo (SVG <circle>): outline no aplica a SVG.
    Refuerzo con stroke dorado del sistema ancho para foco de teclado. */
 .seat:focus-visible{
-  stroke: var(--accent-gold);
+  stroke: var(--accent);
   stroke-width: 2.5;
   outline: none;
 }
@@ -3838,7 +3810,7 @@ a:focus-visible,
 
 /* Tablas navegables por teclado: focus en filas e inputs internos. */
 .dtable tbody tr:focus-visible{
-  outline: 2px solid var(--accent-gold);
+  outline: 2px solid var(--accent);
   outline-offset: -2px;
 }
 
