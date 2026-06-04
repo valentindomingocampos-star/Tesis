@@ -186,7 +186,9 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   position: relative;
   margin-bottom: var(--space-8);
   padding-top: var(--space-4);
+  padding-bottom: var(--space-6);
   border-top: 1px solid var(--rule-ink);
+  border-bottom: 1px solid var(--line);
 }
 /* Sin tick de color: el masthead introduce, no decora (Datawrapper). */
 /* Folio: kicker institucional a la izquierda, metadatos a la derecha */
@@ -222,12 +224,22 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   align-items: end;
 }
 .masthead-eyebrow{
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
   margin: 0 0 var(--space-3);
   font-size: var(--t-xs);
-  letter-spacing: .12em;
+  letter-spacing: .14em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--ink-2);
   font-weight: var(--w-semi);
+}
+.masthead-eyebrow::before{
+  content: '';
+  width: 22px;
+  height: 2px;
+  background: var(--acid);
+  flex: none;
 }
 .masthead-title{
   margin: 0;
@@ -270,12 +282,12 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
 .law-entry{ display: grid; gap: 3px; }
 .law-num{
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 21px;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   color: var(--ink);
   font-variant-numeric: lining-nums tabular-nums;
-  line-height: 1.1;
+  line-height: 1.05;
 }
 .law-name{
   font-size: var(--t-base);
@@ -1411,13 +1423,30 @@ svg.map-svg{
 /* Estado vacío sobrio: nota de registro sin selección, en caja hundida con
    filete punteado (no itálica, que lee informal). */
 .detail-empty{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-5);
   color: var(--muted);
-  font-size: var(--t-sm);
-  line-height: 1.6;
-  padding: var(--space-4);
   background: var(--paper-sunk);
-  border: 1px dashed var(--line-strong);
+  border: 1px solid var(--line);
   border-radius: var(--radius-xs);
+}
+.detail-empty-glyph{ color: var(--muted-soft); margin-bottom: var(--space-1); }
+.detail-empty-title{
+  margin: 0;
+  font-size: var(--t-base);
+  font-weight: var(--w-semi);
+  color: var(--ink-2);
+  letter-spacing: -0.005em;
+}
+.detail-empty-hint{
+  margin: 0;
+  font-size: var(--t-sm);
+  line-height: 1.55;
+  max-width: 32ch;
 }
 /* Acciones de descarga de las fichas del sidebar (legislador / resumen). */
 .panel-actions{
@@ -1684,31 +1713,44 @@ svg.map-svg{
 .subtab{
   position: relative;
   display: inline-flex;
-  align-items: center;
-  padding: var(--space-3) var(--space-4) calc(var(--space-3) + 1px);
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5) calc(var(--space-3) + 2px);
   font-family: inherit;
-  font-size: var(--t-base);
+  font-size: var(--t-md);
   font-weight: var(--w-medium);
   color: var(--muted);
   cursor: pointer;
   border: none;
   background: transparent;
   margin-bottom: -1px;
-  letter-spacing: -0.005em;
+  letter-spacing: -0.01em;
+  transition: color var(--dur-2) var(--ease-soft);
+}
+/* Índice editorial 01–04: numera las pestañas como capítulos. Toma el acento
+   cuando la pestaña está activa. aria-hidden en el markup → no lo leen lectores. */
+.subtab-idx{
+  font-size: var(--t-xs);
+  font-weight: var(--w-semi);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+  color: var(--muted-soft);
   transition: color var(--dur-2) var(--ease-soft);
 }
 .subtab::after{
   content: '';
   position: absolute;
   left: 0; right: 0; bottom: -1px;
-  height: 2px;
+  height: 2.5px;
   background: var(--rule-accent);
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform var(--dur-2) var(--ease-out);
 }
 .subtab:hover{ color: var(--ink-2); }
+.subtab:hover .subtab-idx{ color: var(--ink-2); }
 .subtab.is-on{ color: var(--ink); font-weight: var(--w-semi); }
+.subtab.is-on .subtab-idx{ color: var(--acid); }
 .subtab.is-on::after{ transform: scaleX(1); }
 .subpanel{ display: none; }
 .subpanel.is-on{ display: block; }
@@ -2365,10 +2407,10 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 }
 .stats-section-marker{
   font-family: var(--font-sans);
-  font-size: var(--t-sm);
-  font-weight: var(--w-semi);
-  color: var(--muted);
-  letter-spacing: .02em;
+  font-size: var(--t-base);
+  font-weight: var(--w-bold);
+  color: var(--acid);
+  letter-spacing: .01em;
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
 }
@@ -3106,7 +3148,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 
 /* SVG comparados — escalan al ancho de la celda */
 .cmp-hemicycle{ display: block; width: 100%; height: auto; padding: var(--space-3) var(--space-3) var(--space-2); }
-.cmp-map{ display: block; width: 100%; height: auto; max-height: 520px; padding: var(--space-2); }
+.cmp-map{ display: block; width: 100%; height: auto; max-height: 620px; padding: var(--space-2); }
 .cmp-cell.is-compact .cmp-map{ max-height: 380px; }
 /* Read-only: las bancas del comparado no se seleccionan (sin cursor de acción). */
 .cmp-hemicycle .cmp-seat{ cursor: default; }
@@ -4999,10 +5041,10 @@ function renderVizCard(){
   card.innerHTML = `
     <div class="mode-nav">
       <div class="subtabs" role="tablist" aria-label="Modos de análisis">
-        <button class="subtab is-on" role="tab" id="tab-case" aria-controls="panel-case" aria-selected="true" data-subtab="case">Análisis del caso</button>
-        <button class="subtab" role="tab" id="tab-compare" aria-controls="panel-compare" aria-selected="false" data-subtab="compare">Análisis comparado</button>
-        <button class="subtab" role="tab" id="tab-data" aria-controls="panel-data" aria-selected="false" data-subtab="data">Datos</button>
-        <button class="subtab" role="tab" id="tab-method" aria-controls="panel-method" aria-selected="false" data-subtab="method">Metodología</button>
+        <button class="subtab is-on" role="tab" id="tab-case" aria-controls="panel-case" aria-selected="true" data-subtab="case"><span class="subtab-idx" aria-hidden="true">01</span><span class="subtab-label">Análisis del caso</span></button>
+        <button class="subtab" role="tab" id="tab-compare" aria-controls="panel-compare" aria-selected="false" data-subtab="compare"><span class="subtab-idx" aria-hidden="true">02</span><span class="subtab-label">Análisis comparado</span></button>
+        <button class="subtab" role="tab" id="tab-data" aria-controls="panel-data" aria-selected="false" data-subtab="data"><span class="subtab-idx" aria-hidden="true">03</span><span class="subtab-label">Datos</span></button>
+        <button class="subtab" role="tab" id="tab-method" aria-controls="panel-method" aria-selected="false" data-subtab="method"><span class="subtab-idx" aria-hidden="true">04</span><span class="subtab-label">Metodología</span></button>
       </div>
     </div>
 
@@ -6206,7 +6248,7 @@ function renderSidebar(){
     <section class="panel">
       ${legTitleHeader}
       ${selLeg ? `<div class="panel-actions"><button class="btn-exp" data-export="legislator-csv">↓ CSV</button><button class="btn-exp" data-export="legislator-png">↓ PNG</button></div>` : ''}
-      ${selLeg ? renderLegislatorDetail(selLeg) : '<p class="detail-empty">Sin banca seleccionada. Seleccioná una en el hemiciclo o en el mapa para abrir su ficha.</p>'}
+      ${selLeg ? renderLegislatorDetail(selLeg) : '<div class="detail-empty"><svg class="detail-empty-glyph" width="46" height="27" viewBox="0 0 46 27" aria-hidden="true"><path d="M3 24 A20 20 0 0 1 43 24" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="16.5" r="1.9" fill="currentColor"/><circle cx="15" cy="10.5" r="1.9" fill="currentColor"/><circle cx="23" cy="8" r="1.9" fill="currentColor"/><circle cx="31" cy="10.5" r="1.9" fill="currentColor"/><circle cx="38" cy="16.5" r="1.9" fill="currentColor"/></svg><p class="detail-empty-title">Ninguna banca seleccionada</p><p class="detail-empty-hint">Hacé clic en una banca del hemiciclo o en una provincia del mapa para abrir su ficha individual.</p></div>'}
       ${legFooter}
     </section>
     <section class="panel">

@@ -2,6 +2,18 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-04 — Dirección editorial premium más visible (Fase 1B, sin tocar datos/exports)
+
+Pasada de diseño más jugada (visible) tras la Fase 1, manteniendo la línea editorial sobria. Solo CSS/markup/microcopy en pantalla; sin tocar datos, cálculos ni exports.
+
+- **Pestañas como capítulos numerados (01–04)**: cada `.subtab` lleva un índice editorial (`<span class="subtab-idx" aria-hidden>`) que toma el acento cuando está activo; tipografía más grande, underline activo más marcado (2.5px), mejor separación nav/contenido. ARIA intacto (`role=tab`/`aria-selected` verificados).
+- **Masthead más memorable**: marca de acento (filete corto) antes del eyebrow + eyebrow con más contraste; **filete inferior** que cierra la banda de portada; números de ley más grandes (18→21px). El H1 ya venía agrandado en Fase 1.
+- **Mapas de Comparado (B.5) más grandes**: `.cmp-map max-height` 520→620px → provincias y labels más legibles, comparación más contundente. **No toca el export PNG** (que arma su propio SVG a tamaño fijo, verificado). B.5 sigue sin highlight.
+- **Estado vacío de la ficha rediseñado**: en vez de una nota plana en caja punteada, un bloque compuesto y centrado con glifo de hemiciclo (inline SVG, sin dependencias), título («Ninguna banca seleccionada») y guía breve.
+- **Ritmo editorial de secciones**: los markers (B.1…B.10, A.1…A.6) pasan de gris chico a **acento, más grandes y bold** → cada sección lee como capítulo, coherente con la numeración de pestañas.
+
+QA: 4 pestañas; numeración 01–04 + ARIA OK; B.5 sin highlight (2 mapas); intra 64/38; cross 9; metodología 10; **PNG (mapas con Plex, sin clipping)**, CSV y print 54 OK; consola limpia; IBM Plex 4 caras; `_getPlexFontCss()` 4 `@font-face`; reduced-motion respetado (animación ~0); datos idénticos a `origin/main`. Sin push.
+
 ## 2026-06-04 — Refinamientos editoriales premium (Fase 1, sin tocar datos/exports)
 
 Quick wins de percepción tras la auditoría de diseño/UX. Solo CSS/markup/microcopy en pantalla; sin tocar datos, cálculos ni la maquinaria de export (que construye su propio SVG/CSV).
