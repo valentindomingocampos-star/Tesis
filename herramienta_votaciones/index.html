@@ -7807,6 +7807,13 @@ function exportTrajectoryPng(kind, srcTraj){
   const dirSub = `${sA.caseName} · ${sA.chamberShort} → ${sB.caseName} · ${sB.chamberShort}`;
   const fileBase = ['comparado', 'trayectoria', (traj.isCross ? 'cross_' : '') + sA.id + '_vs_' + sB.id];
   const fmt1 = (n) => Number.isFinite(n) ? (Math.round(n * 10) / 10).toFixed(1) : '—';
+  // Redacción y fuente cross-aware: el intra son legisladores que "repiten banca"
+  // (same-chamber); el cruce son legisladores presentes en ambas votaciones, en
+  // cámaras distintas. No mezclar las dos formulaciones.
+  const universeWord = traj.isCross ? 'presentes en ambas votaciones (entre cámaras distintas)' : 'que repiten banca';
+  const trajSource = traj.isCross
+    ? 'Elaboración propia sobre legisladores presentes en ambas votaciones nominales, en cámaras distintas (par fijo Aerolíneas · Diputados 2008 → YPF · Senado 2012). Match exacto normalizado de nombres.'
+    : PNG_TRAJECTORY_SOURCE;
 
   if(kind === 'matriz'){
     const rowTot = {}, colTot = {};
@@ -7817,8 +7824,8 @@ function exportTrajectoryPng(kind, srcTraj){
     const rhW = 210, cellW = 130, totW = 100, cellH = 48;
     const tableW = rhW + colsP.length * cellW + totW;
     const totalW = Math.max(940, PAD_X * 2 + tableW);
-    const headerOut = buildTablePngHeader(NS, sA, 'Trayectoria · matriz de transición del voto',
-      `${dirSub}. Diagonal: mantuvieron el sentido; fuera de la diagonal, cambiaron. Sobre ${traj.metrics.nMatched} legisladores que repiten banca.`,
+    const headerOut = buildTablePngHeader(NS, sA, traj.isCross ? 'Trayectoria entre cámaras · matriz de transición del voto' : 'Trayectoria · matriz de transición del voto',
+      `${dirSub}. Diagonal: mantuvieron el sentido; fuera de la diagonal, cambiaron. Sobre ${traj.metrics.nMatched} legisladores ${universeWord}.`,
       totalW, PAD_X, { noMetaChips: true });
     const els = [...headerOut.elements];
     const x0 = PAD_X + (totalW - PAD_X * 2 - tableW) / 2;
@@ -7868,7 +7875,7 @@ function exportTrajectoryPng(kind, srcTraj){
     els.push(_svgText(NS, x0 + rhW + colsP.length * cellW + totW / 2, y + cellH / 2 + 5, String(traj.metrics.nMatched), { size: 14, weight: '700', fill: '#14181f', anchor: 'middle' }));
     y += cellH;
     const footRead = `Mantienen el voto: ${traj.metrics.nKeptVote} de ${traj.metrics.nMatched} (${fmt1(traj.metrics.pctKeptVote)}%). Cambian: ${traj.metrics.nChangedVote}.`;
-    const footerOut = buildTablePngFooter(NS, sA, y + 18, totalW, PAD_X, footRead, { generalSource: PNG_TRAJECTORY_SOURCE });
+    const footerOut = buildTablePngFooter(NS, sA, y + 18, totalW, PAD_X, footRead, { generalSource: trajSource });
     _finalizeTrajPng([...els, ...footerOut.elements], totalW, footerOut.footerBottomY + 10, slugifyFilename([...fileBase, 'matriz']) + '.png');
     return;
   }
@@ -7876,15 +7883,18 @@ function exportTrajectoryPng(kind, srcTraj){
   if(kind === 'familias'){
     const famAgg = {};
     traj.matched.forEach(r => { const f = r.familyA; if(!famAgg[f]) famAgg[f] = { n: 0, kept: 0, changed: 0, yesA: 0, yesB: 0 }; const g = famAgg[f]; g.n++; if(r.sameVote) g.kept++; else g.changed++; if(r.voteA === 'AFIRMATIVO') g.yesA++; if(r.voteB === 'AFIRMATIVO') g.yesB++; });
-    const rows = Object.keys(famAgg).map(f => ({ f, ...famAgg[f] })).filter(r => r.n >= 2).sort((a, b) => b.n - a.n);
+    // Umbral: el intra (64/38 casos) filtra familias con <2 repetidos (ruido);
+    // el cruce (9 casos) muestra todas las familias presentes, o quedaría 1 fila.
+    const minFam = traj.isCross ? 1 : 2;
+    const rows = Object.keys(famAgg).map(f => ({ f, ...famAgg[f] })).filter(r => r.n >= minFam).sort((a, b) => b.n - a.n);
     const totalW = 1100;
     const cols = [
       { x: PAD_X + 14, label: 'FAMILIA POLÍTICA', align: 'left' },
       { x: PAD_X + 360, label: 'REPITEN', align: 'right' }, { x: PAD_X + 480, label: 'MANTIENEN', align: 'right' }, { x: PAD_X + 600, label: 'CAMBIAN', align: 'right' },
       { x: PAD_X + 760, label: `% AFI · ${sA.caseName.split(' ')[0]}`, align: 'right' }, { x: PAD_X + 900, label: `% AFI · ${sB.caseName.split(' ')[0]}`, align: 'right' }, { x: totalW - PAD_X - 6, label: 'Δ PP', align: 'right' }
     ];
-    const headerOut = buildTablePngHeader(NS, sA, 'Trayectoria · migración por familia política',
-      `${dirSub}. Sobre los legisladores que repiten banca; familias con al menos 2 repetidos.`, totalW, PAD_X, { noMetaChips: true });
+    const headerOut = buildTablePngHeader(NS, sA, traj.isCross ? 'Trayectoria entre cámaras · migración por familia política' : 'Trayectoria · migración por familia política',
+      `${dirSub}. Sobre los legisladores ${universeWord}; ${traj.isCross ? 'todas las familias presentes' : 'familias con al menos 2 repetidos'}.`, totalW, PAD_X, { noMetaChips: true });
     const els = [...headerOut.elements];
     let y = headerOut.headerBottomY + 26;
     const hb = document.createElementNS(NS, 'rect'); hb.setAttribute('x', PAD_X); hb.setAttribute('y', y); hb.setAttribute('width', totalW - 2 * PAD_X); hb.setAttribute('height', 30); hb.setAttribute('fill', '#ffffff'); hb.setAttribute('stroke', '#e7e5e1'); els.push(hb);
@@ -7906,7 +7916,7 @@ function exportTrajectoryPng(kind, srcTraj){
       const sep = document.createElementNS(NS, 'line'); sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y + rowH); sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', y + rowH); sep.setAttribute('stroke', '#ededeb'); sep.setAttribute('stroke-width', '0.6'); els.push(sep);
       y += rowH;
     });
-    const footerOut = buildTablePngFooter(NS, sA, y + 18, totalW, PAD_X, '% afirmativo calculado sobre los repetidos de cada familia.', { generalSource: PNG_TRAJECTORY_SOURCE });
+    const footerOut = buildTablePngFooter(NS, sA, y + 18, totalW, PAD_X, '% afirmativo calculado sobre los repetidos de cada familia.', { generalSource: trajSource });
     _finalizeTrajPng([...els, ...footerOut.elements], totalW, footerOut.footerBottomY + 10, slugifyFilename([...fileBase, 'familias']) + '.png');
     return;
   }
@@ -7923,7 +7933,6 @@ function exportTrajectoryPng(kind, srcTraj){
     const filterSlug = trajFilter === 'changed' ? 'cambiaron' : (trajFilter === 'kept' ? 'mantuvieron' : null);
     const totalW = 1320;
     const C = { name: PAD_X + 14, votoA: PAD_X + 340, arrow: PAD_X + 470, votoB: PAD_X + 500, cambio: PAD_X + 640, fam: PAD_X + 800, bloque: PAD_X + 1080 };
-    const universeWord = traj.isCross ? 'presentes en ambas votaciones (entre cámaras distintas)' : 'que repiten banca';
     const headerOut = buildTablePngHeader(NS, sA, traj.isCross ? 'Trayectoria entre cámaras · detalle nominal' : 'Trayectoria · detalle nominal',
       `${dirSub}${filterSub}. ${rows.length} legisladores ${universeWord} y su voto en cada votación.`, totalW, PAD_X, { noMetaChips: true });
     const els = [...headerOut.elements];
@@ -7952,7 +7961,7 @@ function exportTrajectoryPng(kind, srcTraj){
     const footerNote = trajFilter === 'all'
       ? `Ordenado: primero los que cambiaron el voto. ${traj.metrics.nKeptVote} mantienen, ${traj.metrics.nChangedVote} cambian.`
       : `Filtro activo${filterSub}. ${rows.length} de ${traj.matched.length} legisladores que repiten banca.`;
-    const footerOut = buildTablePngFooter(NS, sA, y + 18, totalW, PAD_X, footerNote, { generalSource: PNG_TRAJECTORY_SOURCE });
+    const footerOut = buildTablePngFooter(NS, sA, y + 18, totalW, PAD_X, footerNote, { generalSource: trajSource });
     _finalizeTrajPng([...els, ...footerOut.elements], totalW, footerOut.footerBottomY + 10, slugifyFilename([...fileBase, 'nominal', filterSlug].filter(Boolean)) + '.png');
     return;
   }

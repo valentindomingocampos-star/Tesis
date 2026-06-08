@@ -12,6 +12,8 @@ La vista B.6b (par fijo Aerolíneas·Diputados 2008 → YPF·Senado 2012, 9 legi
 - Nombres de archivo con prefijo `cross_` y redacción ajustada: el nominal entre cámaras dice "legisladores presentes en ambas votaciones (entre cámaras distintas)", no "repiten banca" (sería inexacto).
 - QA: 3 láminas cross con nombre correcto y 9 casos; intra intacto (64/16/48 según filtro); datos idénticos a `origin/main`; print 54; consola limpia; sintaxis OK.
 
+**Ajuste posterior (mismo día):** las láminas Matriz y Familias del cruce heredaban el texto del intra ("repiten banca", fuente "trayectoria same-chamber") — inexacto entre cámaras. Se centralizó una redacción cross-aware ("legisladores presentes en ambas votaciones, en cámaras distintas") en título, bajada y fuente de las tres láminas. Además, la **migración por familia del cruce** usaba el umbral del intra (`n ≥ 2`), que con 9 casos dejaba una sola familia (FPV-PJ): para el cruce se baja a `n ≥ 1` → muestra todas las familias presentes (4 filas, suman 9). El intra mantiene `n ≥ 2` y su redacción.
+
 ## 2026-06-08 — Fix: el PNG de la trayectoria nominal (B.6) respeta el filtro activo
 
 Barrido de la misma clase de bug que el del heatmap (export que reconstruye e ignora el toggle visible). Único caso adicional encontrado: la **trayectoria · detalle nominal**.
