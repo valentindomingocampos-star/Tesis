@@ -2,6 +2,16 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-08 — Trayectoria entre cámaras (B.6b) ahora exportable como el intra (B.6a)
+
+La vista B.6b (par fijo Aerolíneas·Diputados 2008 → YPF·Senado 2012, 9 legisladores) era display-only. Ahora tiene las **mismas tres láminas PNG** que la intra-cámara: **Matriz**, **Nominal** y **Familias**.
+
+- **Reutiliza el builder** del intra sin duplicar: `exportTrajectoryPng(kind, srcTraj)` acepta una trayectoria ya calculada; sin ella mantiene el comportamiento previo (B.6a desde el par seleccionado).
+- `computeCrossChamberTrajectory()` se extendió (aditivo) para devolver `cats`, `matrix`, `sameChamber:false`, `isCross:true` y alias `nMatched` → compatible con el builder. El display de B.6b no cambia.
+- **Tres botones nuevos** en el subhead de B.6b (`traj-cross-{matriz|nominal|familias}-png`). El nominal del cruce **no aplica el filtro intra** (B.6b no tiene ese toggle): exporta los 9.
+- Nombres de archivo con prefijo `cross_` y redacción ajustada: el nominal entre cámaras dice "legisladores presentes en ambas votaciones (entre cámaras distintas)", no "repiten banca" (sería inexacto).
+- QA: 3 láminas cross con nombre correcto y 9 casos; intra intacto (64/16/48 según filtro); datos idénticos a `origin/main`; print 54; consola limpia; sintaxis OK.
+
 ## 2026-06-08 — Fix: el PNG de la trayectoria nominal (B.6) respeta el filtro activo
 
 Barrido de la misma clase de bug que el del heatmap (export que reconstruye e ignora el toggle visible). Único caso adicional encontrado: la **trayectoria · detalle nominal**.

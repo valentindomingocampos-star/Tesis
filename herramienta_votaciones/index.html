@@ -6008,9 +6008,16 @@ function computeCrossChamberTrajectory(){
   matched.sort((a, b) => a.name.localeCompare(b.name, 'es'));
   const nKeptVote = matched.filter(x => x.sameVote).length;
   const nKeptFamily = matched.filter(x => x.sameFamily).length;
+  // Matriz de transición voto A × voto B (igual estructura que el intra), para
+  // que la lámina PNG comparta el builder de exportTrajectoryPng.
+  const cats = ['AFIRMATIVO', 'NEGATIVO', 'ABSTENCION', 'AUSENTE', 'PRESIDENCIA'];
+  const matrix = {};
+  cats.forEach(a => { matrix[a] = {}; cats.forEach(b => matrix[a][b] = 0); });
+  matched.forEach(m => { if(matrix[m.voteA] && matrix[m.voteA][m.voteB] != null) matrix[m.voteA][m.voteB]++; });
   return {
-    scenA: sA, scenB: sB, matched,
-    metrics: { n: matched.length, nKeptVote, nChangedVote: matched.length - nKeptVote, nKeptFamily, nChangedFamily: matched.length - nKeptFamily }
+    idA, idB, scenA: sA, scenB: sB, matched, cats, matrix,
+    sameChamber: false, isCross: true,
+    metrics: { n: matched.length, nMatched: matched.length, nKeptVote, nChangedVote: matched.length - nKeptVote, nKeptFamily, nChangedFamily: matched.length - nKeptFamily }
   };
 }
 
@@ -6034,6 +6041,11 @@ function renderCrossChamberTrajectory(){
         <span class="traj-subhead-marker">B.6b</span>
         <h4 class="traj-subhead-title">Trayectoria entre cámaras · ${esc(sA.chamberShort)} ${esc(yrA)} → ${esc(sB.chamberShort)} ${esc(yrB)}</h4>
         <span class="traj-cross-tag">Vista secundaria</span>
+        <div class="stats-section-actions">
+          <button class="btn-exp" data-export="traj-cross-matriz-png" title="Matriz de transición entre cámaras · PNG">↓ Matriz</button>
+          <button class="btn-exp" data-export="traj-cross-nominal-png" title="Detalle nominal entre cámaras · PNG">↓ Nominal</button>
+          <button class="btn-exp" data-export="traj-cross-familias-png" title="Migración por familia entre cámaras · PNG">↓ Familias</button>
+        </div>
       </div>
       <p class="traj-cross-note">Esta vista registra legisladores que participaron en la votación de <strong>${esc(sA.caseName)}</strong> en <strong>${esc(sA.chamberShort)}</strong> en ${esc(yrA)} y luego en la votación de <strong>${esc(sB.caseName)}</strong> en <strong>${esc(sB.chamberShort)}</strong> en ${esc(yrB)}. No mide continuidad institucional dentro de una misma cámara, sino <strong>trayectoria política entre cámaras distintas</strong>.</p>
       <div class="data-grid traj-metrics">
@@ -7784,15 +7796,16 @@ function _finalizeTrajPng(elements, totalW, totalH, filename){
   rasterizeSvgToPng(new XMLSerializer().serializeToString(wrapper), totalW, totalH, filename);
 }
 
-function exportTrajectoryPng(kind){
+function exportTrajectoryPng(kind, srcTraj){
   const NS = 'http://www.w3.org/2000/svg';
   const PAD_X = 50;
-  const cp = (state.comparePair && state.comparePair.length === 2) ? state.comparePair : ['aerolineas_diputados', 'ypf_diputados'];
-  const traj = computeTrajectory(cp);
-  if(!traj.sameChamber || traj.metrics.nMatched === 0){ alert('No hay legisladores repetidos en este par (la trayectoria es same-chamber). No hay datos para exportar.'); return; }
+  // srcTraj: trayectoria ya calculada — la pasa B.6b (entre cámaras). Sin ella,
+  // se calcula la intra-cámara (B.6a) a partir del par seleccionado.
+  const traj = srcTraj || computeTrajectory((state.comparePair && state.comparePair.length === 2) ? state.comparePair : ['aerolineas_diputados', 'ypf_diputados']);
+  if(traj.metrics.nMatched === 0 || (!traj.isCross && !traj.sameChamber)){ alert('No hay legisladores repetidos para exportar en esta trayectoria.'); return; }
   const sA = traj.scenA, sB = traj.scenB;
   const dirSub = `${sA.caseName} · ${sA.chamberShort} → ${sB.caseName} · ${sB.chamberShort}`;
-  const fileBase = ['comparado', 'trayectoria', sA.id + '_vs_' + sB.id];
+  const fileBase = ['comparado', 'trayectoria', (traj.isCross ? 'cross_' : '') + sA.id + '_vs_' + sB.id];
   const fmt1 = (n) => Number.isFinite(n) ? (Math.round(n * 10) / 10).toFixed(1) : '—';
 
   if(kind === 'matriz'){
@@ -7900,7 +7913,8 @@ function exportTrajectoryPng(kind){
 
   if(kind === 'nominal'){
     // Respeta el filtro de la tabla visible (Todos / Cambiaron / Mantuvieron).
-    const trajFilter = state.trajFilter || 'all';
+    // El cruce entre cámaras (B.6b) no tiene ese filtro → exporta todos.
+    const trajFilter = traj.isCross ? 'all' : (state.trajFilter || 'all');
     let rows = traj.matched.slice().sort((a, b) => { if(a.sameVote !== b.sameVote) return a.sameVote ? 1 : -1; return a.name.localeCompare(b.name, 'es'); });
     if(trajFilter === 'changed') rows = rows.filter(r => !r.sameVote);
     else if(trajFilter === 'kept') rows = rows.filter(r => r.sameVote);
@@ -7909,8 +7923,9 @@ function exportTrajectoryPng(kind){
     const filterSlug = trajFilter === 'changed' ? 'cambiaron' : (trajFilter === 'kept' ? 'mantuvieron' : null);
     const totalW = 1320;
     const C = { name: PAD_X + 14, votoA: PAD_X + 340, arrow: PAD_X + 470, votoB: PAD_X + 500, cambio: PAD_X + 640, fam: PAD_X + 800, bloque: PAD_X + 1080 };
-    const headerOut = buildTablePngHeader(NS, sA, 'Trayectoria · detalle nominal',
-      `${dirSub}${filterSub}. ${rows.length} legisladores que repiten banca y su voto en cada votación.`, totalW, PAD_X, { noMetaChips: true });
+    const universeWord = traj.isCross ? 'presentes en ambas votaciones (entre cámaras distintas)' : 'que repiten banca';
+    const headerOut = buildTablePngHeader(NS, sA, traj.isCross ? 'Trayectoria entre cámaras · detalle nominal' : 'Trayectoria · detalle nominal',
+      `${dirSub}${filterSub}. ${rows.length} legisladores ${universeWord} y su voto en cada votación.`, totalW, PAD_X, { noMetaChips: true });
     const els = [...headerOut.elements];
     let y = headerOut.headerBottomY + 26;
     const hb = document.createElementNS(NS, 'rect'); hb.setAttribute('x', PAD_X); hb.setAttribute('y', y); hb.setAttribute('width', totalW - 2 * PAD_X); hb.setAttribute('height', 30); hb.setAttribute('fill', '#ffffff'); hb.setAttribute('stroke', '#e7e5e1'); els.push(hb);
@@ -12863,6 +12878,11 @@ function handleExportClick(kind){
     else if(kind === 'traj-matriz-png')   exportTrajectoryPng('matriz');
     else if(kind === 'traj-nominal-png')  exportTrajectoryPng('nominal');
     else if(kind === 'traj-familias-png') exportTrajectoryPng('familias');
+    // B.6b — trayectoria entre cámaras (par fijo Aero·Dip → YPF·Sen): mismas
+    // tres láminas que el intra, con la trayectoria cross ya calculada.
+    else if(kind === 'traj-cross-matriz-png')   exportTrajectoryPng('matriz',   computeCrossChamberTrajectory());
+    else if(kind === 'traj-cross-nominal-png')  exportTrajectoryPng('nominal',  computeCrossChamberTrajectory());
+    else if(kind === 'traj-cross-familias-png') exportTrajectoryPng('familias', computeCrossChamberTrajectory());
     // Heatmap familias × escenarios coloreado según la métrica activa (toggle).
     // El botón "Descargar PNG" de la sección B.7 (stats-comp-fam-png) y el de la
     // pestaña Datos (stats-fam-heat-png) comparten la misma lámina: ambos
