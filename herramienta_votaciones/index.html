@@ -5157,7 +5157,8 @@ function renderVizCard(){
           <button class="btn-exp" data-export="stats-comp-rae-csv">↓ Rae comparador · CSV</button>
           <button class="btn-exp" data-export="stats-comp-rae-png">↓ Rae comparador · PNG</button>
           <button class="btn-exp" data-export="stats-fam-comp-wide-csv">↓ Familias comparado · CSV</button>
-          <button class="btn-exp" data-export="stats-fam-comp-wide-png">↓ Familias comparado · PNG</button>
+          <button class="btn-exp" data-export="stats-fam-comp-wide-png">↓ Familias comparado (tabla) · PNG</button>
+          <button class="btn-exp btn-exp-primary" data-export="stats-fam-heat-png">↓ Heatmap (métrica activa) · PNG</button>
           <button class="btn-exp" data-export="stats-prov-comp-wide-csv">↓ Territorial comparado · CSV</button>
           <button class="btn-exp" data-export="stats-prov-comp-wide-png">↓ Territorial comparado · PNG</button>
         </div>
@@ -11397,6 +11398,121 @@ function exportStatsSectionCsv(kind){
 // PNG por bloque estadístico — soporta varios layouts editoriales:
 //   ficha-hero, two-pane-bars, cohesion-bars, territory-bars,
 //   comparator-grouped, diff-grid, ranking-cards, wide-matrix
+// Export del HEATMAP familias × escenarios coloreado según la métrica activa
+// (state.famHeatMetric: 'pctYesPresent' | 'rice' | 'pctAbsent'). A diferencia de
+// la tabla 'fam-comp-wide', esta lámina refleja el toggle de pantalla.
+function exportFamilyHeatmapPng(){
+  const s = activeScenario();
+  if(!s) return;
+  const NS = 'http://www.w3.org/2000/svg';
+  const fmt = (n) => Number.isFinite(n) ? n.toFixed(1) : '0.0';
+  const heatMetric = state.famHeatMetric || 'pctYesPresent';
+  const META = {
+    pctYesPresent: { label: '% Afirmativo (sobre presentes)', short: '% Afi', base: '#3f6e44',
+                     valueOf: r => r.pctYesPresent, formatter: v => fmt(v) + '%' },
+    rice:          { label: 'Cohesión de Rice', short: 'Rice', base: '#1d3f8a',
+                     valueOf: r => { const y=r.AFIRMATIVO||0, n=r.NEGATIVO||0, d=y+n; return d>0 ? (Math.abs(y-n)/d*100) : null; },
+                     formatter: v => v==null ? 'No calc.' : fmt(v) + '%' },
+    pctAbsent:     { label: '% Ausentismo (sobre total)', short: '% Aus', base: '#a87523',
+                     valueOf: r => r.total ? (r.AUSENTE / r.total * 100) : 0, formatter: v => fmt(v) + '%' }
+  };
+  const meta = META[heatMetric] || META.pctYesPresent;
+  const matrix = computeFamilyComparison();
+  const scens = Object.values(SCENARIOS);
+
+  const PAD_X = 50;
+  const totalW = 1100;
+  const availW = totalW - 2 * PAD_X;
+  const title = 'Heatmap de familias políticas × escenarios — ' + meta.label;
+  const bajada = 'Intensidad del color proporcional a la métrica seleccionada en cada familia y escenario. Cuatro votaciones nominales: leyes 26.466 (2008) y 26.741 (2012), Diputados y Senado.';
+  const headerOut = buildTablePngHeader(NS, s, title, bajada, totalW, PAD_X, { noMetaChips: true });
+  let cursorY = headerOut.headerBottomY + 28;
+  const elements = [];
+
+  const addRect = (x, y, w, h, fill, stroke) => {
+    const r = document.createElementNS(NS, 'rect');
+    r.setAttribute('x', x); r.setAttribute('y', y); r.setAttribute('width', w); r.setAttribute('height', h);
+    r.setAttribute('fill', fill || 'none');
+    if(stroke){ r.setAttribute('stroke', stroke); r.setAttribute('stroke-width', '1'); }
+    return r;
+  };
+  const addText = (x, y, text, opts={}) => {
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', x); t.setAttribute('y', y);
+    t.setAttribute('font-family', opts.font || TBL_PNG_FONTS.sans);
+    t.setAttribute('font-size', opts.size || '11');
+    t.setAttribute('font-weight', opts.weight || '500');
+    t.setAttribute('fill', opts.fill || '#14181f');
+    if(opts.anchor) t.setAttribute('text-anchor', opts.anchor);
+    if(opts.tracking) t.setAttribute('letter-spacing', opts.tracking);
+    const raw = String(text != null ? text : '');
+    t.textContent = (opts.maxChars && raw.length > opts.maxChars) ? raw.slice(0, opts.maxChars - 1) + '…' : raw;
+    return t;
+  };
+  const addCircle = (cx, cy, r, fill) => {
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', cx); c.setAttribute('cy', cy); c.setAttribute('r', r); c.setAttribute('fill', fill);
+    return c;
+  };
+
+  const labelW = 250;
+  const colW = (availW - labelW) / scens.length;
+  const rowH = 40;
+
+  // Encabezado de columnas (escenarios)
+  scens.forEach((sc, i) => {
+    const cx = PAD_X + labelW + i * colW + colW / 2;
+    elements.push(addText(cx, cursorY, sc.caseName.split(' ')[0] + ' · ' + sc.chamberShort,
+      { size:'10', weight:'700', fill:'#2c3543', anchor:'middle', tracking:'0.02em' }));
+  });
+  cursorY += 14;
+
+  // Filas por familia
+  matrix.forEach(fm => {
+    const ry = cursorY;
+    elements.push(addCircle(PAD_X + 6, ry + rowH/2, 4, fm.color));
+    elements.push(addText(PAD_X + 16, ry + rowH/2 + 4, fm.family,
+      { size:'11', weight:'600', fill:'#14181f', maxChars: Math.floor((labelW - 20) / 5.8) }));
+    scens.forEach((sc, i) => {
+      const cx = PAD_X + labelW + i * colW;
+      const r = fm.perScenario[sc.id];
+      if(!r || !r.total){
+        elements.push(addRect(cx + 2, ry + 2, colW - 4, rowH - 4, '#f6f6f4', '#e7e5e1'));
+        elements.push(addText(cx + colW/2, ry + rowH/2 + 4, '—', { size:'11', fill:'#b8b8b2', anchor:'middle' }));
+        return;
+      }
+      const val = meta.valueOf(r);
+      const bg = (val == null) ? '#f6f6f4' : _heatBg(meta.base, val);
+      const dark = (val != null) && _heatTextDark(meta.base, val);
+      elements.push(addRect(cx + 2, ry + 2, colW - 4, rowH - 4, bg, '#ffffff'));
+      elements.push(addText(cx + colW/2, ry + rowH/2 - 1, meta.formatter(val),
+        { size:'12.5', weight:'700', fill: dark ? '#ffffff' : '#14181f', anchor:'middle' }));
+      elements.push(addText(cx + colW/2, ry + rowH/2 + 13, r.total + ' legs',
+        { size:'8.5', fill: dark ? 'rgba(255,255,255,0.8)' : '#6b7077', anchor:'middle' }));
+    });
+    cursorY += rowH;
+  });
+  cursorY += 8;
+
+  const footerStartY = cursorY + 12;
+  const note = 'Métrica activa: ' + meta.label + '. Cada celda colorea la intensidad de esa métrica para la familia en el escenario; el subtítulo indica la cantidad de legisladores. Las celdas vacías señalan familias no presentes en ese escenario.';
+  const footerOut = buildTablePngFooter(NS, s, footerStartY, totalW, PAD_X, note, { generalSource: PNG_COMPARISON_SOURCE });
+  const totalH = footerOut.footerBottomY + 12;
+
+  const wrapper = document.createElementNS(NS, 'svg');
+  wrapper.setAttribute('xmlns', NS);
+  wrapper.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
+  wrapper.setAttribute('width', totalW); wrapper.setAttribute('height', totalH);
+  wrapper.appendChild(addRect(0, 0, totalW, totalH, '#ffffff'));
+  headerOut.elements.forEach(el => wrapper.appendChild(el));
+  elements.forEach(el => wrapper.appendChild(el));
+  footerOut.elements.forEach(el => wrapper.appendChild(el));
+
+  const svgStr = new XMLSerializer().serializeToString(wrapper);
+  const metricSlug = { pctYesPresent:'afirmativo', rice:'rice', pctAbsent:'ausentes' }[heatMetric] || 'metrica';
+  rasterizeSvgToPng(svgStr, totalW, totalH, 'fig_5_4_heatmap_familias_' + metricSlug + '.png');
+}
+
 function exportStatsSectionPng(kind){
   const s = activeScenario();
   if(!s) return;
@@ -12737,6 +12853,12 @@ function handleExportClick(kind){
     else if(kind === 'traj-matriz-png')   exportTrajectoryPng('matriz');
     else if(kind === 'traj-nominal-png')  exportTrajectoryPng('nominal');
     else if(kind === 'traj-familias-png') exportTrajectoryPng('familias');
+    // Heatmap familias × escenarios coloreado según la métrica activa (toggle).
+    // El botón "Descargar PNG" de la sección B.7 (stats-comp-fam-png) y el de la
+    // pestaña Datos (stats-fam-heat-png) comparten la misma lámina: ambos
+    // respetan la métrica seleccionada (% Afirmativo / Rice / % Ausentes) en vez
+    // de exportar siempre % Afirmativo.
+    else if(kind === 'stats-fam-heat-png' || kind === 'stats-comp-fam-png') exportFamilyHeatmapPng();
     // Exports granulares por bloque tabular dentro de Estadísticas (Etapa B3
     // — parseo robusto con regex en vez de slice contando caracteres, soporta
     // kinds con guiones internos como 'stats-comp-table-csv' sin trampearse).

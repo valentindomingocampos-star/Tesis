@@ -2,6 +2,22 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-08 — Fix: el botón "Descargar PNG" de la sección B.7 respeta la métrica
+
+Completa el fix del 2026-06-05: aquel agregó un botón nuevo ("Heatmap (métrica activa) · PNG") pero **el botón de la propia sección B.7 · Familias comparado** (`stats-comp-fam-png`) seguía cayendo en el export genérico de tabla, que tiene la métrica hardcodeada en % Afirmativo. Por eso, al cambiar el toggle a Rice o % Ausentes, ese botón seguía descargando afirmativo.
+
+- **Fix:** `handleExportClick` rutea `stats-comp-fam-png` (junto con `stats-fam-heat-png`) a `exportFamilyHeatmapPng()`, que lee `state.famHeatMetric` y rasteriza el heatmap real según la métrica activa. Sin tocar cálculo ni render visible.
+- **Nombre de archivo por métrica:** `fig_5_4_heatmap_familias_afirmativo.png` · `fig_5_4_heatmap_familias_rice.png` · `fig_5_4_heatmap_familias_ausentes.png`.
+- QA: las 3 métricas exportan su lámina y nombre correctos (verificado headless); CSV de la sección intacto; render visible sin cambios; mapas/Rae/print 54 OK; consola limpia; datos idénticos a `origin/main`.
+
+## 2026-06-05 — Fix: export del heatmap familias × escenarios respeta la métrica activa
+
+Bug: el botón «Familias comparado · PNG» exportaba siempre la **tabla** completa e ignoraba el toggle del heatmap en pantalla; al cambiar a Rice o % Ausentes, el PNG no reflejaba el cambio (parecía «trabado» en % Afirmativo).
+
+- **Nueva función `exportFamilyHeatmapPng()`**: renderiza el heatmap familias × escenarios como lámina PNG **coloreada según `state.famHeatMetric`** (% Afirmativo, Rice o % Ausentes), reutilizando `_heatBg`/`_heatTextDark`, `computeFamilyComparison`, `buildTablePngHeader/Footer` y `rasterizeSvgToPng`. Filenames: `heatmap_familias_afirmativo|rice|ausentismo.png`.
+- **Nuevo botón** «↓ Heatmap (métrica activa) · PNG» (`data-export="stats-fam-heat-png"`); el anterior se renombró a «Familias comparado (tabla) · PNG» (tabla intacta).
+- Cambio aditivo: no toca exports existentes. Sintaxis JS verificada con `node --check`.
+
 ## 2026-06-04 — Datos como sistema editorial + ritmo de secciones (Fase 1C, sin tocar datos/exports)
 
 Foco en la pestaña Datos (tabla nominal como pieza editorial) y en el ritmo entre secciones. Solo CSS/markup en pantalla; print y exports aislados/intactos.
