@@ -2,6 +2,14 @@
 
 Historial de cambios sustantivos sobre el HTML maestro (`index.html`) y sus datasets. Las entradas se ordenan de más reciente a más antigua.
 
+## 2026-06-08 — Fix: el PNG de la trayectoria nominal (B.6) respeta el filtro activo
+
+Barrido de la misma clase de bug que el del heatmap (export que reconstruye e ignora el toggle visible). Único caso adicional encontrado: la **trayectoria · detalle nominal**.
+
+- Bug: el PNG de trayectoria nominal usaba `traj.matched` (los 64/38 que repiten banca) ignorando el filtro de la tabla visible (Todos / Cambiaron el voto / Mantuvieron el voto). Filtrar en pantalla y descargar daba siempre la lista completa.
+- Fix: `exportTrajectoryPng('nominal')` aplica `state.trajFilter` (igual que el render visible), ajusta la bajada/pie y el nombre de archivo: `…_nominal.png` / `…_nominal_cambiaron.png` / `…_nominal_mantuvieron.png`. Verificado: 64 (todos) / 16 (cambiaron) / 48 (mantuvieron), consistente con las métricas.
+- Auditados sin bug: figura hemiciclo/mapa de Caso (clonan el SVG visible → respetan `colorMode`/`view`/filtros), comparados (leen `comparePair` / `compareColorMode` / `quadView`), heatmap de provincias (sin toggle). Observación (no es bug de contenido): el CSV/PNG de la tabla nominal exporta en orden de dataset, no en el orden de sort clickeado — datos completos e idénticos, solo difiere el orden; se deja como está (orden canónico, conveniente para anexo).
+
 ## 2026-06-08 — Fix: el botón "Descargar PNG" de la sección B.7 respeta la métrica
 
 Completa el fix del 2026-06-05: aquel agregó un botón nuevo ("Heatmap (métrica activa) · PNG") pero **el botón de la propia sección B.7 · Familias comparado** (`stats-comp-fam-png`) seguía cayendo en el export genérico de tabla, que tiene la métrica hardcodeada en % Afirmativo. Por eso, al cambiar el toggle a Rice o % Ausentes, ese botón seguía descargando afirmativo.

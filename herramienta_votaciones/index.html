@@ -7899,11 +7899,18 @@ function exportTrajectoryPng(kind){
   }
 
   if(kind === 'nominal'){
-    const rows = traj.matched.slice().sort((a, b) => { if(a.sameVote !== b.sameVote) return a.sameVote ? 1 : -1; return a.name.localeCompare(b.name, 'es'); });
+    // Respeta el filtro de la tabla visible (Todos / Cambiaron / Mantuvieron).
+    const trajFilter = state.trajFilter || 'all';
+    let rows = traj.matched.slice().sort((a, b) => { if(a.sameVote !== b.sameVote) return a.sameVote ? 1 : -1; return a.name.localeCompare(b.name, 'es'); });
+    if(trajFilter === 'changed') rows = rows.filter(r => !r.sameVote);
+    else if(trajFilter === 'kept') rows = rows.filter(r => r.sameVote);
+    const filterSub  = trajFilter === 'changed' ? ' · solo los que cambiaron el voto'
+                     : trajFilter === 'kept'    ? ' · solo los que mantuvieron el voto' : '';
+    const filterSlug = trajFilter === 'changed' ? 'cambiaron' : (trajFilter === 'kept' ? 'mantuvieron' : null);
     const totalW = 1320;
     const C = { name: PAD_X + 14, votoA: PAD_X + 340, arrow: PAD_X + 470, votoB: PAD_X + 500, cambio: PAD_X + 640, fam: PAD_X + 800, bloque: PAD_X + 1080 };
     const headerOut = buildTablePngHeader(NS, sA, 'Trayectoria · detalle nominal',
-      `${dirSub}. ${rows.length} legisladores que repiten banca y su voto en cada votación.`, totalW, PAD_X, { noMetaChips: true });
+      `${dirSub}${filterSub}. ${rows.length} legisladores que repiten banca y su voto en cada votación.`, totalW, PAD_X, { noMetaChips: true });
     const els = [...headerOut.elements];
     let y = headerOut.headerBottomY + 26;
     const hb = document.createElementNS(NS, 'rect'); hb.setAttribute('x', PAD_X); hb.setAttribute('y', y); hb.setAttribute('width', totalW - 2 * PAD_X); hb.setAttribute('height', 30); hb.setAttribute('fill', '#ffffff'); hb.setAttribute('stroke', '#e7e5e1'); els.push(hb);
@@ -7927,8 +7934,11 @@ function exportTrajectoryPng(kind){
       const sep = document.createElementNS(NS, 'line'); sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y + rowH); sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', y + rowH); sep.setAttribute('stroke', '#ededeb'); sep.setAttribute('stroke-width', '0.6'); els.push(sep);
       y += rowH;
     });
-    const footerOut = buildTablePngFooter(NS, sA, y + 18, totalW, PAD_X, `Ordenado: primero los que cambiaron el voto. ${traj.metrics.nKeptVote} mantienen, ${traj.metrics.nChangedVote} cambian.`, { generalSource: PNG_TRAJECTORY_SOURCE });
-    _finalizeTrajPng([...els, ...footerOut.elements], totalW, footerOut.footerBottomY + 10, slugifyFilename([...fileBase, 'nominal']) + '.png');
+    const footerNote = trajFilter === 'all'
+      ? `Ordenado: primero los que cambiaron el voto. ${traj.metrics.nKeptVote} mantienen, ${traj.metrics.nChangedVote} cambian.`
+      : `Filtro activo${filterSub}. ${rows.length} de ${traj.matched.length} legisladores que repiten banca.`;
+    const footerOut = buildTablePngFooter(NS, sA, y + 18, totalW, PAD_X, footerNote, { generalSource: PNG_TRAJECTORY_SOURCE });
+    _finalizeTrajPng([...els, ...footerOut.elements], totalW, footerOut.footerBottomY + 10, slugifyFilename([...fileBase, 'nominal', filterSlug].filter(Boolean)) + '.png');
     return;
   }
 
