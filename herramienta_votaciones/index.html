@@ -14,8 +14,11 @@
 <meta name="author" content="Valentín Domingo Campos">
 <meta name="description" content="Visualización legislativa de las votaciones nominales de las leyes 26.466 (Aerolíneas Argentinas) y 26.741 (YPF) en ambas cámaras del Congreso de la Nación Argentina.">
 <!-- Favicon SVG inline para evitar 404 sin agregar archivos externos. Tinta navy y azul acero del sistema. -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23faf9f7'/><rect x='5' y='8' width='22' height='2.2' rx='1' fill='%231e2530'/><rect x='5' y='14' width='15' height='2.2' rx='1' fill='%23cfccc6'/><rect x='5' y='20' width='18' height='2.2' rx='1' fill='%23cfccc6'/><circle cx='8.6' cy='26' r='2.3' fill='%232f6f9f'/></svg>">
-<title>Reestatizaciones · Análisis legislativo</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='0' fill='%23f3f2f2'/><rect x='5' y='8' width='22' height='2.2' rx='1' fill='%231e2530'/><rect x='5' y='14' width='15' height='2.2' rx='1' fill='%23cfccc6'/><rect x='5' y='20' width='18' height='2.2' rx='1' fill='%23cfccc6'/><circle cx='8.6' cy='26' r='2.3' fill='%23ec3013'/></svg>">
+<title>El péndulo del poder · Análisis legislativo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;800&display=swap" rel="stylesheet">
 <!-- Tipografía UI embebida (base64, offline). IBM Plex Sans — sobria, legible, data-publication. -->
 <style id="plex-fonts">
 /* Embedded UI face — IBM Plex Sans (Latin, 400/500/600/700). Offline, self-contained.
@@ -32,58 +35,58 @@
 :root{
   /* Paleta editorial neutra — off-white papel con tinte cálido leve y tinta
      más profunda que el negro plano, para evocar publicación impresa. */
-  --bg-soft: #f3f2ef;
-  --card: #ffffff;
-  --line: #e7e5e1;
-  --line-strong: #cfccc6;
-  --ink: #1e2530;
-  --ink-2: #4a4f57;
-  --muted: #6b7077;
-  --muted-soft: #9aa0a6;
+  --bg-soft: #eae9e9;
+  --card: #f3f2f2;
+  --line: #dbd9d9;
+  --line-strong: #a8a5a5;
+  --ink: #201e1d;
+  --ink-2: #444141;
+  --muted: #605d5d;
+  --muted-soft: #7d7979;
 
   /* Sistema Datawrapper — fondo claro, hairlines, color en los datos (no en el
      chrome). El acento azul acero es funcional: estado activo, foco, links,
      subrayados discretos. Nunca rellena bloques grandes ni compite con el dato. */
-  --paper-mount: #f1f0ed;   /* fondo de la app, apenas distinto de las cards */
-  --paper-sunk:  #f5f4f1;   /* hundidos — headers de tabla, metadatos */
-  --rule-accent: #2f6f9f;              /* subrayado activo funcional (azul acero) */
-  --rule-ink:    #1e2530;   /* filete fuerte de títulos */
+  --paper-mount: #eae9e9;   /* fondo de la app, apenas distinto de las cards */
+  --paper-sunk:  #eae9e9;   /* hundidos — headers de tabla, metadatos */
+  --rule-accent: #ec3013;              /* subrayado activo funcional (azul acero) */
+  --rule-ink:    #201e1d;   /* filete fuerte de títulos */
 
   /* Acento azul acero — funcional y mínimo. Activos, foco, links, subrayados.
      Los colores de marca fuertes quedan prohibidos: el color pertenece al dato
      (voto / familia / heatmap / trayectoria), no al chrome. */
-  --acid: #2f6f9f;
-  --acid-soft: #e3edf4;
+  --acid: #ec3013;
+  --acid-soft: #f9ded7;
 
   /* Votos: paleta institucional desaturada — verde hunter, burgundy,
      ocre mostaza, piedra cálida. Pensada para imprenta y proyección.
      Verde para afirmativo deja el azul libre para familias (FPV-PJ,
      Centroizquierda, Concertación) sin colisionar con el sentido del voto. */
-  --vote-yes: #3f6e44;      /* verde hunter — voto afirmativo */
-  --vote-yes-soft: #e0eadc;
-  --accent: #2f6f9f;        /* azul UI (hover, focus) — alineado al acento funcional */
-  --vote-no: #a32a2a;       /* rojo burgundy — voto negativo */
-  --vote-no-soft: #f4dada;
-  --vote-abst: #a87523;     /* ocre mostaza — abstención */
-  --vote-abst-soft: #f3e8c9;
-  --vote-abs: #a09b8c;      /* piedra cálida — ausente */
-  --vote-abs-soft: #ede9dd;
-  --vote-pres: #14181f;     /* presidencia — tinta profunda */
+  --vote-yes: #ec3013;      /* verde hunter — voto afirmativo */
+  --vote-yes-soft: #f9ded7;
+  --accent: #ec3013;        /* azul UI (hover, focus) — alineado al acento funcional */
+  --vote-no: #444141;       /* rojo burgundy — voto negativo */
+  --vote-no-soft: #e3e1e1;
+  --vote-abst: #a8a4a4;     /* ocre mostaza — abstención */
+  --vote-abst-soft: #eae7e7;
+  --vote-abs: #cfcccc;      /* piedra cálida — ausente */
+  --vote-abs-soft: #eeecec;
+  --vote-pres: #201e1d;     /* presidencia — tinta profunda */
 
   /* Colores de familias políticas: definidos en JS (objeto FAMILY_COLORS),
      no como custom properties CSS. */
 
   /* Sombras layered — más sutiles, multi-capa para profundidad editorial */
-  --shadow-xs: 0 1px 0 rgba(15,23,42,.02), 0 0 0 1px rgba(15,23,42,.025); /* única en uso (context-anchor) */
-  --radius-sm: 6px;
-  --radius-xs: 4px;
+  --shadow-xs: none; /* única en uso (context-anchor) */
+  --radius-sm: 0px;
+  --radius-xs: 0px;
 
   /* Movimiento — curvas y duraciones de la capa de pulido editorial.
      Definidas aquí (junto al resto de tokens) y no en un :root tardío:
      se usan desde la línea ~280 en adelante. */
-  --ease-out: cubic-bezier(.16,1,.3,1);
+  --ease-out: cubic-bezier(.16,.84,.28,1);
   --ease-soft: cubic-bezier(.4,0,.2,1);
-  --dur-1: .14s; --dur-2: .22s; --dur-3: .34s; --dur-4: .55s;
+  --dur-1: .14s; --dur-2: .22s; --dur-3: .34s; --dur-4: .65s;
 
   /* Escala tipográfica (siete tamaños) */
   --t-xs:    11px;   /* metadatos, captions */
@@ -96,9 +99,9 @@
 
   /* Pesos */
   --w-regular: 400;
-  --w-medium:  500;
-  --w-semi:    600;
-  --w-bold:    700;
+  --w-medium:  400;
+  --w-semi:    800;
+  --w-bold:    800;
 
   /* Espaciado base */
   --space-1: 4px;
@@ -118,12 +121,12 @@
 
   /* Tipografía Datawrapper-like — IBM Plex Sans embebida para todo (títulos +
      cuerpo + tablas): legibilidad y escaneabilidad por sobre personalidad. */
-  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-serif: "IBM Plex Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* alias legado: ahora apunta a Plex (no romper ~28 usos) */
+  --font-sans: "Archivo", "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Archivo", "IBM Plex Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* alias legado: ahora apunta a Plex (no romper ~28 usos) */
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   /* Cara de despliegue — ahora IBM Plex Sans (misma familia que el cuerpo). La
      jerarquía la dan peso y tamaño, no una familia con personalidad de póster. */
-  --font-display: "IBM Plex Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Archivo", "IBM Plex Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -765,7 +768,7 @@ table.dtable td, .sc-value, .meta-v, .center-tally, .center-sub, .prov-tally{
   padding: var(--space-2) 32px var(--space-2) var(--space-4);
   font-family: inherit;
   font-size: var(--t-base);
-  background: var(--card) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round'/></svg>") no-repeat right 12px center;
+  background: var(--card) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%23605d5d' stroke-width='1.5' stroke-linecap='round'/></svg>") no-repeat right 12px center;
   color: var(--ink);
   cursor: pointer;
   transition: border-color var(--dur-1) var(--ease-soft);
@@ -1648,7 +1651,7 @@ svg.map-svg{
 .tt-badge.no   { background: rgba(163,42,42,.28); color: #e0a8a8; }
 .tt-badge.abs  { background: rgba(160,155,140,.25); color: #d6d0c4; }
 .tt-badge.abst { background: rgba(168,117,35,.28); color: #e6c585; }
-.tt-badge.pres { background: rgba(255,255,255,.16); color: #cfccc6; }
+.tt-badge.pres { background: rgba(255,255,255,.16); color: #a8a5a5; }
 .tt-prov{
   font-size: var(--t-sm);
   color: rgba(255,255,255,.85);
@@ -1768,7 +1771,7 @@ svg.map-svg{
   color: var(--ink-2);
 }
 .validation.is-ok{
-  border-left-color: #3f6e44;
+  border-left-color: #ec3013;
   background: var(--card);
 }
 .validation.is-warn{
@@ -1787,7 +1790,7 @@ svg.map-svg{
   letter-spacing: .12em;
   color: var(--ink);
 }
-.validation.is-ok h4{ color: #3f6e44; }
+.validation.is-ok h4{ color: #ec3013; }
 .validation.is-warn h4{ color: var(--vote-abst); }
 .validation.is-crit h4{ color: var(--vote-no); }
 .validation p{ margin: 0 0 var(--space-3); }
@@ -1810,7 +1813,7 @@ details.validation.is-ok > summary{
   font-weight: var(--w-semi);
   letter-spacing: .04em;
   text-transform: uppercase;
-  color: #3f6e44;
+  color: #ec3013;
 }
 details.validation.is-ok > summary::-webkit-details-marker{ display: none; }
 details.validation.is-ok > summary::after{
@@ -2223,7 +2226,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
    ===================================================================== */
 @page{ margin: 1.5cm; }
 @media print{
-  body{ background: #fff; color: #14181f; }
+  body{ background: #fff; color: #201e1d; }
   .toolbar, .scenario-nav, .context-anchor, .mode-nav, .subtabs,
   .fig-controls, .viz-figmeta, .meta-summary-toggle,
   .ctx-export, .adv-export, .filter-disclosure, .stats-index, .panel-actions,
@@ -3605,7 +3608,7 @@ table.terr-table tr.terr-nor td{ background: rgba(20,24,31,.06); font-style: ita
 }
 .ficha-item-v.is-result-yes{ color: var(--vote-yes); font-weight: var(--w-bold); }
 .ficha-item-v.is-result-no{ color: var(--vote-no); font-weight: var(--w-bold); }
-.ficha-item-v.is-validation-ok{ color: #3f6e44; font-weight: var(--w-semi); }
+.ficha-item-v.is-validation-ok{ color: #ec3013; font-weight: var(--w-semi); }
 .ficha-item-v.is-validation-warn{ color: var(--vote-abst); font-weight: var(--w-semi); font-style: normal; }
 
 /* Tablas — densidad legible, tipografía consistente */
@@ -4052,6 +4055,16 @@ summary:focus-visible,
   }
 }
 </style>
+<style id="pendulo-overrides">
+/* ===== Sistema péndulo — capa final ===== */
+::selection{ background: rgba(236,48,19,.3); }
+:focus-visible{ outline: 2px solid var(--acid); outline-offset: 2px; }
+.search-input:focus, .select-input:focus{ outline: 2px solid var(--acid); outline-offset: 2px; box-shadow: none; border-color: var(--line-strong); }
+.masthead-title{ font-weight: 800; letter-spacing: -0.02em; }
+.masthead-eyebrow{ color: var(--acid); font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+em, i{ font-style: normal; }
+.btn-text{ text-align: left; }
+</style>
 </head>
 <body>
 
@@ -4082,7 +4095,7 @@ summary:focus-visible,
     <div class="masthead-body">
       <div class="masthead-headline">
         <p class="masthead-eyebrow" data-reveal style="--reveal-delay:.06s">Votaciones nominales · Análisis comparado</p>
-        <h1 class="masthead-title" data-reveal style="--reveal-delay:.12s">Reestatizaciones<span class="mh-sub">de YPF y Aerolíneas Argentinas</span></h1>
+        <h1 class="masthead-title" data-reveal style="--reveal-delay:.12s">El péndulo del poder<span class="mh-sub">Reestatizaciones de YPF y Aerolíneas Argentinas</span></h1>
         <p class="lede" data-reveal style="--reveal-delay:.2s">Análisis legislativo comparado de las leyes 26.466 y 26.741 en Diputados y Senado: composición, distribución territorial, cohesión y trayectoria de cada votación.</p>
       </div>
       <dl class="masthead-laws" data-reveal style="--reveal-delay:.28s">
@@ -4122,16 +4135,16 @@ summary:focus-visible,
 // DATA — paleta y diccionarios
 // =====================================================================
 const FAMILY_COLORS = {
-  'FPV-PJ':              '#0c4a6e',
-  'UCR':                 '#9a3412',
-  'PRO':                 '#b08227',
-  'Coalición Cívica':    '#115e59',
-  'Socialista':          '#9f1239',
-  'Peronismo disidente': '#7c2d12',
-  'Centroizquierda':     '#312e81',
-  'Concertación / CF':   '#155e75',
-  'Provinciales / otros':'#5b21b6',
-  'Otros':               '#57534e'
+  'FPV-PJ':              '#33607f',
+  'UCR':                 '#8f4e2a',
+  'PRO':                 '#8f7430',
+  'Coalición Cívica':    '#2f6b64',
+  'Socialista':          '#8f3550',
+  'Peronismo disidente': '#7a4633',
+  'Centroizquierda':     '#4a4a85',
+  'Concertación / CF':   '#33687d',
+  'Provinciales / otros':'#6b4d8f',
+  'Otros':               '#6e6862'
 };
 const FAMILY_ORDER = Object.keys(FAMILY_COLORS);
 
@@ -4151,11 +4164,11 @@ const FAMILY_POLITICAL_ORDER = [
 ];
 
 const VOTE_COLORS = {
-  'AFIRMATIVO':  '#3f6e44',
-  'NEGATIVO':    '#a32a2a',
-  'AUSENTE':     '#a09b8c',
-  'PRESIDENCIA': '#14181f',
-  'ABSTENCION':  '#a87523'
+  'AFIRMATIVO':  '#ec3013',
+  'NEGATIVO':    '#444141',
+  'AUSENTE':     '#cfcccc',
+  'PRESIDENCIA': '#201e1d',
+  'ABSTENCION':  '#a8a4a4'
 };
 const VOTE_LABELS = {
   'AFIRMATIVO': 'A favor',
@@ -5318,7 +5331,7 @@ function renderHemicycle(){
     const rOuter = isPres ? 8.4 : 6.4;
     const fillColor = state.colorMode === 'vote'
       ? VOTE_COLORS[leg.vote]
-      : (FAMILY_COLORS[leg.family] || '#a09b8c');
+      : (FAMILY_COLORS[leg.family] || '#cfcccc');
 
     const c = el('circle', {
       class: 'seat',
@@ -5509,16 +5522,16 @@ function renderMap(){
     let fill, stroke;
 
     if(!info){
-      fill = '#f1f5f9';
-      stroke = '#cbd5e1';
+      fill = '#e3e1e1';
+      stroke = '#c9c6c6';
     } else if(state.colorMode === 'vote'){
-      const baseColor = VOTE_COLORS[info.dominantVote] || '#a09b8c';
+      const baseColor = VOTE_COLORS[info.dominantVote] || '#cfcccc';
       const domCount = info[info.dominantVote] || 0;
       const pctDom = info.total ? (domCount / info.total * 100) : 0;
       fill   = mapHeatFill(baseColor, pctDom);
       stroke = mapHeatStroke(baseColor, pctDom);
     } else {
-      const baseColor = FAMILY_COLORS[info.dominantFamily] || '#a09b8c';
+      const baseColor = FAMILY_COLORS[info.dominantFamily] || '#cfcccc';
       const domCount = (info.families && info.families[info.dominantFamily]) || 0;
       const pctDom = info.total ? (domCount / info.total * 100) : 0;
       fill   = mapHeatFill(baseColor, pctDom);
@@ -5701,7 +5714,7 @@ function buildCompareHemicycleSvg(s, colorMode){
     const rOuter = isPres ? 8.4 : 6.4;
     const fillColor = mode === 'vote'
       ? VOTE_COLORS[leg.vote]
-      : (FAMILY_COLORS[leg.family] || '#a09b8c');
+      : (FAMILY_COLORS[leg.family] || '#cfcccc');
     seatLayer.appendChild(el('circle', {
       class: 'seat cmp-seat',
       cx: seat.x.toFixed(2), cy: seat.y.toFixed(2), r: rOuter,
@@ -5748,13 +5761,13 @@ function buildCompareMapSvg(s, colorMode, opts){
     const info = pData[pName];
     let fill, stroke;
     if(!info){
-      fill = '#f1f5f9'; stroke = '#cbd5e1';
+      fill = '#e3e1e1'; stroke = '#c9c6c6';
     } else if(mode === 'vote'){
-      const baseColor = VOTE_COLORS[info.dominantVote] || '#a09b8c';
+      const baseColor = VOTE_COLORS[info.dominantVote] || '#cfcccc';
       const pctDom = info.total ? ((info[info.dominantVote] || 0) / info.total * 100) : 0;
       fill = mapHeatFill(baseColor, pctDom); stroke = mapHeatStroke(baseColor, pctDom);
     } else {
-      const baseColor = FAMILY_COLORS[info.dominantFamily] || '#a09b8c';
+      const baseColor = FAMILY_COLORS[info.dominantFamily] || '#cfcccc';
       const pctDom = info.total ? (((info.families && info.families[info.dominantFamily]) || 0) / info.total * 100) : 0;
       fill = mapHeatFill(baseColor, pctDom); stroke = mapHeatStroke(baseColor, pctDom);
     }
@@ -6027,7 +6040,7 @@ function renderCrossChamberTrajectory(){
   const sA = cross.scenA, sB = cross.scenB, m = cross.metrics;
   const yrA = String(sA.date).slice(-4), yrB = String(sB.date).slice(-4);
   const vb = (v) => `<span class="vote-badge ${VOTE_CLASS[v]}">${esc(VOTE_LABELS[v])}</span>`;
-  const dot = (f) => `<span class="family-dot" style="background:${FAMILY_COLORS[f] || '#a09b8c'}"></span>`;
+  const dot = (f) => `<span class="family-dot" style="background:${FAMILY_COLORS[f] || '#cfcccc'}"></span>`;
   const rows = cross.matched.map(r => `<tr>
     <td class="traj-leg-cell"><span class="traj-name" title="${esc(r.name)}">${esc(r.name)}</span><span class="traj-prov">${esc(r.province)}</span></td>
     <td class="traj-voto-cell">${vb(r.voteA)}<span class="traj-arrow">→</span>${vb(r.voteB)}</td>
@@ -6155,7 +6168,7 @@ function renderTrajectorySection(){
   const filterBtns = [['all', 'Todos'], ['changed', 'Cambiaron el voto'], ['kept', 'Mantuvieron el voto']]
     .map(([k, l]) => `<button type="button" data-traj-filter="${k}" aria-pressed="${filter === k ? 'true' : 'false'}">${esc(l)}</button>`).join('');
   const vb = (v) => `<span class="vote-badge ${VOTE_CLASS[v]}">${esc(VOTE_LABELS[v])}</span>`;
-  const dot = (f) => `<span class="family-dot" style="background:${FAMILY_COLORS[f] || '#a09b8c'}"></span>`;
+  const dot = (f) => `<span class="family-dot" style="background:${FAMILY_COLORS[f] || '#cfcccc'}"></span>`;
   const shortCase = (cn) => cn === 'Aerolíneas Argentinas' ? 'Aero' : cn;
   const cA = shortCase(sA.caseName), cB = shortCase(sB.caseName);
   const famCell = (r) => r.sameFamily
@@ -7128,7 +7141,7 @@ function validateScenario(scenario){
 // =====================================================================
 // ACCESORES DE COLOR
 // =====================================================================
-function getColorByFamily(family){ return FAMILY_COLORS[family] || '#a09b8c'; }
+function getColorByFamily(family){ return FAMILY_COLORS[family] || '#cfcccc'; }
 
 // =====================================================================
 // FILTRADO DE LEGISLADORES (modo lista, para tabla)
@@ -7167,44 +7180,44 @@ function slugifyFilename(parts){
 // Fuentes: se fuerzan sans-serif estándar para que el rasterizador resuelva sin
 // depender de fonts del sistema que pueden faltar.
 const SVG_EXPORT_STYLES = `
-  text { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+  text { font-family: 'Archivo', 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; }
   .guide-arc { fill: none; stroke: rgba(20,24,31,.05); stroke-width: 0.8; }
   .center-panel-shadow { fill: rgba(20,24,31,0.04); }
   .center-panel { fill: #ffffff; stroke: rgba(20,24,31,0.08); stroke-width: 1; }
-  .center-title { font-size: 10.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; fill: #6b7077; text-anchor: middle; }
-  .center-result { font-size: 44px; font-weight: 700; letter-spacing: -0.035em; text-anchor: middle; fill: #1e2530; font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; }
-  .center-result.result-yes { fill: #3f6e44; }
-  .center-result.result-no { fill: #a32a2a; }
-  .center-sub { font-size: 13px; font-weight: 600; fill: #4a4f57; text-anchor: middle; }
-  .center-tally { font-size: 10.5px; font-weight: 500; fill: #6b7077; text-anchor: middle; letter-spacing: .04em; }
+  .center-title { font-size: 10.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; fill: #605d5d; text-anchor: middle; }
+  .center-result { font-size: 44px; font-weight: 700; letter-spacing: -0.035em; text-anchor: middle; fill: #201e1d; font-family: 'Archivo', 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+  .center-result.result-yes { fill: #ec3013; }
+  .center-result.result-no { fill: #444141; }
+  .center-sub { font-size: 13px; font-weight: 600; fill: #444141; text-anchor: middle; }
+  .center-tally { font-size: 10.5px; font-weight: 500; fill: #605d5d; text-anchor: middle; letter-spacing: .04em; }
   .seat-halo { display: none; }
   .seat.is-dim { opacity: 0.22; }
   .map-bg { fill: #fbfcfd; }
   .province-path { stroke-linejoin: round; stroke-linecap: round; stroke-opacity: 0.85; }
-  .province-label { font-size: 9.5px; font-weight: 600; fill: #1e2530; text-anchor: middle; paint-order: stroke; stroke: rgba(255,255,255,0.95); stroke-width: 2.8; stroke-linejoin: round; }
+  .province-label { font-size: 9.5px; font-weight: 600; fill: #201e1d; text-anchor: middle; paint-order: stroke; stroke: rgba(255,255,255,0.95); stroke-width: 2.8; stroke-linejoin: round; }
   .province-label.is-small { font-size: 8.5px; stroke-width: 2.4; }
-  .malvinas-label { font-size: 8.5px; font-style: italic; fill: #4a4f57; font-weight: 600; text-anchor: middle; letter-spacing: .02em; paint-order: stroke; stroke: rgba(255,255,255,0.95); stroke-width: 2.4; stroke-linejoin: round; }
-  .caba-callout-line { fill: none; stroke: #9aa0a6; stroke-width: 0.8; stroke-linecap: round; }
-  .caba-callout-label { font-size: 10.5px; font-weight: 700; fill: #1e2530; text-anchor: start; paint-order: stroke; stroke: rgba(255,255,255,0.95); stroke-width: 2.4; }
-  .caba-callout-sub { font-size: 8.5px; font-weight: 500; fill: #6b7077; text-anchor: start; paint-order: stroke; stroke: rgba(255,255,255,0.95); stroke-width: 2; }
+  .malvinas-label { font-size: 8.5px; font-style: italic; fill: #444141; font-weight: 600; text-anchor: middle; letter-spacing: .02em; paint-order: stroke; stroke: rgba(255,255,255,0.95); stroke-width: 2.4; stroke-linejoin: round; }
+  .caba-callout-line { fill: none; stroke: #7d7979; stroke-width: 0.8; stroke-linecap: round; }
+  .caba-callout-label { font-size: 10.5px; font-weight: 700; fill: #201e1d; text-anchor: start; paint-order: stroke; stroke: rgba(255,255,255,0.95); stroke-width: 2.4; }
+  .caba-callout-sub { font-size: 8.5px; font-weight: 500; fill: #605d5d; text-anchor: start; paint-order: stroke; stroke: rgba(255,255,255,0.95); stroke-width: 2; }
 `;
 
 // Estilos adicionales para el wrapper con contexto académico (header + footer).
 const SVG_FIGURE_STYLES = `
   .fig-bg { fill: #ffffff; }
-  .fig-rule { stroke: #1e2530; stroke-width: 1; }
-  .fig-rule-soft { stroke: #e7e5e1; stroke-width: 1; }
-  .fig-rule-gold { stroke: #2f6f9f; stroke-width: 1; }
-  .fig-eyebrow { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9.5px; font-weight: 600; fill: #6b7077; letter-spacing: 0.6px; text-transform: uppercase; }
-  .fig-title-txt { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; fill: #1e2530; letter-spacing: -0.3px; }
-  .fig-sub-txt { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; fill: #6b7077; }
-  .fig-meta-txt { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 600; fill: #1e2530; }
-  .fig-meta-key { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; font-weight: 600; fill: #9aa0a6; letter-spacing: 0.6px; text-transform: uppercase; }
-  .fig-foot-txt { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; fill: #4a4f57; }
-  .fig-foot-k { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; fill: #9aa0a6; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; }
-  .fig-credit { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; fill: #9aa0a6; letter-spacing: 0.6px; text-transform: uppercase; font-weight: 600; }
-  .fig-legend-eyebrow { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; font-weight: 600; fill: #9aa0a6; letter-spacing: 0.6px; text-transform: uppercase; }
-  .fig-legend-txt { font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 600; fill: #4a4f57; letter-spacing: -0.005em; }
+  .fig-rule { stroke: #201e1d; stroke-width: 1; }
+  .fig-rule-soft { stroke: #e3e1e1; stroke-width: 1; }
+  .fig-rule-gold { stroke: #ec3013; stroke-width: 1; }
+  .fig-eyebrow { font-family: 'Archivo', 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9.5px; font-weight: 600; fill: #605d5d; letter-spacing: 0.6px; text-transform: uppercase; }
+  .fig-title-txt { font-family: 'Archivo', 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; fill: #201e1d; letter-spacing: -0.3px; }
+  .fig-sub-txt { font-family: 'Archivo', 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; fill: #605d5d; }
+  .fig-meta-txt { font-family: 'Archivo', 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 600; fill: #201e1d; }
+  .fig-meta-key { font-family: 'Archivo', 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; font-weight: 600; fill: #7d7979; letter-spacing: 0.6px; text-transform: uppercase; }
+  .fig-foot-txt { font-family: 'Archivo', 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; fill: #444141; }
+  .fig-foot-k { font-family: 'Archivo', 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; fill: #7d7979; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; }
+  .fig-credit { font-family: 'Archivo', 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; fill: #7d7979; letter-spacing: 0.6px; text-transform: uppercase; font-weight: 600; }
+  .fig-legend-eyebrow { font-family: 'Archivo', 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; font-weight: 600; fill: #7d7979; letter-spacing: 0.6px; text-transform: uppercase; }
+  .fig-legend-txt { font-family: 'Archivo', 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 600; fill: #444141; letter-spacing: -0.005em; }
 `;
 
 // Envuelve líneas en text-spans manuales (SVG no tiene word-wrap automático).
@@ -7438,8 +7451,8 @@ function exportSvgAsPng(svgElement, filename, context){
           vEl.setAttribute('class', 'fig-meta-txt');
           vEl.setAttribute('x', kx);
           vEl.setAttribute('y', ky + META_VAL_OFFSET + li * META_LINE_H);
-          if(m.klass === 'fig-meta-yes') vEl.setAttribute('fill', '#3f6e44');
-          if(m.klass === 'fig-meta-no')  vEl.setAttribute('fill', '#a32a2a');
+          if(m.klass === 'fig-meta-yes') vEl.setAttribute('fill', '#ec3013');
+          if(m.klass === 'fig-meta-no')  vEl.setAttribute('fill', '#444141');
           vEl.textContent = line;
           wrapper.appendChild(vEl);
         });
@@ -7654,7 +7667,7 @@ function buildCompareCompositeSvg(cells, opts){
     const t = document.createElementNS(NS, 'text');
     t.setAttribute('x', (x + cellW / 2).toFixed(1)); t.setAttribute('y', (y + titleFont).toFixed(1));
     t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-family', TBL_PNG_FONTS.serifTitle);
-    t.setAttribute('font-size', titleFont); t.setAttribute('font-weight', '600'); t.setAttribute('fill', '#1e2530');
+    t.setAttribute('font-size', titleFont); t.setAttribute('font-weight', '600'); t.setAttribute('fill', '#201e1d');
     t.textContent = cell.title;
     root.appendChild(t);
 
@@ -7662,7 +7675,7 @@ function buildCompareCompositeSvg(cells, opts){
       const st = document.createElementNS(NS, 'text');
       st.setAttribute('x', (x + cellW / 2).toFixed(1)); st.setAttribute('y', (y + titleFont + subFont + 7).toFixed(1));
       st.setAttribute('text-anchor', 'middle'); st.setAttribute('font-family', TBL_PNG_FONTS.sans);
-      st.setAttribute('font-size', subFont); st.setAttribute('font-weight', '600'); st.setAttribute('fill', '#6b7077'); st.setAttribute('letter-spacing', '0.04em');
+      st.setAttribute('font-size', subFont); st.setAttribute('font-weight', '600'); st.setAttribute('fill', '#605d5d'); st.setAttribute('letter-spacing', '0.04em');
       st.textContent = cell.sub;
       root.appendChild(st);
     }
@@ -7753,9 +7766,9 @@ function exportCompareVizPng(kind){
 const PNG_TRAJECTORY_SOURCE = 'Elaboración propia sobre legisladores repetidos entre las dos votaciones nominales comparadas. Match exacto normalizado de nombres; trayectoria same-chamber.';
 
 // Paleta hex de voto para PNG (espeja los tokens; el canvas no resuelve var()).
-const _TRAJ_VOTE_HEX  = { AFIRMATIVO:'#3f6e44', NEGATIVO:'#a32a2a', ABSTENCION:'#a87523', AUSENTE:'#a09b8c', PRESIDENCIA:'#14181f' };
-const _TRAJ_VOTE_SOFT = { AFIRMATIVO:'#e0eadc', NEGATIVO:'#f4dada', ABSTENCION:'#f3e8c9', AUSENTE:'#ede9dd', PRESIDENCIA:'#e7e5e1' };
-const _TRAJ_VOTE_BORD = { AFIRMATIVO:'#3f6e44', NEGATIVO:'#a32a2a', ABSTENCION:'#a87523', AUSENTE:'#a09b8c', PRESIDENCIA:'#14181f' };
+const _TRAJ_VOTE_HEX  = { AFIRMATIVO:'#ec3013', NEGATIVO:'#444141', ABSTENCION:'#a8a4a4', AUSENTE:'#cfcccc', PRESIDENCIA:'#201e1d' };
+const _TRAJ_VOTE_SOFT = { AFIRMATIVO:'#f9ded7', NEGATIVO:'#e3e1e1', ABSTENCION:'#eae7e7', AUSENTE:'#eeecec', PRESIDENCIA:'#e3e1e1' };
+const _TRAJ_VOTE_BORD = { AFIRMATIVO:'#ec3013', NEGATIVO:'#444141', ABSTENCION:'#a8a4a4', AUSENTE:'#cfcccc', PRESIDENCIA:'#201e1d' };
 
 function _svgText(NS, x, y, str, opts){
   const t = document.createElementNS(NS, 'text');
@@ -7763,7 +7776,7 @@ function _svgText(NS, x, y, str, opts){
   t.setAttribute('font-family', opts.serif ? TBL_PNG_FONTS.serifTitle : TBL_PNG_FONTS.sans);
   t.setAttribute('font-size', opts.size || 12);
   t.setAttribute('font-weight', opts.weight || '400');
-  t.setAttribute('fill', opts.fill || '#14181f');
+  t.setAttribute('fill', opts.fill || '#201e1d');
   if(opts.anchor) t.setAttribute('text-anchor', opts.anchor);
   if(opts.ls) t.setAttribute('letter-spacing', opts.ls);
   t.textContent = str;
@@ -7777,9 +7790,9 @@ function _trajVoteBadgePng(NS, x, yc, vote, els){
   const r = document.createElementNS(NS, 'rect');
   r.setAttribute('x', x); r.setAttribute('y', yc - h / 2); r.setAttribute('width', w); r.setAttribute('height', h);
   r.setAttribute('rx', 3); r.setAttribute('fill', _TRAJ_VOTE_SOFT[vote] || '#f5f4f1');
-  r.setAttribute('stroke', _TRAJ_VOTE_BORD[vote] || '#cfccc6'); r.setAttribute('stroke-width', '1');
+  r.setAttribute('stroke', _TRAJ_VOTE_BORD[vote] || '#a8a5a5'); r.setAttribute('stroke-width', '1');
   els.push(r);
-  els.push(_svgText(NS, x + w / 2, yc + 4, label, { size: fs, weight: '600', fill: _TRAJ_VOTE_HEX[vote] || '#6b7077', anchor: 'middle' }));
+  els.push(_svgText(NS, x + w / 2, yc + 4, label, { size: fs, weight: '600', fill: _TRAJ_VOTE_HEX[vote] || '#605d5d', anchor: 'middle' }));
   return w;
 }
 // Cierra una lámina de tabla: bg + estilos + elementos → rasteriza.
@@ -7831,48 +7844,48 @@ function exportTrajectoryPng(kind, srcTraj){
     const x0 = PAD_X + (totalW - PAD_X * 2 - tableW) / 2;
     let y = headerOut.headerBottomY + 30;
     // fila de cabecera de columnas
-    els.push(_svgText(NS, x0 + 12, y + cellH / 2 - 2, `${sA.caseName} ↓`, { size: 10.5, weight: '700', fill: '#6b7077', ls: 0.4 }));
-    els.push(_svgText(NS, x0 + 12, y + cellH / 2 + 13, `/ ${sB.caseName} →`, { size: 10.5, weight: '700', fill: '#6b7077', ls: 0.4 }));
+    els.push(_svgText(NS, x0 + 12, y + cellH / 2 - 2, `${sA.caseName} ↓`, { size: 10.5, weight: '700', fill: '#605d5d', ls: 0.4 }));
+    els.push(_svgText(NS, x0 + 12, y + cellH / 2 + 13, `/ ${sB.caseName} →`, { size: 10.5, weight: '700', fill: '#605d5d', ls: 0.4 }));
     colsP.forEach((b, ci) => {
       const cx = x0 + rhW + ci * cellW + cellW / 2;
       const sw = document.createElementNS(NS, 'rect');
       sw.setAttribute('x', cx - 30); sw.setAttribute('y', y + cellH / 2 - 14); sw.setAttribute('width', 9); sw.setAttribute('height', 9); sw.setAttribute('rx', 2); sw.setAttribute('fill', VOTE_COLORS[b]);
       els.push(sw);
-      els.push(_svgText(NS, cx - 16, y + cellH / 2 - 6, VOTE_LABELS[b], { size: 11.5, weight: '600', fill: '#2c3543', anchor: 'start' }));
+      els.push(_svgText(NS, cx - 16, y + cellH / 2 - 6, VOTE_LABELS[b], { size: 11.5, weight: '600', fill: '#444141', anchor: 'start' }));
     });
-    els.push(_svgText(NS, x0 + rhW + colsP.length * cellW + totW / 2, y + cellH / 2 + 4, 'Total', { size: 10.5, weight: '700', fill: '#6b7077', anchor: 'middle', ls: 0.4 }));
+    els.push(_svgText(NS, x0 + rhW + colsP.length * cellW + totW / 2, y + cellH / 2 + 4, 'Total', { size: 10.5, weight: '700', fill: '#605d5d', anchor: 'middle', ls: 0.4 }));
     y += cellH;
     // filas
     rowsP.forEach((a) => {
-      els.push(_svgText(NS, x0 + 12, y + cellH / 2 - 3, VOTE_LABELS[a], { size: 11.5, weight: '600', fill: '#14181f' }));
+      els.push(_svgText(NS, x0 + 12, y + cellH / 2 - 3, VOTE_LABELS[a], { size: 11.5, weight: '600', fill: '#201e1d' }));
       const swr = document.createElementNS(NS, 'rect');
       swr.setAttribute('x', x0 + 12); swr.setAttribute('y', y + cellH / 2 + 6); swr.setAttribute('width', 9); swr.setAttribute('height', 9); swr.setAttribute('rx', 2); swr.setAttribute('fill', VOTE_COLORS[a]);
       els.push(swr);
       colsP.forEach((b, ci) => {
         const cx = x0 + rhW + ci * cellW;
         const v = traj.matrix[a][b];
-        const fillCell = v === 0 ? '#ffffff' : (a === b ? '#e7efe6' : '#e3edf4');
+        const fillCell = v === 0 ? '#ffffff' : (a === b ? '#e7efe6' : '#f9ded7');
         const rc = document.createElementNS(NS, 'rect');
         rc.setAttribute('x', cx); rc.setAttribute('y', y); rc.setAttribute('width', cellW); rc.setAttribute('height', cellH);
-        rc.setAttribute('fill', fillCell); rc.setAttribute('stroke', '#e7e5e1'); rc.setAttribute('stroke-width', '1');
+        rc.setAttribute('fill', fillCell); rc.setAttribute('stroke', '#e3e1e1'); rc.setAttribute('stroke-width', '1');
         els.push(rc);
-        els.push(_svgText(NS, cx + cellW / 2, y + cellH / 2 + 6, v === 0 ? '·' : String(v), { serif: v > 0, size: v > 0 ? 18 : 14, weight: v > 0 ? '700' : '400', fill: v === 0 ? '#9aa0a6' : '#14181f', anchor: 'middle' }));
+        els.push(_svgText(NS, cx + cellW / 2, y + cellH / 2 + 6, v === 0 ? '·' : String(v), { serif: v > 0, size: v > 0 ? 18 : 14, weight: v > 0 ? '700' : '400', fill: v === 0 ? '#7d7979' : '#201e1d', anchor: 'middle' }));
       });
       // total fila
       const tx = x0 + rhW + colsP.length * cellW;
       const rt = document.createElementNS(NS, 'rect');
-      rt.setAttribute('x', tx); rt.setAttribute('y', y); rt.setAttribute('width', totW); rt.setAttribute('height', cellH); rt.setAttribute('fill', '#f5f4f1'); rt.setAttribute('stroke', '#e7e5e1'); rt.setAttribute('stroke-width', '1');
+      rt.setAttribute('x', tx); rt.setAttribute('y', y); rt.setAttribute('width', totW); rt.setAttribute('height', cellH); rt.setAttribute('fill', '#f5f4f1'); rt.setAttribute('stroke', '#e3e1e1'); rt.setAttribute('stroke-width', '1');
       els.push(rt);
-      els.push(_svgText(NS, tx + totW / 2, y + cellH / 2 + 5, String(rowTot[a]), { size: 13, weight: '600', fill: '#2c3543', anchor: 'middle' }));
+      els.push(_svgText(NS, tx + totW / 2, y + cellH / 2 + 5, String(rowTot[a]), { size: 13, weight: '600', fill: '#444141', anchor: 'middle' }));
       y += cellH;
     });
     // fila Total (columnas)
     const rtb = document.createElementNS(NS, 'rect');
-    rtb.setAttribute('x', x0); rtb.setAttribute('y', y); rtb.setAttribute('width', tableW); rtb.setAttribute('height', cellH); rtb.setAttribute('fill', '#f5f4f1'); rtb.setAttribute('stroke', '#cfccc6'); rtb.setAttribute('stroke-width', '1');
+    rtb.setAttribute('x', x0); rtb.setAttribute('y', y); rtb.setAttribute('width', tableW); rtb.setAttribute('height', cellH); rtb.setAttribute('fill', '#f5f4f1'); rtb.setAttribute('stroke', '#a8a5a5'); rtb.setAttribute('stroke-width', '1');
     els.push(rtb);
-    els.push(_svgText(NS, x0 + 12, y + cellH / 2 + 5, 'Total', { size: 11, weight: '700', fill: '#2c3543' }));
-    colsP.forEach((b, ci) => els.push(_svgText(NS, x0 + rhW + ci * cellW + cellW / 2, y + cellH / 2 + 5, String(colTot[b]), { size: 13, weight: '700', fill: '#2c3543', anchor: 'middle' })));
-    els.push(_svgText(NS, x0 + rhW + colsP.length * cellW + totW / 2, y + cellH / 2 + 5, String(traj.metrics.nMatched), { size: 14, weight: '700', fill: '#14181f', anchor: 'middle' }));
+    els.push(_svgText(NS, x0 + 12, y + cellH / 2 + 5, 'Total', { size: 11, weight: '700', fill: '#444141' }));
+    colsP.forEach((b, ci) => els.push(_svgText(NS, x0 + rhW + ci * cellW + cellW / 2, y + cellH / 2 + 5, String(colTot[b]), { size: 13, weight: '700', fill: '#444141', anchor: 'middle' })));
+    els.push(_svgText(NS, x0 + rhW + colsP.length * cellW + totW / 2, y + cellH / 2 + 5, String(traj.metrics.nMatched), { size: 14, weight: '700', fill: '#201e1d', anchor: 'middle' }));
     y += cellH;
     const footRead = `Mantienen el voto: ${traj.metrics.nKeptVote} de ${traj.metrics.nMatched} (${fmt1(traj.metrics.pctKeptVote)}%). Cambian: ${traj.metrics.nChangedVote}.`;
     const footerOut = buildTablePngFooter(NS, sA, y + 18, totalW, PAD_X, footRead, { generalSource: trajSource });
@@ -7897,22 +7910,22 @@ function exportTrajectoryPng(kind, srcTraj){
       `${dirSub}. Sobre los legisladores ${universeWord}; ${traj.isCross ? 'todas las familias presentes' : 'familias con al menos 2 repetidos'}.`, totalW, PAD_X, { noMetaChips: true });
     const els = [...headerOut.elements];
     let y = headerOut.headerBottomY + 26;
-    const hb = document.createElementNS(NS, 'rect'); hb.setAttribute('x', PAD_X); hb.setAttribute('y', y); hb.setAttribute('width', totalW - 2 * PAD_X); hb.setAttribute('height', 30); hb.setAttribute('fill', '#ffffff'); hb.setAttribute('stroke', '#e7e5e1'); els.push(hb);
-    cols.forEach(c => els.push(_svgText(NS, c.x, y + 19, c.label, { size: 10, weight: '700', fill: '#6b7077', ls: 0.4, anchor: c.align === 'right' ? 'end' : 'start' })));
+    const hb = document.createElementNS(NS, 'rect'); hb.setAttribute('x', PAD_X); hb.setAttribute('y', y); hb.setAttribute('width', totalW - 2 * PAD_X); hb.setAttribute('height', 30); hb.setAttribute('fill', '#ffffff'); hb.setAttribute('stroke', '#e3e1e1'); els.push(hb);
+    cols.forEach(c => els.push(_svgText(NS, c.x, y + 19, c.label, { size: 10, weight: '700', fill: '#605d5d', ls: 0.4, anchor: c.align === 'right' ? 'end' : 'start' })));
     y += 30;
     const rowH = 30;
     rows.forEach((r, i) => {
       if(i % 2) { const zb = document.createElementNS(NS, 'rect'); zb.setAttribute('x', PAD_X); zb.setAttribute('y', y); zb.setAttribute('width', totalW - 2 * PAD_X); zb.setAttribute('height', rowH); zb.setAttribute('fill', '#faf8f1'); els.push(zb); }
       const yc = y + rowH / 2 + 4;
-      const dot = document.createElementNS(NS, 'rect'); dot.setAttribute('x', cols[0].x); dot.setAttribute('y', yc - 9); dot.setAttribute('width', 9); dot.setAttribute('height', 9); dot.setAttribute('rx', 2); dot.setAttribute('fill', FAMILY_COLORS[r.f] || '#a09b8c'); els.push(dot);
-      els.push(_svgText(NS, cols[0].x + 16, yc, r.f, { size: 12, weight: '600', fill: '#14181f' }));
-      els.push(_svgText(NS, cols[1].x, yc, String(r.n), { size: 12, fill: '#14181f', anchor: 'end' }));
-      els.push(_svgText(NS, cols[2].x, yc, String(r.kept), { size: 12, fill: '#14181f', anchor: 'end' }));
-      els.push(_svgText(NS, cols[3].x, yc, String(r.changed), { size: 12, fill: '#14181f', anchor: 'end' }));
+      const dot = document.createElementNS(NS, 'rect'); dot.setAttribute('x', cols[0].x); dot.setAttribute('y', yc - 9); dot.setAttribute('width', 9); dot.setAttribute('height', 9); dot.setAttribute('rx', 2); dot.setAttribute('fill', FAMILY_COLORS[r.f] || '#cfcccc'); els.push(dot);
+      els.push(_svgText(NS, cols[0].x + 16, yc, r.f, { size: 12, weight: '600', fill: '#201e1d' }));
+      els.push(_svgText(NS, cols[1].x, yc, String(r.n), { size: 12, fill: '#201e1d', anchor: 'end' }));
+      els.push(_svgText(NS, cols[2].x, yc, String(r.kept), { size: 12, fill: '#201e1d', anchor: 'end' }));
+      els.push(_svgText(NS, cols[3].x, yc, String(r.changed), { size: 12, fill: '#201e1d', anchor: 'end' }));
       const pa = r.yesA / r.n * 100, pb = r.yesB / r.n * 100, dd = pb - pa;
-      els.push(_svgText(NS, cols[4].x, yc, fmt1(pa) + '%', { size: 12, fill: '#2c3543', anchor: 'end' }));
-      els.push(_svgText(NS, cols[5].x, yc, fmt1(pb) + '%', { size: 12, fill: '#2c3543', anchor: 'end' }));
-      els.push(_svgText(NS, cols[6].x, yc, (dd >= 0 ? '+' : '') + fmt1(dd), { size: 12, weight: '600', fill: Math.abs(dd) < 0.05 ? '#6b7077' : (dd > 0 ? '#3f6e44' : '#a32a2a'), anchor: 'end' }));
+      els.push(_svgText(NS, cols[4].x, yc, fmt1(pa) + '%', { size: 12, fill: '#444141', anchor: 'end' }));
+      els.push(_svgText(NS, cols[5].x, yc, fmt1(pb) + '%', { size: 12, fill: '#444141', anchor: 'end' }));
+      els.push(_svgText(NS, cols[6].x, yc, (dd >= 0 ? '+' : '') + fmt1(dd), { size: 12, weight: '600', fill: Math.abs(dd) < 0.05 ? '#605d5d' : (dd > 0 ? '#ec3013' : '#444141'), anchor: 'end' }));
       const sep = document.createElementNS(NS, 'line'); sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y + rowH); sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', y + rowH); sep.setAttribute('stroke', '#ededeb'); sep.setAttribute('stroke-width', '0.6'); els.push(sep);
       y += rowH;
     });
@@ -7937,24 +7950,24 @@ function exportTrajectoryPng(kind, srcTraj){
       `${dirSub}${filterSub}. ${rows.length} legisladores ${universeWord} y su voto en cada votación.`, totalW, PAD_X, { noMetaChips: true });
     const els = [...headerOut.elements];
     let y = headerOut.headerBottomY + 26;
-    const hb = document.createElementNS(NS, 'rect'); hb.setAttribute('x', PAD_X); hb.setAttribute('y', y); hb.setAttribute('width', totalW - 2 * PAD_X); hb.setAttribute('height', 30); hb.setAttribute('fill', '#ffffff'); hb.setAttribute('stroke', '#e7e5e1'); els.push(hb);
+    const hb = document.createElementNS(NS, 'rect'); hb.setAttribute('x', PAD_X); hb.setAttribute('y', y); hb.setAttribute('width', totalW - 2 * PAD_X); hb.setAttribute('height', 30); hb.setAttribute('fill', '#ffffff'); hb.setAttribute('stroke', '#e3e1e1'); els.push(hb);
     [['LEGISLADOR', C.name], [`VOTO · ${sA.caseName.split(' ')[0]} → ${sB.caseName.split(' ')[0]}`, C.votoA], ['TRAYECTORIA', C.cambio], ['FAMILIA', C.fam], ['BLOQUE', C.bloque]]
-      .forEach(([l, x]) => els.push(_svgText(NS, x, y + 19, l, { size: 10, weight: '700', fill: '#6b7077', ls: 0.4 })));
+      .forEach(([l, x]) => els.push(_svgText(NS, x, y + 19, l, { size: 10, weight: '700', fill: '#605d5d', ls: 0.4 })));
     y += 30;
     const rowH = 36;
     const trunc = (s, max) => { s = String(s || ''); return s.length > max ? s.slice(0, max - 1) + '…' : s; };
     rows.forEach((r, i) => {
       if(i % 2) { const zb = document.createElementNS(NS, 'rect'); zb.setAttribute('x', PAD_X); zb.setAttribute('y', y); zb.setAttribute('width', totalW - 2 * PAD_X); zb.setAttribute('height', rowH); zb.setAttribute('fill', '#faf8f1'); els.push(zb); }
       const yc = y + rowH / 2;
-      els.push(_svgText(NS, C.name, yc - 1, trunc(r.name, 30), { size: 11.5, weight: '600', fill: '#14181f' }));
-      els.push(_svgText(NS, C.name, yc + 13, trunc(r.province, 26), { size: 9.5, fill: '#6b7077' }));
+      els.push(_svgText(NS, C.name, yc - 1, trunc(r.name, 30), { size: 11.5, weight: '600', fill: '#201e1d' }));
+      els.push(_svgText(NS, C.name, yc + 13, trunc(r.province, 26), { size: 9.5, fill: '#605d5d' }));
       _trajVoteBadgePng(NS, C.votoA, yc, r.voteA, els);
-      els.push(_svgText(NS, C.arrow, yc + 4, '→', { size: 13, fill: '#9aa0a6' }));
+      els.push(_svgText(NS, C.arrow, yc + 4, '→', { size: 13, fill: '#7d7979' }));
       _trajVoteBadgePng(NS, C.votoB, yc, r.voteB, els);
-      els.push(_svgText(NS, C.cambio, yc + 4, r.sameVote ? 'Mantuvo' : 'Cambió' + (r.sameFamily ? '' : ' · familia'), { size: 11, weight: '600', fill: r.sameVote ? '#3f6e44' : '#a32a2a' }));
-      const famDot = document.createElementNS(NS, 'rect'); famDot.setAttribute('x', C.fam); famDot.setAttribute('y', yc - 5); famDot.setAttribute('width', 8); famDot.setAttribute('height', 8); famDot.setAttribute('rx', 2); famDot.setAttribute('fill', FAMILY_COLORS[r.familyA] || '#a09b8c'); els.push(famDot);
-      els.push(_svgText(NS, C.fam + 14, yc + 4, trunc(r.sameFamily ? r.familyA : r.familyA + ' → ' + r.familyB, 42), { size: 10.5, fill: '#2c3543' }));
-      els.push(_svgText(NS, C.bloque, yc + 4, trunc(r.blockA, 22), { size: 10, fill: '#6b7077' }));
+      els.push(_svgText(NS, C.cambio, yc + 4, r.sameVote ? 'Mantuvo' : 'Cambió' + (r.sameFamily ? '' : ' · familia'), { size: 11, weight: '600', fill: r.sameVote ? '#ec3013' : '#444141' }));
+      const famDot = document.createElementNS(NS, 'rect'); famDot.setAttribute('x', C.fam); famDot.setAttribute('y', yc - 5); famDot.setAttribute('width', 8); famDot.setAttribute('height', 8); famDot.setAttribute('rx', 2); famDot.setAttribute('fill', FAMILY_COLORS[r.familyA] || '#cfcccc'); els.push(famDot);
+      els.push(_svgText(NS, C.fam + 14, yc + 4, trunc(r.sameFamily ? r.familyA : r.familyA + ' → ' + r.familyB, 42), { size: 10.5, fill: '#444141' }));
+      els.push(_svgText(NS, C.bloque, yc + 4, trunc(r.blockA, 22), { size: 10, fill: '#605d5d' }));
       const sep = document.createElementNS(NS, 'line'); sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y + rowH); sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', y + rowH); sep.setAttribute('stroke', '#ededeb'); sep.setAttribute('stroke-width', '0.6'); els.push(sep);
       y += rowH;
     });
@@ -7978,8 +7991,8 @@ function exportTrajectoryPng(kind, srcTraj){
 // común (rasterizeSvgToPng) para terminar en canvas y disparar la descarga.
 
 const TBL_PNG_FONTS = {
-  serifTitle: "'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif",
-  sans:       "'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif"
+  serifTitle: "'Archivo', 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+  sans:       "'Archivo', 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif"
 };
 
 // Filenames PNG de tablas en español (consistente con los CSV académicos).
@@ -8062,7 +8075,7 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X, opts){
   eyebrow.setAttribute('x', PAD_X); eyebrow.setAttribute('y', 30);
   eyebrow.setAttribute('font-family', TBL_PNG_FONTS.sans);
   eyebrow.setAttribute('font-size', '9.5'); eyebrow.setAttribute('font-weight', '600');
-  eyebrow.setAttribute('fill', '#6b7077');
+  eyebrow.setAttribute('fill', '#605d5d');
   eyebrow.setAttribute('letter-spacing', '0.6');
   eyebrow.textContent = eyebrowTxt.toUpperCase();
   elements.push(eyebrow);
@@ -8071,7 +8084,7 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X, opts){
   t.setAttribute('x', PAD_X); t.setAttribute('y', 54);
   t.setAttribute('font-family', TBL_PNG_FONTS.serifTitle);
   t.setAttribute('font-size', '18'); t.setAttribute('font-weight', '600');
-  t.setAttribute('fill', '#1e2530'); t.setAttribute('letter-spacing', '-0.3');
+  t.setAttribute('fill', '#201e1d'); t.setAttribute('letter-spacing', '-0.3');
   t.textContent = title;
   elements.push(t);
 
@@ -8083,7 +8096,7 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X, opts){
     sb.setAttribute('x', PAD_X); sb.setAttribute('y', 78 + i * 17);
     sb.setAttribute('font-family', TBL_PNG_FONTS.sans);
     sb.setAttribute('font-size', '13'); sb.setAttribute('font-weight', '400');
-    sb.setAttribute('fill', '#6b7077'); sb.setAttribute('letter-spacing', '-0.05');
+    sb.setAttribute('fill', '#605d5d'); sb.setAttribute('letter-spacing', '-0.05');
     sb.textContent = line;
     elements.push(sb);
   });
@@ -8109,7 +8122,7 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X, opts){
         const sep = document.createElementNS(NS, 'text');
         sep.setAttribute('x', cursorX); sep.setAttribute('y', metaY);
         sep.setAttribute('font-family', TBL_PNG_FONTS.sans);
-        sep.setAttribute('font-size', '11'); sep.setAttribute('fill', '#9aa0a6');
+        sep.setAttribute('font-size', '11'); sep.setAttribute('fill', '#7d7979');
         sep.textContent = '·';
         elements.push(sep);
         cursorX += 10;
@@ -8118,7 +8131,7 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X, opts){
       k.setAttribute('x', cursorX); k.setAttribute('y', metaY);
       k.setAttribute('font-family', TBL_PNG_FONTS.sans);
       k.setAttribute('font-size', '9'); k.setAttribute('font-weight', '600');
-      k.setAttribute('fill', '#9aa0a6'); k.setAttribute('letter-spacing', '0.6');
+      k.setAttribute('fill', '#7d7979'); k.setAttribute('letter-spacing', '0.6');
       k.textContent = c.k;
       elements.push(k);
       cursorX += _measureTextW(c.k, 9, '600', TBL_PNG_FONTS.sans, 0.6) + 8;
@@ -8126,7 +8139,7 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X, opts){
       v.setAttribute('x', cursorX); v.setAttribute('y', metaY);
       v.setAttribute('font-family', TBL_PNG_FONTS.sans);
       v.setAttribute('font-size', '11'); v.setAttribute('font-weight', '600');
-      v.setAttribute('fill', '#1e2530');
+      v.setAttribute('fill', '#201e1d');
       v.textContent = c.v;
       elements.push(v);
       cursorX += _measureTextW(c.v, 11, '600', TBL_PNG_FONTS.sans, 0) + 14;
@@ -8136,7 +8149,7 @@ function buildTablePngHeader(NS, scenario, title, bajada, totalW, PAD_X, opts){
   const sep = document.createElementNS(NS, 'line');
   sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', headerBottomY);
   sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', headerBottomY);
-  sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '1');
+  sep.setAttribute('stroke', '#e3e1e1'); sep.setAttribute('stroke-width', '1');
   elements.push(sep);
 
   return { elements, headerBottomY };
@@ -8153,7 +8166,7 @@ function buildTablePngFooter(NS, scenario, y, totalW, PAD_X, extraNote, opts){
   const sep = document.createElementNS(NS, 'line');
   sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y);
   sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', y);
-  sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '1');
+  sep.setAttribute('stroke', '#e3e1e1'); sep.setAttribute('stroke-width', '1');
   elements.push(sep);
 
   const availW = totalW - 2 * PAD_X;
@@ -8173,12 +8186,12 @@ function buildTablePngFooter(NS, scenario, y, totalW, PAD_X, extraNote, opts){
     const t = document.createElementNS(NS, 'text');
     t.setAttribute('x', PAD_X); t.setAttribute('y', y + 22 + i * 16);
     t.setAttribute('font-family', TBL_PNG_FONTS.sans);
-    t.setAttribute('font-size', '11.5'); t.setAttribute('fill', '#2c3543');
+    t.setAttribute('font-size', '11.5'); t.setAttribute('fill', '#444141');
     const m = line.match(/^(FUENTE TERRITORIAL|FUENTE|NOTA)\s+(.*)$/);
     if(m){
       const k = document.createElementNS(NS, 'tspan');
       k.setAttribute('font-size', '9.5'); k.setAttribute('font-weight', '700');
-      k.setAttribute('fill', '#6b7077'); k.setAttribute('letter-spacing', '0.4');
+      k.setAttribute('fill', '#605d5d'); k.setAttribute('letter-spacing', '0.4');
       k.textContent = m[1] + '  ';
       t.appendChild(k);
       t.appendChild(document.createTextNode(m[2]));
@@ -8193,7 +8206,7 @@ function buildTablePngFooter(NS, scenario, y, totalW, PAD_X, extraNote, opts){
   credit.setAttribute('x', PAD_X); credit.setAttribute('y', creditY);
   credit.setAttribute('font-family', TBL_PNG_FONTS.sans);
   credit.setAttribute('font-size', '9'); credit.setAttribute('font-weight', '600');
-  credit.setAttribute('fill', '#9aa0a6'); credit.setAttribute('letter-spacing', '0.4');
+  credit.setAttribute('fill', '#7d7979'); credit.setAttribute('letter-spacing', '0.4');
   credit.textContent = 'ELABORACIÓN PROPIA A PARTIR DE FUENTES LEGISLATIVAS OFICIALES.';
   elements.push(credit);
 
@@ -8254,7 +8267,7 @@ function buildTablePngSvg(scenario, kind, rows){
   headBg.setAttribute('x', PAD_X); headBg.setAttribute('y', tableStartY);
   headBg.setAttribute('width', availW); headBg.setAttribute('height', headerH);
   headBg.setAttribute('fill', '#ffffff');
-  headBg.setAttribute('stroke', '#e7e5e1'); headBg.setAttribute('stroke-width', '1');
+  headBg.setAttribute('stroke', '#e3e1e1'); headBg.setAttribute('stroke-width', '1');
   headRow.appendChild(headBg);
 
   spec.columns.forEach((c, i) => {
@@ -8266,7 +8279,7 @@ function buildTablePngSvg(scenario, kind, rows){
     t.setAttribute('x', tx); t.setAttribute('y', tableStartY + 18);
     t.setAttribute('font-family', TBL_PNG_FONTS.sans);
     t.setAttribute('font-size', '10'); t.setAttribute('font-weight', '700');
-    t.setAttribute('fill', '#6b7077'); t.setAttribute('letter-spacing', '0.4');
+    t.setAttribute('fill', '#605d5d'); t.setAttribute('letter-spacing', '0.4');
     if(align === 'right') t.setAttribute('text-anchor', 'end');
     if(align === 'center') t.setAttribute('text-anchor', 'middle');
     t.textContent = c.label.toUpperCase();
@@ -8310,7 +8323,7 @@ function buildTablePngSvg(scenario, kind, rows){
   tableBorder.setAttribute('x', PAD_X); tableBorder.setAttribute('y', tableStartY);
   tableBorder.setAttribute('width', availW); tableBorder.setAttribute('height', headerH + rows.length * rowH);
   tableBorder.setAttribute('fill', 'none');
-  tableBorder.setAttribute('stroke', '#e7e5e1'); tableBorder.setAttribute('stroke-width', '1');
+  tableBorder.setAttribute('stroke', '#e3e1e1'); tableBorder.setAttribute('stroke-width', '1');
 
   // Nota de filtros si aplica
   let extraNote = null;
@@ -8361,7 +8374,7 @@ const TABLE_CELL_RENDERERS = {
     t.setAttribute('x', tx); t.setAttribute('y', h.y);
     t.setAttribute('font-family', TBL_PNG_FONTS.sans);
     t.setAttribute('font-size', c.size || '11'); t.setAttribute('font-weight', c.weight || '400');
-    t.setAttribute('fill', c.fill || '#2c3543');
+    t.setAttribute('fill', c.fill || '#444141');
     if(align === 'right') t.setAttribute('text-anchor', 'end');
     if(align === 'center') t.setAttribute('text-anchor', 'middle');
     const raw = String(row[c.key] != null ? row[c.key] : '');
@@ -8375,10 +8388,10 @@ const TABLE_CELL_RENDERERS = {
     return t;
   },
   textBold: (row, c, h) => {
-    return TABLE_CELL_RENDERERS.text(row, { ...c, weight: '600', fill: '#14181f', size: '11.5' }, h);
+    return TABLE_CELL_RENDERERS.text(row, { ...c, weight: '600', fill: '#201e1d', size: '11.5' }, h);
   },
   textMutedItalic: (row, c, h) => {
-    const t = TABLE_CELL_RENDERERS.text(row, { ...c, fill: '#6b7077', size: '10' }, h);
+    const t = TABLE_CELL_RENDERERS.text(row, { ...c, fill: '#605d5d', size: '10' }, h);
     t.setAttribute('font-style', 'italic');
     return t;
   },
@@ -8389,7 +8402,7 @@ const TABLE_CELL_RENDERERS = {
     const out = [];
     const v = row[c.key];
     const label = VOTE_LABELS[v] || v || '—';
-    const color = VOTE_COLORS[v] || '#a09b8c';
+    const color = VOTE_COLORS[v] || '#cfcccc';
     const txtW = Math.ceil(_measureTextW(label, 10.5, '600', TBL_PNG_FONTS.sans, 0)) + 16;
     const bx = h.x + 12;
     const by = h.y - 12;
@@ -8413,7 +8426,7 @@ const TABLE_CELL_RENDERERS = {
     if(row.isMixed){
       const out = [];
       const label = 'Composición mixta';
-      const color = '#a87523';
+      const color = '#a8a4a4';
       const txtW = Math.ceil(_measureTextW(label, 10.5, '600', TBL_PNG_FONTS.sans, 0)) + 16;
       const bx = h.x + 12;
       const by = h.y - 12;
@@ -8421,7 +8434,7 @@ const TABLE_CELL_RENDERERS = {
       rect.setAttribute('x', bx); rect.setAttribute('y', by);
       rect.setAttribute('width', txtW); rect.setAttribute('height', 18);
       rect.setAttribute('rx', 3);
-      rect.setAttribute('fill', '#f3e8c9');
+      rect.setAttribute('fill', '#eae7e7');
       out.push(rect);
       const t = document.createElementNS(h.NS, 'text');
       t.setAttribute('x', bx + txtW/2); t.setAttribute('y', by + 13);
@@ -8442,13 +8455,13 @@ const TABLE_CELL_RENDERERS = {
       const t = document.createElementNS(h.NS, 'text');
       t.setAttribute('x', h.x + 12); t.setAttribute('y', h.y);
       t.setAttribute('font-family', TBL_PNG_FONTS.sans);
-      t.setAttribute('font-size', '10.5'); t.setAttribute('fill', '#9aa0a6');
+      t.setAttribute('font-size', '10.5'); t.setAttribute('fill', '#7d7979');
       t.setAttribute('font-style', 'italic');
       t.textContent = 'No consignado';
       out.push(t);
       return out;
     }
-    const color = FAMILY_COLORS[fam] || '#a09b8c';
+    const color = FAMILY_COLORS[fam] || '#cfcccc';
     const dot = document.createElementNS(h.NS, 'circle');
     dot.setAttribute('cx', h.x + 18); dot.setAttribute('cy', h.y - 4);
     dot.setAttribute('r', 5);
@@ -8458,7 +8471,7 @@ const TABLE_CELL_RENDERERS = {
     t.setAttribute('x', h.x + 30); t.setAttribute('y', h.y);
     t.setAttribute('font-family', TBL_PNG_FONTS.sans);
     t.setAttribute('font-size', '11'); t.setAttribute('font-weight', '600');
-    t.setAttribute('fill', '#14181f');
+    t.setAttribute('fill', '#201e1d');
     const maxChars = Math.floor((h.w - 42) / 6.2);
     t.textContent = fam.length > maxChars ? (fam.slice(0, maxChars - 1) + '…') : fam;
     out.push(t);
@@ -8472,7 +8485,7 @@ const TABLE_CELL_RENDERERS = {
       const sub = document.createElementNS(h.NS, 'text');
       sub.setAttribute('x', h.x + 12); sub.setAttribute('y', h.y + 12);
       sub.setAttribute('font-family', TBL_PNG_FONTS.sans);
-      sub.setAttribute('font-size', '9'); sub.setAttribute('fill', '#9aa0a6');
+      sub.setAttribute('font-size', '9'); sub.setAttribute('fill', '#7d7979');
       sub.setAttribute('font-style', 'italic');
       const maxChars = Math.floor((h.w - 24) / 4.8);
       sub.textContent = blocks.length > maxChars ? (blocks.slice(0, maxChars - 1) + '…') : blocks;
@@ -8500,14 +8513,14 @@ const TABLE_CELL_RENDERERS = {
     const bg = document.createElementNS(h.NS, 'rect');
     bg.setAttribute('x', bx); bg.setAttribute('y', by);
     bg.setAttribute('width', w); bg.setAttribute('height', segH);
-    bg.setAttribute('rx', 3.5); bg.setAttribute('fill', '#e7e5e1');
+    bg.setAttribute('rx', 3.5); bg.setAttribute('fill', '#e3e1e1');
     out.push(bg);
     let cursorX = bx;
     const segs = [
-      { val: yes,  color: '#3f6e44' },
-      { val: no,   color: '#a32a2a' },
-      { val: abst, color: '#a87523' },
-      { val: aus,  color: '#a09b8c' }
+      { val: yes,  color: '#ec3013' },
+      { val: no,   color: '#444141' },
+      { val: abst, color: '#a8a4a4' },
+      { val: aus,  color: '#cfcccc' }
     ];
     segs.forEach(seg => {
       if(seg.val <= 0) return;
@@ -8669,7 +8682,7 @@ function buildSummaryFichaSvg(scenario){
     stitle.setAttribute('x', PAD_X); stitle.setAttribute('y', cursorY + 4);
     stitle.setAttribute('font-family', TBL_PNG_FONTS.sans);
     stitle.setAttribute('font-size', '10.5'); stitle.setAttribute('font-weight', '600');
-    stitle.setAttribute('fill', '#6b7077'); stitle.setAttribute('letter-spacing', '0.4');
+    stitle.setAttribute('fill', '#605d5d'); stitle.setAttribute('letter-spacing', '0.4');
     stitle.textContent = section.title;
     elements.push(stitle);
     cursorY += 22;
@@ -8685,7 +8698,7 @@ function buildSummaryFichaSvg(scenario){
       k.setAttribute('x', cellX); k.setAttribute('y', cellY + 12);
       k.setAttribute('font-family', TBL_PNG_FONTS.sans);
       k.setAttribute('font-size', '9.5'); k.setAttribute('font-weight', '700');
-      k.setAttribute('fill', '#6b7077'); k.setAttribute('letter-spacing', '0.4');
+      k.setAttribute('fill', '#605d5d'); k.setAttribute('letter-spacing', '0.4');
       k.textContent = it[0].toUpperCase();
       elements.push(k);
 
@@ -8695,15 +8708,15 @@ function buildSummaryFichaSvg(scenario){
       vEl.setAttribute('x', cellX); vEl.setAttribute('y', cellY + 30);
       vEl.setAttribute('font-family', TBL_PNG_FONTS.sans);
       vEl.setAttribute('font-size', '12.5'); vEl.setAttribute('font-weight', '600');
-      let fill = '#14181f';
+      let fill = '#201e1d';
       const flag = it[2];
-      if(flag === 'AFIRMATIVO') fill = '#3f6e44';
-      else if(flag === 'NEGATIVO') fill = '#a32a2a';
-      else if(flag === 'warn') fill = '#a87523';
-      else if(flag === 'ok') fill = '#3f6e44';
+      if(flag === 'AFIRMATIVO') fill = '#ec3013';
+      else if(flag === 'NEGATIVO') fill = '#444141';
+      else if(flag === 'warn') fill = '#a8a4a4';
+      else if(flag === 'ok') fill = '#ec3013';
       // Missing italic
       const looksMissing = /^No\s+(consignado|corresponde)|^Sin\s+dato/i.test(v_text);
-      if(looksMissing){ fill = '#9aa0a6'; vEl.setAttribute('font-style', 'italic'); vEl.setAttribute('font-weight', '500'); }
+      if(looksMissing){ fill = '#7d7979'; vEl.setAttribute('font-style', 'italic'); vEl.setAttribute('font-weight', '500'); }
       vEl.setAttribute('fill', fill);
       const maxChars = Math.floor((colW - 12) / 6.2);
       vEl.textContent = v_text.length > maxChars ? (v_text.slice(0, maxChars - 1) + '…') : v_text;
@@ -8718,7 +8731,7 @@ function buildSummaryFichaSvg(scenario){
       const sep = document.createElementNS(NS, 'line');
       sep.setAttribute('x1', cellX); sep.setAttribute('y1', cellY + 38);
       sep.setAttribute('x2', cellX + colW); sep.setAttribute('y2', cellY + 38);
-      sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '0.6');
+      sep.setAttribute('stroke', '#e3e1e1'); sep.setAttribute('stroke-width', '0.6');
       sep.setAttribute('stroke-dasharray', '2,2');
       elements.push(sep);
     });
@@ -8818,7 +8831,7 @@ function exportProvSummaryCsv(){
 }
 
 // ---- PNG (SVG editorial) ----
-const _VOTE_HEX = { AFIRMATIVO:'#3f6e44', NEGATIVO:'#a32a2a', ABSTENCION:'#a87523', AUSENTE:'#a09b8c', PRESIDENCIA:'#14181f' };
+const _VOTE_HEX = { AFIRMATIVO:'#ec3013', NEGATIVO:'#444141', ABSTENCION:'#a8a4a4', AUSENTE:'#cfcccc', PRESIDENCIA:'#201e1d' };
 function _svgText(NS, x, y, str, o){
   o = o || {};
   const t = document.createElementNS(NS, 'text');
@@ -8826,7 +8839,7 @@ function _svgText(NS, x, y, str, o){
   t.setAttribute('font-family', o.font || TBL_PNG_FONTS.sans);
   t.setAttribute('font-size', o.size || '12.5');
   t.setAttribute('font-weight', o.weight || '600');
-  t.setAttribute('fill', o.fill || '#14181f');
+  t.setAttribute('fill', o.fill || '#201e1d');
   if(o.ls) t.setAttribute('letter-spacing', o.ls);
   if(o.anchor) t.setAttribute('text-anchor', o.anchor);
   if(o.italic){ t.setAttribute('font-style', 'italic'); }
@@ -8835,7 +8848,7 @@ function _svgText(NS, x, y, str, o){
 }
 function _svgSectionTitle(NS, x, y, label, els){
   // DW: rótulo de sección sobrio, sin tick editorial ni tracking pesado.
-  els.push(_svgText(NS, x, y+4, label, { size:'10.5', weight:'600', fill:'#6b7077', ls:'0.4' }));
+  els.push(_svgText(NS, x, y+4, label, { size:'10.5', weight:'600', fill:'#605d5d', ls:'0.4' }));
 }
 function _wrapSvg(NS, totalW, totalH, groups){
   const wrapper = document.createElementNS(NS, 'svg');
@@ -8855,16 +8868,16 @@ function buildLegislatorFichaSvg(s, leg){
   const els = [];
   els.push(_svgText(NS, PAD_X, y+8, leg.name, { font: TBL_PNG_FONTS.serifTitle, size:'24', weight:'700' }));
   y += 30;
-  els.push(_svgText(NS, PAD_X, y+14, 'Voto: ' + VOTE_LABELS[leg.vote], { size:'14', weight:'700', fill: _VOTE_HEX[leg.vote] || '#14181f' }));
+  els.push(_svgText(NS, PAD_X, y+14, 'Voto: ' + VOTE_LABELS[leg.vote], { size:'14', weight:'700', fill: _VOTE_HEX[leg.vote] || '#201e1d' }));
   y += 36;
   const kv = [['Provincia', leg.province], ['Bloque', leg.block], ['Familia política', leg.family]];
   if(leg.presided) kv.unshift(['Rol', 'Presidió la sesión']);
   kv.forEach(([k,v]) => {
-    els.push(_svgText(NS, PAD_X, y+12, k.toUpperCase(), { size:'9.5', weight:'700', fill:'#6b7077', ls:'0.4' }));
+    els.push(_svgText(NS, PAD_X, y+12, k.toUpperCase(), { size:'9.5', weight:'700', fill:'#605d5d', ls:'0.4' }));
     els.push(_svgText(NS, PAD_X, y+30, String(v), { size:'13', weight:'600' }));
     const sep = document.createElementNS(NS, 'line');
     sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', y+38); sep.setAttribute('x2', totalW-PAD_X); sep.setAttribute('y2', y+38);
-    sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '0.6'); sep.setAttribute('stroke-dasharray', '2,2');
+    sep.setAttribute('stroke', '#e3e1e1'); sep.setAttribute('stroke-width', '0.6'); sep.setAttribute('stroke-dasharray', '2,2');
     els.push(sep);
     y += 44;
   });
@@ -8891,7 +8904,7 @@ function _svgBar(NS, x, y, w, h, segs, els, scaleTotal){
   const out = document.createElementNS(NS, 'rect');
   out.setAttribute('x', x); out.setAttribute('y', y); out.setAttribute('width', w); out.setAttribute('height', h);
   out.setAttribute('rx', '2'); out.setAttribute('fill', 'none');
-  out.setAttribute('stroke', '#e7e5e1'); out.setAttribute('stroke-width', '0.75');
+  out.setAttribute('stroke', '#e3e1e1'); out.setAttribute('stroke-width', '0.75');
   els.push(out);
 }
 
@@ -8914,7 +8927,7 @@ function buildProvSummarySvg(s, d){
   y += 26;
   // fila: ámbito + total de bancas
   els.push(_svgText(NS, PAD_X, y + 4, d.name, { font: TBL_PNG_FONTS.serifTitle, size: '17', weight: '700' }));
-  els.push(_svgText(NS, totalW - PAD_X, y + 4, d.total + ' bancas', { size: '12.5', weight: '500', fill: '#6b7077', anchor: 'end' }));
+  els.push(_svgText(NS, totalW - PAD_X, y + 4, d.total + ' bancas', { size: '12.5', weight: '500', fill: '#605d5d', anchor: 'end' }));
   y += 18;
   // barra apilada nacional/provincial
   // Presidencia no es un voto: no se dibuja como segmento; queda como remanente
@@ -8939,7 +8952,7 @@ function buildProvSummarySvg(s, d){
   numParts.forEach((p, i) => {
     if(i > 0){
       const sep = document.createElementNS(NS, 'tspan');
-      sep.setAttribute('fill', '#cfccc6'); sep.setAttribute('font-size', '15'); sep.textContent = '    ·    ';
+      sep.setAttribute('fill', '#a8a5a5'); sep.setAttribute('font-size', '15'); sep.textContent = '    ·    ';
       numText.appendChild(sep);
     }
     const num = document.createElementNS(NS, 'tspan');
@@ -8947,7 +8960,7 @@ function buildProvSummarySvg(s, d){
     num.textContent = String(p.n);
     numText.appendChild(num);
     const lab = document.createElementNS(NS, 'tspan');
-    lab.setAttribute('fill', '#6b7077'); lab.setAttribute('font-size', '11.5'); lab.setAttribute('font-weight', '500');
+    lab.setAttribute('fill', '#605d5d'); lab.setAttribute('font-size', '11.5'); lab.setAttribute('font-weight', '500');
     lab.textContent = ' ' + p.label;
     numText.appendChild(lab);
   });
@@ -8964,12 +8977,12 @@ function buildProvSummarySvg(s, d){
     const card = document.createElementNS(NS, 'rect');
     card.setAttribute('x', PAD_X); card.setAttribute('y', top); card.setAttribute('width', availW); card.setAttribute('height', CARD_H);
     card.setAttribute('rx', '6'); card.setAttribute('fill', '#f5f4f1');
-    card.setAttribute('stroke', '#e7e5e1'); card.setAttribute('stroke-width', '0.75');
+    card.setAttribute('stroke', '#e3e1e1'); card.setAttribute('stroke-width', '0.75');
     els.push(card);
     // dot de familia (único uso del color de familia)
     const dot = document.createElementNS(NS, 'circle');
     dot.setAttribute('cx', PAD_X + 18); dot.setAttribute('cy', top + 18); dot.setAttribute('r', '5');
-    dot.setAttribute('fill', FAMILY_COLORS[f.name] || '#57534e');
+    dot.setAttribute('fill', FAMILY_COLORS[f.name] || '#6e6862');
     els.push(dot);
     els.push(_svgText(NS, PAD_X + 32, top + 22, f.name, { size: '12.5', weight: '600' }));
     els.push(_svgText(NS, PAD_X + availW - 16, top + 22, String(f.total), { font: TBL_PNG_FONTS.serifTitle, size: '14', weight: '700', anchor: 'end' }));
@@ -8986,7 +8999,7 @@ function buildProvSummarySvg(s, d){
     if(f.NEGATIVO > 0) mini.push(f.NEGATIVO + ' en contra');
     if(f.ABSTENCION > 0) mini.push(f.ABSTENCION + ' abst.');
     if(f.AUSENTE > 0) mini.push(f.AUSENTE + ' ausentes');
-    els.push(_svgText(NS, PAD_X + 16, top + 48, mini.join('   ·   '), { size: '9.5', weight: '500', fill: '#6b7077' }));
+    els.push(_svgText(NS, PAD_X + 16, top + 48, mini.join('   ·   '), { size: '9.5', weight: '500', fill: '#605d5d' }));
     y += CARD_H + 8;
   });
 
@@ -10261,13 +10274,13 @@ function renderComparisonPanel(){
   // Métrica activa del heatmap familias (cycle entre % Afi, Rice, % Ausentes)
   const heatMetric = state.famHeatMetric || 'pctYesPresent';
   const heatMetricMeta = {
-    pctYesPresent: { label: '% Afirmativo (presentes)', short: '% Afi',     base: '#3f6e44', valueOf: r => r.pctYesPresent,        formatter: v => fmt(v) + '%', empty: '—' },
+    pctYesPresent: { label: '% Afirmativo (presentes)', short: '% Afi',     base: '#ec3013', valueOf: r => r.pctYesPresent,        formatter: v => fmt(v) + '%', empty: '—' },
     rice:          { label: 'Cohesión Rice',            short: 'Rice',     base: '#1d3f8a', valueOf: r => {                       // recalc Rice en runtime sobre row reducido
                                                                                               const y = r.AFIRMATIVO || 0, n = r.NEGATIVO || 0;
                                                                                               const d = y + n;
                                                                                               return d > 0 ? (Math.abs(y - n) / d * 100) : null;
                                                                                             }, formatter: v => v == null ? 'No calc.' : fmt(v) + '%', empty: 'No calc.' },
-    pctAbsent:     { label: '% Ausentismo (total)',     short: '% Aus',     base: '#a87523', valueOf: r => r.total ? (r.AUSENTE / r.total * 100) : 0, formatter: v => fmt(v) + '%', empty: '—' }
+    pctAbsent:     { label: '% Ausentismo (total)',     short: '% Aus',     base: '#a8a4a4', valueOf: r => r.total ? (r.AUSENTE / r.total * 100) : 0, formatter: v => fmt(v) + '%', empty: '—' }
   };
   const activeMeta = heatMetricMeta[heatMetric] || heatMetricMeta.pctYesPresent;
   const metricButtons = Object.keys(heatMetricMeta).map(k =>
@@ -10322,9 +10335,9 @@ function renderComparisonPanel(){
       const scLabel = `${s.caseName} · ${s.chamberShort}`;
       if(!r || !r.total) return `<div class="heatmap-cell is-empty" role="cell" aria-label="${esc(pm.province)} sin datos en ${esc(scLabel)}"><span class="heatmap-cell-value">—</span></div>`;
       const dom = r.dominantVote;
-      const baseHex = dom === 'AFIRMATIVO' ? '#3f6e44'
-                    : dom === 'NEGATIVO'   ? '#a32a2a'
-                    : '#a87523';
+      const baseHex = dom === 'AFIRMATIVO' ? '#ec3013'
+                    : dom === 'NEGATIVO'   ? '#444141'
+                    : '#a8a4a4';
       const intensity = dom === 'AFIRMATIVO' ? r.pctYes : (dom === 'NEGATIVO' ? r.pctNo : 60);
       const bg = _heatBg(baseHex, intensity);
       const dark = _heatTextDark(baseHex, intensity);
@@ -10352,9 +10365,9 @@ function renderComparisonPanel(){
     <div class="heatmap" role="table" aria-label="Provincias en los cuatro escenarios — voto predominante y porcentaje afirmativo">${provHeatHead}${provHeatBody}</div>
     <div class="heat-scale heat-scale-keys" aria-hidden="true">
       <span class="heat-scale-label">Color = voto predominante · intensidad ∝ magnitud:</span>
-      <span class="heat-key"><span class="heat-key-sw" style="background:${_heatBg('#3f6e44', 85)}"></span>afirmativo</span>
-      <span class="heat-key"><span class="heat-key-sw" style="background:${_heatBg('#a32a2a', 85)}"></span>negativo</span>
-      <span class="heat-key"><span class="heat-key-sw" style="background:${_heatBg('#a87523', 60)}"></span>mixta</span>
+      <span class="heat-key"><span class="heat-key-sw" style="background:${_heatBg('#ec3013', 85)}"></span>afirmativo</span>
+      <span class="heat-key"><span class="heat-key-sw" style="background:${_heatBg('#444141', 85)}"></span>negativo</span>
+      <span class="heat-key"><span class="heat-key-sw" style="background:${_heatBg('#a8a4a4', 60)}"></span>mixta</span>
     </div>
   `;
 
@@ -10872,7 +10885,7 @@ function buildStatsSpec(kind, scenario){
       dominantVote: p.isMixed ? null : p.dominantVote,
       cohesion: p.cohesion,
       dominantFamily: p.dominantFamily,
-      dominantFamilyColor: p.dominantFamily ? getColorByFamily(p.dominantFamily) : '#a09b8c',
+      dominantFamilyColor: p.dominantFamily ? getColorByFamily(p.dominantFamily) : '#cfcccc',
       voteDist: { yes: p.AFIRMATIVO, no: p.NEGATIVO, abst: p.ABSTENCION, aus: p.AUSENTE }
     }));
     const rowsCsv = ti.rows.map(p => ({
@@ -11442,12 +11455,12 @@ function exportFamilyHeatmapPng(){
   const fmt = (n) => Number.isFinite(n) ? n.toFixed(1) : '0.0';
   const heatMetric = state.famHeatMetric || 'pctYesPresent';
   const META = {
-    pctYesPresent: { label: '% Afirmativo (sobre presentes)', short: '% Afi', base: '#3f6e44',
+    pctYesPresent: { label: '% Afirmativo (sobre presentes)', short: '% Afi', base: '#ec3013',
                      valueOf: r => r.pctYesPresent, formatter: v => fmt(v) + '%' },
     rice:          { label: 'Cohesión de Rice', short: 'Rice', base: '#1d3f8a',
                      valueOf: r => { const y=r.AFIRMATIVO||0, n=r.NEGATIVO||0, d=y+n; return d>0 ? (Math.abs(y-n)/d*100) : null; },
                      formatter: v => v==null ? 'No calc.' : fmt(v) + '%' },
-    pctAbsent:     { label: '% Ausentismo (sobre total)', short: '% Aus', base: '#a87523',
+    pctAbsent:     { label: '% Ausentismo (sobre total)', short: '% Aus', base: '#a8a4a4',
                      valueOf: r => r.total ? (r.AUSENTE / r.total * 100) : 0, formatter: v => fmt(v) + '%' }
   };
   const meta = META[heatMetric] || META.pctYesPresent;
@@ -11476,7 +11489,7 @@ function exportFamilyHeatmapPng(){
     t.setAttribute('font-family', opts.font || TBL_PNG_FONTS.sans);
     t.setAttribute('font-size', opts.size || '11');
     t.setAttribute('font-weight', opts.weight || '500');
-    t.setAttribute('fill', opts.fill || '#14181f');
+    t.setAttribute('fill', opts.fill || '#201e1d');
     if(opts.anchor) t.setAttribute('text-anchor', opts.anchor);
     if(opts.tracking) t.setAttribute('letter-spacing', opts.tracking);
     const raw = String(text != null ? text : '');
@@ -11497,7 +11510,7 @@ function exportFamilyHeatmapPng(){
   scens.forEach((sc, i) => {
     const cx = PAD_X + labelW + i * colW + colW / 2;
     elements.push(addText(cx, cursorY, sc.caseName.split(' ')[0] + ' · ' + sc.chamberShort,
-      { size:'10', weight:'700', fill:'#2c3543', anchor:'middle', tracking:'0.02em' }));
+      { size:'10', weight:'700', fill:'#444141', anchor:'middle', tracking:'0.02em' }));
   });
   cursorY += 14;
 
@@ -11506,12 +11519,12 @@ function exportFamilyHeatmapPng(){
     const ry = cursorY;
     elements.push(addCircle(PAD_X + 6, ry + rowH/2, 4, fm.color));
     elements.push(addText(PAD_X + 16, ry + rowH/2 + 4, fm.family,
-      { size:'11', weight:'600', fill:'#14181f', maxChars: Math.floor((labelW - 20) / 5.8) }));
+      { size:'11', weight:'600', fill:'#201e1d', maxChars: Math.floor((labelW - 20) / 5.8) }));
     scens.forEach((sc, i) => {
       const cx = PAD_X + labelW + i * colW;
       const r = fm.perScenario[sc.id];
       if(!r || !r.total){
-        elements.push(addRect(cx + 2, ry + 2, colW - 4, rowH - 4, '#f6f6f4', '#e7e5e1'));
+        elements.push(addRect(cx + 2, ry + 2, colW - 4, rowH - 4, '#f6f6f4', '#e3e1e1'));
         elements.push(addText(cx + colW/2, ry + rowH/2 + 4, '—', { size:'11', fill:'#b8b8b2', anchor:'middle' }));
         return;
       }
@@ -11520,9 +11533,9 @@ function exportFamilyHeatmapPng(){
       const dark = (val != null) && _heatTextDark(meta.base, val);
       elements.push(addRect(cx + 2, ry + 2, colW - 4, rowH - 4, bg, '#ffffff'));
       elements.push(addText(cx + colW/2, ry + rowH/2 - 1, meta.formatter(val),
-        { size:'12.5', weight:'700', fill: dark ? '#ffffff' : '#14181f', anchor:'middle' }));
+        { size:'12.5', weight:'700', fill: dark ? '#ffffff' : '#201e1d', anchor:'middle' }));
       elements.push(addText(cx + colW/2, ry + rowH/2 + 13, r.total + ' legs',
-        { size:'8.5', fill: dark ? 'rgba(255,255,255,0.8)' : '#6b7077', anchor:'middle' }));
+        { size:'8.5', fill: dark ? 'rgba(255,255,255,0.8)' : '#605d5d', anchor:'middle' }));
     });
     cursorY += rowH;
   });
@@ -11600,7 +11613,7 @@ function exportStatsSectionPng(kind){
     t.setAttribute('font-family', opts.font || TBL_PNG_FONTS.sans);
     t.setAttribute('font-size', opts.size || '11');
     t.setAttribute('font-weight', opts.weight || '500');
-    t.setAttribute('fill', opts.fill || '#14181f');
+    t.setAttribute('fill', opts.fill || '#201e1d');
     if(opts.anchor) t.setAttribute('text-anchor', opts.anchor);
     if(opts.tracking) t.setAttribute('letter-spacing', opts.tracking);
     if(opts.style) t.setAttribute('font-style', opts.style);
@@ -11618,7 +11631,7 @@ function exportStatsSectionPng(kind){
     c.setAttribute('fill', fill);
     return c;
   };
-  const VOTE_HEX = { yes:'#3f6e44', no:'#a32a2a', warn:'#a87523', abs:'#a09b8c' };
+  const VOTE_HEX = { yes:'#ec3013', no:'#444141', warn:'#a8a4a4', abs:'#cfcccc' };
 
   // Mini-barra de composición (yes/no/abst/aus) con width fija
   const drawVoteComposition = (x, y, w, h, dist, total) => {
@@ -11651,7 +11664,7 @@ function exportStatsSectionPng(kind){
   if(spec.layout === 'ficha-hero'){
     // KPI hero (3 columnas) + 2 grupos de pares K/V
     const heroH = 92;
-    const heroBox = addRect(PAD_X, cursorY, availW, heroH, '#ffffff', '#14181f');
+    const heroBox = addRect(PAD_X, cursorY, availW, heroH, '#ffffff', '#201e1d');
     heroBox.setAttribute('stroke-width', '0.6');
     elements.push(heroBox);
     const colW = availW / spec.hero.length;
@@ -11661,16 +11674,16 @@ function exportStatsSectionPng(kind){
         const sep = document.createElementNS(NS, 'line');
         sep.setAttribute('x1', x); sep.setAttribute('y1', cursorY + 12);
         sep.setAttribute('x2', x); sep.setAttribute('y2', cursorY + heroH - 12);
-        sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '1');
+        sep.setAttribute('stroke', '#e3e1e1'); sep.setAttribute('stroke-width', '1');
         elements.push(sep);
       }
       elements.push(addText(x + 16, cursorY + 22, h.label.toUpperCase(),
-        { size:'9.5', weight:'700', fill:'#6b7077', tracking:'0.4' }));
-      const tone = h.tone === 'yes' ? VOTE_HEX.yes : (h.tone === 'no' ? VOTE_HEX.no : '#14181f');
+        { size:'9.5', weight:'700', fill:'#605d5d', tracking:'0.4' }));
+      const tone = h.tone === 'yes' ? VOTE_HEX.yes : (h.tone === 'no' ? VOTE_HEX.no : '#201e1d');
       elements.push(addText(x + 16, cursorY + 60, String(h.value),
         { font: TBL_PNG_FONTS.serifTitle, size:'30', weight:'700', fill: tone, tracking:'-1' }));
       elements.push(addText(x + 16, cursorY + 80, h.sub,
-        { size:'10', fill:'#6b7077' }));
+        { size:'10', fill:'#605d5d' }));
     });
     cursorY += heroH + 24;
 
@@ -11679,28 +11692,28 @@ function exportStatsSectionPng(kind){
       const groupW = (availW - 16) / spec.kvGroups.length;
       const gx = PAD_X + gi * (groupW + 16);
       elements.push(addText(gx, cursorY, grp.title.toUpperCase(),
-        { size:'10', weight:'700', fill:'#2f6f9f', tracking:'0.4' }));
+        { size:'10', weight:'700', fill:'#ec3013', tracking:'0.4' }));
       const goldRule = document.createElementNS(NS, 'line');
       goldRule.setAttribute('x1', gx); goldRule.setAttribute('y1', cursorY + 6);
       goldRule.setAttribute('x2', gx + 24); goldRule.setAttribute('y2', cursorY + 6);
-      goldRule.setAttribute('stroke', '#2f6f9f'); goldRule.setAttribute('stroke-width', '2');
+      goldRule.setAttribute('stroke', '#ec3013'); goldRule.setAttribute('stroke-width', '2');
       elements.push(goldRule);
       let itemY = cursorY + 26;
       grp.items.forEach((it, idx) => {
         const tone = it.tone === 'yes' ? VOTE_HEX.yes
                    : it.tone === 'no'  ? VOTE_HEX.no
-                   : it.tone === 'warn'? VOTE_HEX.warn : '#14181f';
+                   : it.tone === 'warn'? VOTE_HEX.warn : '#201e1d';
         elements.push(addText(gx, itemY, it.k.toUpperCase(),
-          { size:'9.5', weight:'600', fill:'#6b7077', tracking:'0.4' }));
+          { size:'9.5', weight:'600', fill:'#605d5d', tracking:'0.4' }));
         elements.push(addText(gx + groupW - 4, itemY, String(it.v),
           { font: TBL_PNG_FONTS.serifTitle, size:'15', weight:'700', fill: tone, anchor:'end', tracking:'-0.3' }));
         elements.push(addText(gx, itemY + 14, it.sub,
-          { size:'10', fill:'#9aa0a6' }));
+          { size:'10', fill:'#7d7979' }));
         if(idx < grp.items.length - 1){
           const sep = document.createElementNS(NS, 'line');
           sep.setAttribute('x1', gx); sep.setAttribute('y1', itemY + 22);
           sep.setAttribute('x2', gx + groupW - 4); sep.setAttribute('y2', itemY + 22);
-          sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '0.5');
+          sep.setAttribute('stroke', '#e3e1e1'); sep.setAttribute('stroke-width', '0.5');
           sep.setAttribute('stroke-dasharray', '2,3');
           elements.push(sep);
         }
@@ -11717,25 +11730,25 @@ function exportStatsSectionPng(kind){
     if(heroItems.length){
       const colW = availW / heroItems.length;
       const heroH = 76;
-      elements.push(addRect(PAD_X, cursorY, availW, heroH, '#f6f6f4', '#e7e5e1'));
+      elements.push(addRect(PAD_X, cursorY, availW, heroH, '#f6f6f4', '#e3e1e1'));
       heroItems.forEach((h, i) => {
         const x = PAD_X + i * colW;
         if(i > 0){
           const sep = document.createElementNS(NS, 'line');
           sep.setAttribute('x1', x); sep.setAttribute('y1', cursorY + 12);
           sep.setAttribute('x2', x); sep.setAttribute('y2', cursorY + heroH - 12);
-          sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '1');
+          sep.setAttribute('stroke', '#e3e1e1'); sep.setAttribute('stroke-width', '1');
           elements.push(sep);
         }
         elements.push(addText(x + 16, cursorY + 22, h.label.toUpperCase(),
-          { size:'9.5', weight:'700', fill:'#6b7077', tracking:'0.4' }));
+          { size:'9.5', weight:'700', fill:'#605d5d', tracking:'0.4' }));
         const tone = h.tone === 'yes' ? VOTE_HEX.yes
                    : h.tone === 'no'  ? VOTE_HEX.no
-                   : h.tone === 'warn'? VOTE_HEX.warn : '#14181f';
+                   : h.tone === 'warn'? VOTE_HEX.warn : '#201e1d';
         elements.push(addText(x + 16, cursorY + 52, String(h.value),
           { font: TBL_PNG_FONTS.serifTitle, size:'22', weight:'700', fill: tone, tracking:'-0.5' }));
         elements.push(addText(x + 16, cursorY + 68, h.sub,
-          { size:'10', fill:'#6b7077' }));
+          { size:'10', fill:'#605d5d' }));
       });
       cursorY += heroH + 20;
     }
@@ -11748,11 +11761,11 @@ function exportStatsSectionPng(kind){
         const x = PAD_X + pi * (paneW + 24);
         let y = cursorY;
         elements.push(addText(x, y, pane.title.toUpperCase(),
-          { size:'10', weight:'700', fill:'#2f6f9f', tracking:'0.4' }));
+          { size:'10', weight:'700', fill:'#ec3013', tracking:'0.4' }));
         y += 18;
         if(!pane.items.length){
           elements.push(addText(x, y, 'Sin datos en este escenario.',
-            { size:'11', fill:'#9aa0a6', style:'italic' }));
+            { size:'11', fill:'#7d7979', style:'italic' }));
           y += 22;
         } else {
           pane.items.forEach(it => {
@@ -11763,9 +11776,9 @@ function exportStatsSectionPng(kind){
               labelX = x + 14;
             }
             elements.push(addText(labelX, y + 12, it.label,
-              { size:'11', weight:'600', fill:'#14181f', maxChars: Math.floor((paneW - 110) / 5.8) }));
+              { size:'11', weight:'600', fill:'#201e1d', maxChars: Math.floor((paneW - 110) / 5.8) }));
             elements.push(addText(labelX, y + 26, it.sub,
-              { size:'9.5', fill:'#9aa0a6' }));
+              { size:'9.5', fill:'#7d7979' }));
             // Mini-barra
             const barX = x + paneW - 100;
             const barW = 70;
@@ -11787,20 +11800,20 @@ function exportStatsSectionPng(kind){
 
       // Header de columna
       const headY = y + 12;
-      elements.push(addRect(PAD_X, y, availW, 26, '#ffffff', '#e7e5e1'));
+      elements.push(addRect(PAD_X, y, availW, 26, '#ffffff', '#e3e1e1'));
       elements.push(addText(PAD_X + 12, headY + 4, useFamilyDot ? 'BLOQUE / FAMILIA' : 'PROVINCIA',
-        { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4' }));
+        { size:'10', weight:'600', fill:'#605d5d', tracking:'0.4' }));
       elements.push(addText(PAD_X + Math.round(availW * 0.42), headY + 4, 'COMPOSICIÓN DEL VOTO',
-        { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4' }));
+        { size:'10', weight:'600', fill:'#605d5d', tracking:'0.4' }));
       if(useTerritoryFamilyChip){
         elements.push(addText(PAD_X + Math.round(availW * 0.78), headY + 4, 'FAMILIA PREDOMINANTE',
-          { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4' }));
+          { size:'10', weight:'600', fill:'#605d5d', tracking:'0.4' }));
       } else {
         elements.push(addText(PAD_X + Math.round(availW * 0.78), headY + 4, 'COHESIÓN',
-          { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4' }));
+          { size:'10', weight:'600', fill:'#605d5d', tracking:'0.4' }));
       }
       elements.push(addText(PAD_X + availW - 12, headY + 4, useTerritoryFamilyChip ? '% AFIRMATIVO' : '%',
-        { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4', anchor:'end' }));
+        { size:'10', weight:'600', fill:'#605d5d', tracking:'0.4', anchor:'end' }));
       y += 26;
 
       const labelColW = Math.round(availW * 0.40);
@@ -11819,9 +11832,9 @@ function exportStatsSectionPng(kind){
           labX = PAD_X + 28;
         }
         elements.push(addText(labX, y + 14, b.label,
-          { size:'11.5', weight:'600', fill:'#14181f', maxChars: Math.floor((labelColW - 30) / 6.0) }));
+          { size:'11.5', weight:'600', fill:'#201e1d', maxChars: Math.floor((labelColW - 30) / 6.0) }));
         elements.push(addText(labX, y + 26, b.total + (useFamilyDot ? ' legs' : ' bancas'),
-          { size:'9.5', fill:'#9aa0a6' }));
+          { size:'9.5', fill:'#7d7979' }));
 
         // Mini-barra de composición
         const barX = PAD_X + labelColW + 8;
@@ -11831,10 +11844,10 @@ function exportStatsSectionPng(kind){
         // Aux col: cohesión o familia predominante
         const auxX = PAD_X + labelColW + barColW + 12;
         if(useTerritoryFamilyChip){
-          elements.push(addCircle(auxX + 5, y + rowH/2, 4, b.dominantFamilyColor || '#a09b8c'));
+          elements.push(addCircle(auxX + 5, y + rowH/2, 4, b.dominantFamilyColor || '#cfcccc'));
           const famText = b.dominantFamily || 'No consignado';
           elements.push(addText(auxX + 14, y + 18, famText,
-            { size:'10.5', weight:'600', fill: b.dominantFamily ? '#14181f' : '#9aa0a6',
+            { size:'10.5', weight:'600', fill: b.dominantFamily ? '#201e1d' : '#7d7979',
               style: b.dominantFamily ? 'normal' : 'italic',
               maxChars: Math.floor((auxColW - 20) / 6) }));
         } else {
@@ -11843,7 +11856,7 @@ function exportStatsSectionPng(kind){
             { font: TBL_PNG_FONTS.serifTitle, size:'14', weight:'700', fill: cohesionTone, tracking:'-0.3' }));
           const dominantLabel = b.dominantVote ? (VOTE_LABELS_CSV[b.dominantVote] || '').toLowerCase() : '';
           elements.push(addText(auxX, y + 30, dominantLabel,
-            { size:'9.5', fill:'#9aa0a6', style:'italic' }));
+            { size:'9.5', fill:'#7d7979', style:'italic' }));
         }
 
         // Última columna: cifra grande a la derecha
@@ -11864,7 +11877,7 @@ function exportStatsSectionPng(kind){
         }
         y += rowH;
       });
-      elements.push(addRect(PAD_X, cursorY + 26, availW, y - (cursorY + 26), 'none', '#e7e5e1'));
+      elements.push(addRect(PAD_X, cursorY + 26, availW, y - (cursorY + 26), 'none', '#e3e1e1'));
       cursorY = y + 8;
     }
   }
@@ -11876,15 +11889,15 @@ function exportStatsSectionPng(kind){
     const headerH = 50;
 
     // Header
-    elements.push(addRect(PAD_X, cursorY, availW, headerH, '#ffffff', '#e7e5e1'));
+    elements.push(addRect(PAD_X, cursorY, availW, headerH, '#ffffff', '#e3e1e1'));
     elements.push(addText(PAD_X + 14, cursorY + 30, 'INDICADOR',
-      { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4' }));
+      { size:'10', weight:'600', fill:'#605d5d', tracking:'0.4' }));
     spec.scenarios.forEach((sc, i) => {
       const x = PAD_X + labelColW + i * scenColW;
       elements.push(addText(x + scenColW/2, cursorY + 20, sc.caseName.split(' ')[0] + ' · ' + sc.chamberShort,
-        { font: TBL_PNG_FONTS.serifTitle, size:'13', weight:'700', fill:'#14181f', anchor:'middle', tracking:'-0.3' }));
+        { font: TBL_PNG_FONTS.serifTitle, size:'13', weight:'700', fill:'#201e1d', anchor:'middle', tracking:'-0.3' }));
       elements.push(addText(x + scenColW/2, cursorY + 38, sc.date,
-        { size:'10', fill:'#9aa0a6', anchor:'middle' }));
+        { size:'10', fill:'#7d7979', anchor:'middle' }));
     });
     cursorY += headerH;
 
@@ -11896,26 +11909,26 @@ function exportStatsSectionPng(kind){
       // Group header
       elements.push(addRect(PAD_X, cursorY, availW, groupHeaderH, '#ffffff'));
       elements.push(addText(PAD_X + 14, cursorY + 18, grp.title.toUpperCase(),
-        { size:'10', weight:'700', fill:'#2f6f9f', tracking:'0.4' }));
+        { size:'10', weight:'700', fill:'#ec3013', tracking:'0.4' }));
       cursorY += groupHeaderH;
       totalBlockH += groupHeaderH;
 
       grp.metrics.forEach((m, mi) => {
         if(mi % 2 === 0) elements.push(addRect(PAD_X, cursorY, availW, rowH, '#f6f6f4'));
         elements.push(addText(PAD_X + 14, cursorY + 19, m.label,
-          { size:'11.5', weight:'600', fill:'#14181f' }));
+          { size:'11.5', weight:'600', fill:'#201e1d' }));
         if(m.sub){
           elements.push(addText(PAD_X + 14, cursorY + 28, m.sub.toLowerCase(),
-            { size:'9.5', fill:'#9aa0a6', style:'italic' }));
+            { size:'9.5', fill:'#7d7979', style:'italic' }));
         }
         spec.scenarios.forEach((sc, i) => {
           const x = PAD_X + labelColW + i * scenColW;
           let raw = m.get(sc);
-          let tone = '#14181f';
+          let tone = '#201e1d';
           if(m.tone === 'yes') tone = VOTE_HEX.yes;
           else if(m.tone === 'no') tone = VOTE_HEX.no;
           else if(m.tone === 'result'){
-            tone = sc.result === 'AFIRMATIVO' ? VOTE_HEX.yes : (sc.result === 'NEGATIVO' ? VOTE_HEX.no : '#14181f');
+            tone = sc.result === 'AFIRMATIVO' ? VOTE_HEX.yes : (sc.result === 'NEGATIVO' ? VOTE_HEX.no : '#201e1d');
           }
           elements.push(addText(x + scenColW/2, cursorY + 20, String(raw),
             { font: TBL_PNG_FONTS.serifTitle, size:'15', weight:'700', fill: tone, anchor:'middle', tracking:'-0.3' }));
@@ -11924,7 +11937,7 @@ function exportStatsSectionPng(kind){
         totalBlockH += rowH;
       });
     });
-    elements.push(addRect(PAD_X, cursorY - totalBlockH, availW, totalBlockH, 'none', '#e7e5e1'));
+    elements.push(addRect(PAD_X, cursorY - totalBlockH, availW, totalBlockH, 'none', '#e3e1e1'));
     cursorY += 8;
   }
 
@@ -11939,16 +11952,16 @@ function exportStatsSectionPng(kind){
       const row = Math.floor(bi / cols);
       const x = PAD_X + col * (cellW + 24);
       const y = cursorY + row * (cellH + 16);
-      elements.push(addRect(x, y, cellW, cellH, '#f6f6f4', '#e7e5e1'));
+      elements.push(addRect(x, y, cellW, cellH, '#f6f6f4', '#e3e1e1'));
       // Title
       elements.push(addText(x + 16, y + 24, blk.title,
-        { font: TBL_PNG_FONTS.serifTitle, size:'14', weight:'700', fill:'#14181f', tracking:'-0.3' }));
+        { font: TBL_PNG_FONTS.serifTitle, size:'14', weight:'700', fill:'#201e1d', tracking:'-0.3' }));
       // Deltas
       blk.deltas.forEach((d, di) => {
         const ly = y + 50 + di * 24;
         elements.push(addText(x + 16, ly, d.label,
-          { size:'11', fill:'#2c3543' }));
-        const tone = Math.abs(d.value) < 0.05 ? '#9aa0a6' : (d.value > 0 ? VOTE_HEX.yes : VOTE_HEX.no);
+          { size:'11', fill:'#444141' }));
+        const tone = Math.abs(d.value) < 0.05 ? '#7d7979' : (d.value > 0 ? VOTE_HEX.yes : VOTE_HEX.no);
         const sgnText = sgn(d.value) + ' ' + d.unit;
         elements.push(addText(x + cellW - 16, ly, sgnText,
           { font: TBL_PNG_FONTS.serifTitle, size:'14', weight:'700', fill: tone, anchor:'end', tracking:'-0.3' }));
@@ -11962,19 +11975,19 @@ function exportStatsSectionPng(kind){
     const rowH = 70;
     spec.ranks.forEach((rk, ri) => {
       const y = cursorY + ri * (rowH + 10);
-      elements.push(addRect(PAD_X, y, availW, rowH, '#f6f6f4', '#e7e5e1'));
+      elements.push(addRect(PAD_X, y, availW, rowH, '#f6f6f4', '#e3e1e1'));
       // Tick gold left
-      elements.push(addRect(PAD_X, y, 4, rowH, '#2f6f9f'));
+      elements.push(addRect(PAD_X, y, 4, rowH, '#ec3013'));
       elements.push(addText(PAD_X + 20, y + 22, rk.label.toUpperCase(),
-        { size:'10', weight:'700', fill:'#2f6f9f', tracking:'0.4' }));
+        { size:'10', weight:'700', fill:'#ec3013', tracking:'0.4' }));
       elements.push(addText(PAD_X + 20, y + 48, rk.winner,
-        { font: TBL_PNG_FONTS.serifTitle, size:'18', weight:'700', fill:'#14181f', tracking:'-0.4' }));
+        { font: TBL_PNG_FONTS.serifTitle, size:'18', weight:'700', fill:'#201e1d', tracking:'-0.4' }));
       elements.push(addText(PAD_X + 20, y + 64, rk.base.toLowerCase(),
-        { size:'10.5', fill:'#9aa0a6', style:'italic' }));
+        { size:'10.5', fill:'#7d7979', style:'italic' }));
       // Valor a la derecha
       const tone = rk.tone === 'yes' ? VOTE_HEX.yes
                  : rk.tone === 'no'  ? VOTE_HEX.no
-                 : rk.tone === 'warn'? VOTE_HEX.warn : '#14181f';
+                 : rk.tone === 'warn'? VOTE_HEX.warn : '#201e1d';
       elements.push(addText(PAD_X + availW - 20, y + 46, rk.value,
         { font: TBL_PNG_FONTS.serifTitle, size:'26', weight:'700', fill: tone, anchor:'end', tracking:'-0.8' }));
     });
@@ -11995,12 +12008,12 @@ function exportStatsSectionPng(kind){
     if(spec.pngLimit && rowsToRender.length > spec.pngLimit) rowsToRender = rowsToRender.slice(0, spec.pngLimit);
 
     // Header de la tabla
-    elements.push(addRect(PAD_X, cursorY, availW, headerH, '#ffffff', '#e7e5e1'));
+    elements.push(addRect(PAD_X, cursorY, availW, headerH, '#ffffff', '#e3e1e1'));
     cols.forEach((c, i) => {
       const align = c.align || 'left';
       const tx = align === 'right' ? colXs[i] + colWs[i] - 10 : colXs[i] + 12;
       const t = addText(tx, cursorY + 18, (c.label || c.key).toUpperCase(),
-        { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4', anchor: align === 'right' ? 'end' : undefined });
+        { size:'10', weight:'600', fill:'#605d5d', tracking:'0.4', anchor: align === 'right' ? 'end' : undefined });
       elements.push(t);
     });
     cursorY += headerH;
@@ -12014,9 +12027,9 @@ function exportStatsSectionPng(kind){
         const raw = String(row[c.key] != null ? row[c.key] : '—');
         const maxChars = Math.floor((colWs[i] - 24) / 5.8);
         const txt = raw.length > maxChars ? raw.slice(0, maxChars - 1) + '…' : raw;
-        let fill = '#14181f';
+        let fill = '#201e1d';
         // tint cromática para valores Rice/Rae con "No calculable"
-        if(/^No calc/i.test(raw)) fill = '#9aa0a6';
+        if(/^No calc/i.test(raw)) fill = '#7d7979';
         elements.push(addText(tx, cursorY + 19, txt, {
           size: align === 'right' ? '12' : '11.5',
           weight: align === 'right' ? '700' : '500',
@@ -12037,11 +12050,11 @@ function exportStatsSectionPng(kind){
     });
     // Borde envolvente
     const tblTop = cursorY - rowsToRender.length * rowH - headerH;
-    elements.push(addRect(PAD_X, tblTop, availW, headerH + rowsToRender.length * rowH, 'none', '#e7e5e1'));
+    elements.push(addRect(PAD_X, tblTop, availW, headerH + rowsToRender.length * rowH, 'none', '#e3e1e1'));
     if(spec.pngLimit && spec.rows.length > spec.pngLimit){
       cursorY += 8;
       elements.push(addText(PAD_X, cursorY + 10, `Se muestran ${spec.pngLimit} filas de ${spec.rows.length}. El CSV trae todas.`,
-        { size:'10', fill:'#9aa0a6', style:'italic' }));
+        { size:'10', fill:'#7d7979', style:'italic' }));
       cursorY += 16;
     }
   }
@@ -12049,18 +12062,18 @@ function exportStatsSectionPng(kind){
   else if(spec.layout === 'two-pane-bars-rice'){
     // Rice por familia/bloque + KPI Rae
     const heroH = 76;
-    elements.push(addRect(PAD_X, cursorY, availW, heroH, '#f6f6f4', '#e7e5e1'));
+    elements.push(addRect(PAD_X, cursorY, availW, heroH, '#f6f6f4', '#e3e1e1'));
     const raeStr = spec.raeComputable ? spec.raeValue.toFixed(3) : 'No calculable';
-    const raeTone = !spec.raeComputable ? '#9aa0a6'
+    const raeTone = !spec.raeComputable ? '#7d7979'
                     : spec.raeValue < 0.30 ? VOTE_HEX.yes
                     : spec.raeValue > 0.55 ? VOTE_HEX.warn
-                    : '#14181f';
+                    : '#201e1d';
     elements.push(addText(PAD_X + 20, cursorY + 22, 'ÍNDICE DE RAE — FRAGMENTACIÓN DEL VOTO EMITIDO',
-      { size:'9.5', weight:'700', fill:'#6b7077', tracking:'0.4' }));
+      { size:'9.5', weight:'700', fill:'#605d5d', tracking:'0.4' }));
     elements.push(addText(PAD_X + 20, cursorY + 56, raeStr,
       { font: TBL_PNG_FONTS.serifTitle, size:'30', weight:'700', fill: raeTone, tracking:'-0.8' }));
     elements.push(addText(PAD_X + 220, cursorY + 56, spec.raeComputable ? `${spec.raeDenom} votos emitidos · base afi + neg + abst` : '—',
-      { size:'11', fill:'#6b7077' }));
+      { size:'11', fill:'#605d5d' }));
     cursorY += heroH + 20;
 
     const paneW = (availW - 24) / 2;
@@ -12068,19 +12081,19 @@ function exportStatsSectionPng(kind){
     const drawRicePane = (title, items, isBlock, x) => {
       let y = cursorY;
       elements.push(addText(x, y, title.toUpperCase(),
-        { size:'10', weight:'700', fill:'#2f6f9f', tracking:'0.4' }));
+        { size:'10', weight:'700', fill:'#ec3013', tracking:'0.4' }));
       y += 18;
       if(!items.length){
         elements.push(addText(x, y, 'Sin grupos con afi/neg suficientes para calcular Rice.',
-          { size:'11', fill:'#9aa0a6', style:'italic' }));
+          { size:'11', fill:'#7d7979', style:'italic' }));
         y += 22;
       } else {
         items.forEach(it => {
           elements.push(addCircle(x + 4, y + 8, 4, getColorByFamily(isBlock ? it.family : it.family)));
           elements.push(addText(x + 14, y + 12, isBlock ? it.block : it.family,
-            { size:'11', weight:'600', fill:'#14181f', maxChars: Math.floor((paneW - 110) / 5.8) }));
+            { size:'11', weight:'600', fill:'#201e1d', maxChars: Math.floor((paneW - 110) / 5.8) }));
           elements.push(addText(x + 14, y + 26, `n=${it.total}`,
-            { size:'9.5', fill:'#9aa0a6' }));
+            { size:'9.5', fill:'#7d7979' }));
           const barX = x + paneW - 100;
           const barW = 70;
           elements.push(addRect(barX, y + 16, barW, 5, '#ededeb'));
@@ -12102,24 +12115,24 @@ function exportStatsSectionPng(kind){
     const barH = 60;
     spec.raeBars.forEach((b, i) => {
       const y = cursorY + i * (barH + 12);
-      elements.push(addRect(PAD_X, y, availW, barH, '#f6f6f4', '#e7e5e1'));
+      elements.push(addRect(PAD_X, y, availW, barH, '#f6f6f4', '#e3e1e1'));
       elements.push(addText(PAD_X + 20, y + 22, b.label,
-        { font: TBL_PNG_FONTS.serifTitle, size:'16', weight:'700', fill:'#14181f', tracking:'-0.4' }));
+        { font: TBL_PNG_FONTS.serifTitle, size:'16', weight:'700', fill:'#201e1d', tracking:'-0.4' }));
       elements.push(addText(PAD_X + 20, y + 42, b.sub,
-        { size:'10.5', fill:'#9aa0a6', style:'italic' }));
+        { size:'10.5', fill:'#7d7979', style:'italic' }));
       // Barra de Rae (max teórico ~0.667 con 3 categorías; escalado a 0-1)
       if(b.computable){
         const barX = PAD_X + 360;
         const barW = availW - 360 - 120;
         elements.push(addRect(barX, y + barH/2 - 4, barW, 8, '#ededeb'));
         elements.push(addRect(barX, y + barH/2 - 4, barW * (b.value / 0.667), 8,
-          b.value < 0.30 ? VOTE_HEX.yes : b.value > 0.55 ? VOTE_HEX.warn : '#14181f'));
+          b.value < 0.30 ? VOTE_HEX.yes : b.value > 0.55 ? VOTE_HEX.warn : '#201e1d'));
         elements.push(addText(PAD_X + availW - 20, y + 36, b.value.toFixed(3),
           { font: TBL_PNG_FONTS.serifTitle, size:'22', weight:'700', anchor:'end', tracking:'-0.6',
-            fill: b.value < 0.30 ? VOTE_HEX.yes : b.value > 0.55 ? VOTE_HEX.warn : '#14181f' }));
+            fill: b.value < 0.30 ? VOTE_HEX.yes : b.value > 0.55 ? VOTE_HEX.warn : '#201e1d' }));
       } else {
         elements.push(addText(PAD_X + availW - 20, y + 36, 'No calculable',
-          { size:'12', fill:'#9aa0a6', anchor:'end', style:'italic' }));
+          { size:'12', fill:'#7d7979', anchor:'end', style:'italic' }));
       }
     });
     cursorY += spec.raeBars.length * (barH + 12);
@@ -12134,19 +12147,19 @@ function exportStatsSectionPng(kind){
     const headerH = 50;
 
     // Header
-    elements.push(addRect(PAD_X, cursorY, availW, headerH, '#ffffff', '#e7e5e1'));
+    elements.push(addRect(PAD_X, cursorY, availW, headerH, '#ffffff', '#e3e1e1'));
     elements.push(addText(PAD_X + 14, cursorY + 30, isProvince ? 'PROVINCIA' : 'FAMILIA POLÍTICA',
-      { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4' }));
+      { size:'10', weight:'600', fill:'#605d5d', tracking:'0.4' }));
     spec.scenarios.forEach((sc, i) => {
       const x = PAD_X + labelColW + i * scenColW;
       elements.push(addText(x + scenColW/2, cursorY + 20, sc.caseName.split(' ')[0] + ' · ' + sc.chamberShort,
-        { font: TBL_PNG_FONTS.serifTitle, size:'12.5', weight:'700', fill:'#14181f', anchor:'middle', tracking:'-0.3' }));
+        { font: TBL_PNG_FONTS.serifTitle, size:'12.5', weight:'700', fill:'#201e1d', anchor:'middle', tracking:'-0.3' }));
       elements.push(addText(x + scenColW/2, cursorY + 36, sc.date,
-        { size:'9.5', fill:'#9aa0a6', anchor:'middle' }));
+        { size:'9.5', fill:'#7d7979', anchor:'middle' }));
     });
     if(isProvince){
       elements.push(addText(PAD_X + availW - tagColW/2, cursorY + 30, 'PATRÓN',
-        { size:'10', weight:'600', fill:'#6b7077', tracking:'0.4', anchor:'middle' }));
+        { size:'10', weight:'600', fill:'#605d5d', tracking:'0.4', anchor:'middle' }));
     }
     cursorY += headerH;
 
@@ -12157,10 +12170,10 @@ function exportStatsSectionPng(kind){
       if(!isProvince){
         elements.push(addCircle(PAD_X + 16, cursorY + rowH/2, 5, wr.color));
         elements.push(addText(PAD_X + 30, cursorY + rowH/2 + 4, wr.family,
-          { size:'11.5', weight:'600', fill:'#14181f', maxChars: Math.floor((labelColW - 40) / 6.2) }));
+          { size:'11.5', weight:'600', fill:'#201e1d', maxChars: Math.floor((labelColW - 40) / 6.2) }));
       } else {
         elements.push(addText(PAD_X + 14, cursorY + rowH/2 + 4, wr.province,
-          { size:'11.5', weight:'600', fill:'#14181f', maxChars: Math.floor((labelColW - 20) / 6.2) }));
+          { size:'11.5', weight:'600', fill:'#201e1d', maxChars: Math.floor((labelColW - 20) / 6.2) }));
       }
       // Celdas por escenario
       spec.scenarios.forEach((sc, i) => {
@@ -12168,30 +12181,30 @@ function exportStatsSectionPng(kind){
         const cell = wr.cells[sc.id];
         if(!cell || !cell.total){
           elements.push(addText(x + scenColW/2, cursorY + rowH/2 + 4, '—',
-            { size:'12', fill:'#9aa0a6', anchor:'middle', style:'italic' }));
+            { size:'12', fill:'#7d7979', anchor:'middle', style:'italic' }));
           return;
         }
         // Bg cromático
         if(spec.cellMode === 'family'){
-          const bg = heatBg('#3f6e44', cell.pctYesPresent);
+          const bg = heatBg('#ec3013', cell.pctYesPresent);
           elements.push(addRect(x, cursorY, scenColW, rowH, bg));
           // Valor principal: % Afi
           elements.push(addText(x + scenColW/2, cursorY + 20, fmt(cell.pctYesPresent) + '%',
-            { font: TBL_PNG_FONTS.serifTitle, size:'14', weight:'700', fill:'#14181f', anchor:'middle', tracking:'-0.3' }));
+            { font: TBL_PNG_FONTS.serifTitle, size:'14', weight:'700', fill:'#201e1d', anchor:'middle', tracking:'-0.3' }));
           elements.push(addText(x + scenColW/2, cursorY + 35, `${cell.total} legs · coh. ${fmt(cell.cohesion)}%`,
-            { size:'9.5', fill:'#6b7077', anchor:'middle' }));
+            { size:'9.5', fill:'#605d5d', anchor:'middle' }));
         } else {
           // provincia
           const dom = cell.dominantVote;
-          const baseHex = dom === 'AFIRMATIVO' ? '#3f6e44' : (dom === 'NEGATIVO' ? '#a32a2a' : '#a87523');
+          const baseHex = dom === 'AFIRMATIVO' ? '#ec3013' : (dom === 'NEGATIVO' ? '#444141' : '#a8a4a4');
           const intensity = dom === 'AFIRMATIVO' ? cell.pctYes : (dom === 'NEGATIVO' ? cell.pctNo : 50);
           const bg = heatBg(baseHex, intensity);
           elements.push(addRect(x, cursorY, scenColW, rowH, bg));
           const dominantLabel = cell.isMixed ? 'mixta' : (VOTE_LABELS_CSV[dom] || '—').toLowerCase();
           elements.push(addText(x + scenColW/2, cursorY + 20, fmt(cell.pctYes) + '%',
-            { font: TBL_PNG_FONTS.serifTitle, size:'14', weight:'700', fill:'#14181f', anchor:'middle', tracking:'-0.3' }));
+            { font: TBL_PNG_FONTS.serifTitle, size:'14', weight:'700', fill:'#201e1d', anchor:'middle', tracking:'-0.3' }));
           elements.push(addText(x + scenColW/2, cursorY + 35, `${dominantLabel} · ${cell.total} reps`,
-            { size:'9.5', fill:'#6b7077', anchor:'middle' }));
+            { size:'9.5', fill:'#605d5d', anchor:'middle' }));
         }
       });
       // Tag de patrón (provincias)
@@ -12199,12 +12212,12 @@ function exportStatsSectionPng(kind){
         const tagX = PAD_X + availW - tagColW + 10;
         const tagW = tagColW - 20;
         const tagY = cursorY + rowH/2 - 11;
-        const tagBg = wr.patternTone === 'yes'  ? '#e0eadc'
-                    : wr.patternTone === 'no'   ? '#f4dada'
-                    : wr.patternTone === 'warn' ? '#f3e8c9' : '#ede9dd';
+        const tagBg = wr.patternTone === 'yes'  ? '#f9ded7'
+                    : wr.patternTone === 'no'   ? '#e3e1e1'
+                    : wr.patternTone === 'warn' ? '#eae7e7' : '#eeecec';
         const tagFg = wr.patternTone === 'yes'  ? VOTE_HEX.yes
                     : wr.patternTone === 'no'   ? VOTE_HEX.no
-                    : wr.patternTone === 'warn' ? VOTE_HEX.warn : '#2c3543';
+                    : wr.patternTone === 'warn' ? VOTE_HEX.warn : '#444141';
         const rect = addRect(tagX, tagY, tagW, 22, tagBg);
         rect.setAttribute('rx', '4');
         elements.push(rect);
@@ -12414,7 +12427,7 @@ function exportStatsPng(){
   headBg.setAttribute('x', PAD_X); headBg.setAttribute('y', tableTop);
   headBg.setAttribute('width', totalW - 2*PAD_X); headBg.setAttribute('height', headerH);
   headBg.setAttribute('fill', '#ffffff');
-  headBg.setAttribute('stroke', '#e7e5e1'); headBg.setAttribute('stroke-width', '1');
+  headBg.setAttribute('stroke', '#e3e1e1'); headBg.setAttribute('stroke-width', '1');
   elements.push(headBg);
   ['INDICADOR', 'VALOR', 'DETALLE'].forEach((lbl, i) => {
     const t = document.createElementNS(NS, 'text');
@@ -12422,7 +12435,7 @@ function exportStatsPng(){
     t.setAttribute('x', tx); t.setAttribute('y', tableTop + 18);
     t.setAttribute('font-family', TBL_PNG_FONTS.sans);
     t.setAttribute('font-size', '10'); t.setAttribute('font-weight', '700');
-    t.setAttribute('fill', '#6b7077'); t.setAttribute('letter-spacing', '0.4');
+    t.setAttribute('fill', '#605d5d'); t.setAttribute('letter-spacing', '0.4');
     if(i === 1) t.setAttribute('text-anchor', 'end');
     t.textContent = lbl;
     elements.push(t);
@@ -12442,7 +12455,7 @@ function exportStatsPng(){
     lab.setAttribute('x', colXs[0] + 12); lab.setAttribute('y', ry + 19);
     lab.setAttribute('font-family', TBL_PNG_FONTS.sans);
     lab.setAttribute('font-size', '11.5'); lab.setAttribute('font-weight', '600');
-    lab.setAttribute('fill', '#14181f');
+    lab.setAttribute('fill', '#201e1d');
     lab.textContent = r.label;
     elements.push(lab);
     // Value
@@ -12451,14 +12464,14 @@ function exportStatsPng(){
     val.setAttribute('text-anchor', 'end');
     val.setAttribute('font-family', TBL_PNG_FONTS.sans);
     val.setAttribute('font-size', '12'); val.setAttribute('font-weight', '700');
-    val.setAttribute('fill', '#14181f');
+    val.setAttribute('fill', '#201e1d');
     val.textContent = String(r.value);
     elements.push(val);
     // Detail
     const det = document.createElementNS(NS, 'text');
     det.setAttribute('x', colXs[2] + 14); det.setAttribute('y', ry + 19);
     det.setAttribute('font-family', TBL_PNG_FONTS.sans);
-    det.setAttribute('font-size', '10.5'); det.setAttribute('fill', '#6b7077');
+    det.setAttribute('font-size', '10.5'); det.setAttribute('fill', '#605d5d');
     det.setAttribute('font-style', 'italic');
     const maxChars = Math.floor((colWs[2] - 24) / 5.6);
     const dt = String(r.detail || '');
@@ -12480,7 +12493,7 @@ function exportStatsPng(){
   tableBorder.setAttribute('width', totalW - 2*PAD_X);
   tableBorder.setAttribute('height', headerH + rows.length * rowH);
   tableBorder.setAttribute('fill', 'none');
-  tableBorder.setAttribute('stroke', '#e7e5e1'); tableBorder.setAttribute('stroke-width', '1');
+  tableBorder.setAttribute('stroke', '#e3e1e1'); tableBorder.setAttribute('stroke-width', '1');
   elements.push(tableBorder);
 
   const footerStartY = tableBottomY + 18;
@@ -12548,7 +12561,7 @@ function exportComparatorPng(){
   headBg.setAttribute('x', PAD_X); headBg.setAttribute('y', tableTop);
   headBg.setAttribute('width', totalW - 2*PAD_X); headBg.setAttribute('height', headerH * 1.4);
   headBg.setAttribute('fill', '#ffffff');
-  headBg.setAttribute('stroke', '#e7e5e1'); headBg.setAttribute('stroke-width', '1');
+  headBg.setAttribute('stroke', '#e3e1e1'); headBg.setAttribute('stroke-width', '1');
   elements.push(headBg);
   cols.forEach(c => {
     const t = document.createElementNS(NS, 'text');
@@ -12556,7 +12569,7 @@ function exportComparatorPng(){
     t.setAttribute('x', tx); t.setAttribute('y', tableTop + 17);
     t.setAttribute('font-family', TBL_PNG_FONTS.sans);
     t.setAttribute('font-size', '10'); t.setAttribute('font-weight', '700');
-    t.setAttribute('fill', '#6b7077'); t.setAttribute('letter-spacing', '0.4');
+    t.setAttribute('fill', '#605d5d'); t.setAttribute('letter-spacing', '0.4');
     if(c.align === 'right') t.setAttribute('text-anchor', 'end');
     t.textContent = c.label;
     elements.push(t);
@@ -12565,7 +12578,7 @@ function exportComparatorPng(){
       tsub.setAttribute('x', tx); tsub.setAttribute('y', tableTop + 34);
       tsub.setAttribute('font-family', TBL_PNG_FONTS.sans);
       tsub.setAttribute('font-size', '9.5'); tsub.setAttribute('font-weight', '600');
-      tsub.setAttribute('fill', '#9aa0a6');
+      tsub.setAttribute('fill', '#7d7979');
       if(c.align === 'right') tsub.setAttribute('text-anchor', 'end');
       tsub.textContent = c.sub;
       elements.push(tsub);
@@ -12576,13 +12589,13 @@ function exportComparatorPng(){
   const metrics = [
     { label: 'Bancas',              get: s => s.totalSeats },
     { label: 'Presentes',           get: s => s.present },
-    { label: 'Afirmativos',         get: s => s.AFIRMATIVO, color: '#3f6e44' },
-    { label: 'Negativos',           get: s => s.NEGATIVO, color: '#a32a2a' },
+    { label: 'Afirmativos',         get: s => s.AFIRMATIVO, color: '#ec3013' },
+    { label: 'Negativos',           get: s => s.NEGATIVO, color: '#444141' },
     { label: 'Abstenciones',        get: s => s.ABSTENCION },
     { label: 'Ausentes',            get: s => s.AUSENTE },
     { label: 'Margen (a−n)',        get: s => (s.margin >= 0 ? '+' + s.margin : s.margin) },
-    { label: '% Afirmativo · pres.',get: s => fmt(s.pctYesPresent) + '%', color: '#3f6e44' },
-    { label: '% Negativo · pres.',  get: s => fmt(s.pctNoPresent) + '%', color: '#a32a2a' },
+    { label: '% Afirmativo · pres.',get: s => fmt(s.pctYesPresent) + '%', color: '#ec3013' },
+    { label: '% Negativo · pres.',  get: s => fmt(s.pctNoPresent) + '%', color: '#444141' },
     { label: 'Tasa de ausencia',    get: s => fmt(s.absenceRate) + '%' },
     { label: '% Apoyo · cuerpo',    get: s => fmt(s.pctYesOfTotal) + '%' },
     { label: 'Resultado',           get: s => s.result || '—', color: 'result' }
@@ -12602,7 +12615,7 @@ function exportComparatorPng(){
     lab.setAttribute('x', PAD_X + 12); lab.setAttribute('y', ry + 20);
     lab.setAttribute('font-family', TBL_PNG_FONTS.sans);
     lab.setAttribute('font-size', '11.5'); lab.setAttribute('font-weight', '600');
-    lab.setAttribute('fill', '#14181f');
+    lab.setAttribute('fill', '#201e1d');
     lab.textContent = m.label;
     elements.push(lab);
     // Valores por escenario
@@ -12614,9 +12627,9 @@ function exportComparatorPng(){
       t.setAttribute('text-anchor', 'end');
       t.setAttribute('font-family', TBL_PNG_FONTS.sans);
       t.setAttribute('font-size', '12'); t.setAttribute('font-weight', '600');
-      let fill = '#14181f';
+      let fill = '#201e1d';
       if(m.color === 'result'){
-        fill = s.result === 'AFIRMATIVO' ? '#3f6e44' : (s.result === 'NEGATIVO' ? '#a32a2a' : '#14181f');
+        fill = s.result === 'AFIRMATIVO' ? '#ec3013' : (s.result === 'NEGATIVO' ? '#444141' : '#201e1d');
         t.setAttribute('font-weight', '700');
       } else if(m.color){
         fill = m.color;
@@ -12641,7 +12654,7 @@ function exportComparatorPng(){
   border.setAttribute('width', totalW - 2*PAD_X);
   border.setAttribute('height', headerH * 1.4 + metrics.length * rowH);
   border.setAttribute('fill', 'none');
-  border.setAttribute('stroke', '#e7e5e1'); border.setAttribute('stroke-width', '1');
+  border.setAttribute('stroke', '#e3e1e1'); border.setAttribute('stroke-width', '1');
   elements.push(border);
 
   // Footer común — uso el escenario activo solo para las fuentes; aclaro alcance comparativo
@@ -12652,15 +12665,15 @@ function exportComparatorPng(){
   const sep = document.createElementNS(NSf, 'line');
   sep.setAttribute('x1', PAD_X); sep.setAttribute('y1', footerStartY);
   sep.setAttribute('x2', totalW - PAD_X); sep.setAttribute('y2', footerStartY);
-  sep.setAttribute('stroke', '#e7e5e1'); sep.setAttribute('stroke-width', '1');
+  sep.setAttribute('stroke', '#e3e1e1'); sep.setAttribute('stroke-width', '1');
   fEls.push(sep);
   const fuenteLine = document.createElementNS(NSf, 'text');
   fuenteLine.setAttribute('x', PAD_X); fuenteLine.setAttribute('y', footerStartY + 22);
   fuenteLine.setAttribute('font-family', TBL_PNG_FONTS.sans);
-  fuenteLine.setAttribute('font-size', '11.5'); fuenteLine.setAttribute('fill', '#2c3543');
+  fuenteLine.setAttribute('font-size', '11.5'); fuenteLine.setAttribute('fill', '#444141');
   const k = document.createElementNS(NSf, 'tspan');
   k.setAttribute('font-size', '9.5'); k.setAttribute('font-weight', '700');
-  k.setAttribute('fill', '#6b7077'); k.setAttribute('letter-spacing', '0.4');
+  k.setAttribute('fill', '#605d5d'); k.setAttribute('letter-spacing', '0.4');
   k.textContent = 'FUENTE  ';
   fuenteLine.appendChild(k);
   fuenteLine.appendChild(document.createTextNode(sourcesNote));
@@ -12668,10 +12681,10 @@ function exportComparatorPng(){
   const notaLine = document.createElementNS(NSf, 'text');
   notaLine.setAttribute('x', PAD_X); notaLine.setAttribute('y', footerStartY + 22 + 18);
   notaLine.setAttribute('font-family', TBL_PNG_FONTS.sans);
-  notaLine.setAttribute('font-size', '11.5'); notaLine.setAttribute('fill', '#2c3543');
+  notaLine.setAttribute('font-size', '11.5'); notaLine.setAttribute('fill', '#444141');
   const k2 = document.createElementNS(NSf, 'tspan');
   k2.setAttribute('font-size', '9.5'); k2.setAttribute('font-weight', '700');
-  k2.setAttribute('fill', '#6b7077'); k2.setAttribute('letter-spacing', '0.4');
+  k2.setAttribute('fill', '#605d5d'); k2.setAttribute('letter-spacing', '0.4');
   k2.textContent = 'NOTA  ';
   notaLine.appendChild(k2);
   notaLine.appendChild(document.createTextNode('Comparar Diputados y Senado considerando que el principio de representación es distinto: población vs. 3 por jurisdicción. Porcentajes sobre presentes salvo la tasa de ausencia (sobre cuerpo).'));
@@ -12681,7 +12694,7 @@ function exportComparatorPng(){
   credit.setAttribute('x', PAD_X); credit.setAttribute('y', creditY);
   credit.setAttribute('font-family', TBL_PNG_FONTS.sans);
   credit.setAttribute('font-size', '9'); credit.setAttribute('font-weight', '600');
-  credit.setAttribute('fill', '#9aa0a6'); credit.setAttribute('letter-spacing', '0.4');
+  credit.setAttribute('fill', '#7d7979'); credit.setAttribute('letter-spacing', '0.4');
   credit.textContent = 'ELABORACIÓN PROPIA A PARTIR DE FUENTES LEGISLATIVAS OFICIALES.';
   fEls.push(credit);
   const totalH = creditY + 16;
